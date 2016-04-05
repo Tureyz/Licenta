@@ -1,0 +1,11 @@
+﻿  InitGLEW.cpp
+  InitGLUT.cpp
+  main.cpp
+  ModelManager.cpp
+  SceneManager.cpp
+  ShaderManager.cpp
+  Cube.cpp
+  Model.cpp
+  Quad.cpp
+  Triangle.cpp
+LINK : fatal error LNK1104: cannot open file 'freeglut.lib'
