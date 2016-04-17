@@ -13,12 +13,15 @@ namespace Core
 
 		static void printToScreen(glm::vec2 pos, std::string str)
 		{
-			glDisable(GL_TEXTURE_2D);
-			glColor3f(1, 1, 1);
-			glWindowPos3f(pos.x, pos.y, 0);
-			glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*) str.c_str());
+			//TODO find stuff that's not deprecated
+
+			//glDisable(GL_TEXTURE_2D);
+			//glColor4f(0, 0, 1, 1);
+			//glRasterPos2i(pos.x, pos.y);
+			//glWindowPos3f(pos.x, pos.y, 0);
+			//glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) str.c_str());
 			//std::cout << str << std::endl;
-			glEnable(GL_TEXTURE_2D);
+			//glEnable(GL_TEXTURE_2D);
 		}
 	};
 }

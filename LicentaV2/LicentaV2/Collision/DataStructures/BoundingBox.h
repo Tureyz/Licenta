@@ -9,7 +9,7 @@ namespace Collision
 		{
 		public:
 			BoundingBox(Rendering::IPhysicsObject *parentObject);
-			BoundingBox(Rendering::IPhysicsObject **parentObjects, int numObjects);
+			BoundingBox(Rendering::IPhysicsObject **parentObjects, size_t numObjects);
 			BoundingBox();
 			~BoundingBox();
 
@@ -27,7 +27,7 @@ namespace Collision
 			bool m_isVisible;
 			Rendering::IPhysicsObject * m_parentObject;
 			Rendering::IPhysicsObject ** m_parentObjects;
-			int m_numObjects;
+			size_t m_numObjects;
 			glm::vec4 m_color;
 			GLuint m_vao;
 			GLuint m_program;

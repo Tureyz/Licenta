@@ -14,7 +14,7 @@ namespace Rendering
 			Cube(const glm::vec4 &color, Managers::ModelManager *modelManager);
 			~Cube();
 
-			void Create();
+			virtual void Create() override final;
 			virtual void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override final;
 			virtual void Update() override final;
 

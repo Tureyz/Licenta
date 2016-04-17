@@ -15,7 +15,7 @@ void Benchmark::FPSCounter::Update()
 		m_fps = m_frames / (delta / 1000.f);
 		m_timeBase = m_time;
 		m_frames = 0;
-		std::cout << m_fps << std::endl;
+		std::cout << "FPS: " << m_fps << std::endl;
 	}
 
 }
@@ -23,5 +23,5 @@ void Benchmark::FPSCounter::Update()
 void Benchmark::FPSCounter::Draw()
 {
 	// Doesn't work, used a cout ^^^^
-	Core::Utils::printToScreen(glm::vec2(-0.9f, -0.9f), std::to_string(m_fps));
+	Core::Utils::printToScreen(glm::vec2(0, 0), std::to_string(m_fps));
 }

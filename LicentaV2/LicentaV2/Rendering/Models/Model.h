@@ -15,6 +15,7 @@ namespace Rendering
 			Model(const glm::vec4 & color, Managers::ModelManager *modelManager);
 			virtual ~Model();
 			// methods from interface
+			virtual void Create() override;
 			virtual void Draw() override;
 			virtual void Draw(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) override;
 			virtual void Update() override;
@@ -36,8 +37,7 @@ namespace Rendering
 
 			virtual void UpdateVertices(glm::mat4 mat) override;
 
-			virtual void SetBoundingBoxVisible(bool value);
-
+			virtual void SetBoundingBoxVisible(bool value);			
 
 			Collision::DataStructures::BoundingBox * GetBoundingBox() const { return m_boundingBox; }
 			void SetBoundingBox(Collision::DataStructures::BoundingBox * val) { m_boundingBox = val; }

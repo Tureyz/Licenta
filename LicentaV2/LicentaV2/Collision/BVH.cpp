@@ -2,6 +2,8 @@
 #include "../Managers/ShaderManager.h"
 #include "../Rendering/Models/Model.h"
 #include <algorithm>
+#include <unordered_set>
+#include <iterator>
 
 using namespace Collision;
 
@@ -13,13 +15,15 @@ Collision::BVH::BVH(std::vector<IPhysicsObject *> *allObjects)
 
 std::vector<IPhysicsObject *> Collision::BVH::TestCollision(IPhysicsObject *queriedObject)
 {
-	return QueryBVH(m_leaves[queriedObject->GetID()]);
+	//return QueryBVH(m_leaves[queriedObject->GetID()]);
+
+	return std::vector<IPhysicsObject *>();
 }
 
 void Collision::BVH::Update()
 {
 	delete m_root;
-	m_leaves.clear();
+	//m_leaves.clear();
 	MakeTopDownTree(&m_root, m_allObjects->data(), m_allObjects->size());
 }
 
@@ -31,7 +35,7 @@ void Collision::BVH::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat
 	DrawRecursive(m_root, projectionMatrix, viewMatrix);	
 }
 
-void Collision::BVH::MakeTopDownTree(DataStructures::BVHTree ** node, IPhysicsObject ** objects, int numObjects)
+void Collision::BVH::MakeTopDownTree(DataStructures::BVHTree **node, IPhysicsObject ** objects, size_t numObjects)
 {
 	if (numObjects <= 0)
 	{
@@ -50,19 +54,19 @@ void Collision::BVH::MakeTopDownTree(DataStructures::BVHTree ** node, IPhysicsOb
 	if (numObjects <= 1)
 	{
 		newNode->m_type = DataStructures::BVHTree::LEAF;
-		m_leaves.insert({newNode->m_objects[0]->GetID(), newNode});
+		//m_leaves.insert({newNode->m_objects[0]->GetID(), newNode});
 	}
 	else
 	{
 		newNode->m_type = DataStructures::BVHTree::NODE;
-		int k = MakeSubsets(newNode);
+		size_t k = MakeSubsets(newNode);
 
 		MakeTopDownTree(&newNode->m_left, &objects[0], k);
 		MakeTopDownTree(&newNode->m_right, &objects[k], numObjects - k);
 	}
 }
 
-int Collision::BVH::MakeSubsets(Collision::DataStructures::BVHTree *node)
+size_t Collision::BVH::MakeSubsets(Collision::DataStructures::BVHTree *node)
 {
 	enum SplittingAxisType { AXIS_X = 0, AXIS_Y = 1, AXIS_Z = 2};
 
@@ -201,7 +205,6 @@ void Collision::BVH::DrawRecursive(DataStructures::BVHTree * node, const glm::ma
 	DrawRecursive(node->m_right, projectionMatrix, viewMatrix);
 }
 
-// will always return false in practice (left is always a leaf)
 bool Collision::BVH::DescendDirection(DataStructures::BVHTree * left, DataStructures::BVHTree * right)
 {
 	DataStructures::BoundingBox *leftBoundingBox = left->m_boundingBox;
@@ -221,9 +224,9 @@ std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::BVH::Query
 
 	while (1)
 	{
-		if (first->m_boundingBox->Collides(second->m_boundingBox) && first != second)
+		if (first && second && first->m_boundingBox->Collides(second->m_boundingBox))
 		{
-			if (first->m_type == Collision::DataStructures::BVHTree::LEAF && second->m_type == Collision::DataStructures::BVHTree::LEAF)
+			if (first->m_type == Collision::DataStructures::BVHTree::LEAF && second->m_type == Collision::DataStructures::BVHTree::LEAF && first != second)
 			{
 				result.push_back(std::make_pair(first->m_objects[0], second->m_objects[0]));
 			}
@@ -296,15 +299,6 @@ std::vector<IPhysicsObject *> Collision::BVH::QueryBVH(DataStructures::BVHTree *
 }
 
 std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::BVH::TestCollision()
-{
-	//throw std::logic_error("The method or operation is not implemented.");
-
-	std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> result;
-	for (auto obj : *m_allObjects)
-	{
-		std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> asd = QueryBVHPairs(m_leaves[obj->GetID()], m_root);
-		result.insert(result.end(), asd.begin(), asd.end());
-	}
-
-	return result;	
+{	
+	return QueryBVHPairs(m_root, m_root);
 }

@@ -17,31 +17,38 @@ Managers::SceneManager::SceneManager()
 	//m_viewMatrix = glm::mat4(1.f);
 	m_modelManager = new ModelManager();
 	m_camera = new Rendering::Camera();
-	
+	m_simulationManager = new SimulationManager(m_modelManager);
 
+	m_modelManager->Init();
+	m_simulationManager->Init();
 }
 
 Managers::SceneManager::~SceneManager()
 {
 	delete m_shaderManager;
 	delete m_modelManager;
+	delete m_simulationManager;
 }
 
 void Managers::SceneManager::notifyBeginFrame()
 {
 	m_modelManager->Update();
+	m_simulationManager->Update();
 	m_FPSCounter.Update();
 }
 
 void Managers::SceneManager::notifyDisplayFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.2, 0.2, 0.2, 1.0);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-	glUseProgram(Managers::ShaderManager::GetShader("colorShader"));
 	m_FPSCounter.Draw();
+	glUseProgram(Managers::ShaderManager::GetShader("colorShader"));
 	m_modelManager->Draw();
 	m_modelManager->Draw(m_projectionMatrix, m_camera->GetViewMatrix());
+
+	m_simulationManager->Draw();
+	m_simulationManager->Draw(m_projectionMatrix, m_camera->GetViewMatrix());
 }
 
 void Managers::SceneManager::notifyEndFrame()
@@ -63,16 +70,19 @@ void Managers::SceneManager::notifyReshape(int width, int height, int previous_w
 void Managers::SceneManager::KeyboardCallback(unsigned char key, int x, int y)
 {
 	m_camera->KeyPressed(key);
+	m_simulationManager->KeyPressed(key);
 }
 
 void Managers::SceneManager::MouseCallback(int button, int state, int x, int y)
 {
 	m_camera->MousePressed(button, state, x, y);
+	m_simulationManager->MousePressed(button, state, x, y);
 }
 
 void Managers::SceneManager::MotionCallback(int x, int y)
 {
 	m_camera->MouseMove(x, y, m_width, m_height);
+	m_simulationManager->MouseMove(x, y, m_width, m_height);
 }
 
 Managers::ModelManager * Managers::SceneManager::GetModelManager()

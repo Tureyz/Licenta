@@ -2,7 +2,7 @@
 #include "../../Managers/ModelManager.h"
 #include "../../Rendering/Models/Model.h"
 
-Collision::DataStructures::BoundingBox::BoundingBox(IPhysicsObject * parentObject)
+Collision::DataStructures::BoundingBox::BoundingBox(Rendering::IPhysicsObject * parentObject)
 {
 	m_parentObject = parentObject;
 	m_parentObjects = NULL;
@@ -11,7 +11,7 @@ Collision::DataStructures::BoundingBox::BoundingBox(IPhysicsObject * parentObjec
 	m_numObjects = 1;
 }
 
-Collision::DataStructures::BoundingBox::BoundingBox(IPhysicsObject ** parentObjects, int numObjects)
+Collision::DataStructures::BoundingBox::BoundingBox(Rendering::IPhysicsObject ** parentObjects, size_t numObjects)
 {
 	m_isVisible = true;
 	m_color = glm::vec4(0.2, 0.3, 0.4, 1);
@@ -77,7 +77,7 @@ void Collision::DataStructures::BoundingBox::Draw(const glm::mat4 & projectionMa
 	//For now, all objects use the same shaders
 	//glUseProgram(m_program);
 
-	glUniform1i(2, BOUNDINGBOX);
+	glUniform1i(2, Rendering::BOUNDINGBOX);
 	glUniformMatrix4fv(3, 1, false, &MVPMatrix[0][0]);
 	glBindVertexArray(m_vao);
 

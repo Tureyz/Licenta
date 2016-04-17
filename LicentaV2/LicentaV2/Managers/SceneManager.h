@@ -2,6 +2,8 @@
 #include "../Benchmark/FPSCounter.h"
 #include "ShaderManager.h"
 #include "ModelManager.h"
+#include "SimulationManager.h"
+
 #include "../Core/Init/ListenerInterface.h"
 #include "../Rendering/Camera.h"
 
@@ -32,6 +34,7 @@ namespace Managers
 		Rendering::Camera *m_camera;
 		Managers::ShaderManager *m_shaderManager;
 		Managers::ModelManager *m_modelManager;
+		Managers::SimulationManager *m_simulationManager;
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_viewMatrix;
 		Benchmark::FPSCounter m_FPSCounter;

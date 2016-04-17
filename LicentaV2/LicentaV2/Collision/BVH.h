@@ -19,9 +19,9 @@ namespace Collision
 
 		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
 
-		void MakeTopDownTree(DataStructures::BVHTree **node, IPhysicsObject ** objects, int numObjects);
+		void MakeTopDownTree(DataStructures::BVHTree **node, IPhysicsObject ** objects, size_t numObjects);
 
-		int MakeSubsets(Collision::DataStructures::BVHTree *node);
+		size_t MakeSubsets(Collision::DataStructures::BVHTree *node);
 	private:
 
 		void DrawRecursive(DataStructures::BVHTree *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
@@ -32,7 +32,7 @@ namespace Collision
 		std::vector<IPhysicsObject *> QueryBVH(DataStructures::BVHTree *queriedLeaf);
 
 		// TODO see if performance is better if tree is kept as an array (left = 2 * i, right = 2 * i + 1)
-		std::unordered_map<int, DataStructures::BVHTree *> m_leaves;
+		//std::unordered_map<int, DataStructures::BVHTree *> m_leaves;
 		DataStructures::BVHTree *m_root;
 	};
 }

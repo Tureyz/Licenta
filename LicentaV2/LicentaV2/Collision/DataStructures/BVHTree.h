@@ -16,7 +16,7 @@ namespace Collision
 			BVHTree *m_left, *m_right;
 			Collision::DataStructures::BoundingBox *m_boundingBox;
 			Rendering::IPhysicsObject ** m_objects;
-			int m_numObjects;
+			size_t m_numObjects;
 			NodeType m_type;
 		private:
 		};

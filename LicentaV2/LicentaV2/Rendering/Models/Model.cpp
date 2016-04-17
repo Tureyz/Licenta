@@ -1,4 +1,5 @@
 #include "Model.h"
+#include <algorithm>
 
 Rendering::Models::Model::Model(const glm::vec4 &color, Managers::ModelManager *modelManager)
 {
@@ -17,6 +18,11 @@ Rendering::Models::Model::Model(const glm::vec4 &color, Managers::ModelManager *
 Rendering::Models::Model::~Model()
 {
 	Destroy();
+}
+
+void Rendering::Models::Model::Create()
+{
+
 }
 
 void Rendering::Models::Model::Draw()
@@ -142,6 +148,8 @@ void Rendering::Models::Model::UpdateVertices(glm::mat4 mat)
 			m_maxCoords.z = asd.z;
 		//std::cout << "AFTER: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
 	}
+
+	SetBoundingSphereRadius(std::max(std::max(m_maxCoords.x - m_minCoords.x, m_maxCoords.y - m_minCoords.y), m_maxCoords.z - m_minCoords.z) / 2);
 }
 
 void Rendering::Models::Model::SetBoundingBoxVisible(bool value)

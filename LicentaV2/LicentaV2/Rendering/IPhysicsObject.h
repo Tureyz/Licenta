@@ -14,6 +14,7 @@ namespace Rendering
 	public:
 		virtual ~IPhysicsObject() = 0;
 
+		virtual void Create() = 0;
 		virtual void Draw() = 0;
 		virtual void Draw(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) = 0;
 		virtual void DrawBB(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) = 0;
@@ -32,8 +33,8 @@ namespace Rendering
 		virtual void RotateRelative(const glm::vec3 &axis, const float angles) = 0;
 		virtual void ScaleRelative(const glm::vec3 &scales) = 0;
 
-		unsigned long GetID() const { return m_ID; }
-		void SetID(unsigned long val) { m_ID = val; }
+		size_t GetID() const { return m_ID; }
+		void SetID(size_t val) { m_ID = val; }
 
 		glm::vec4 GetColor() const { return m_color; }
 		void SetColor(glm::vec4 val) { m_color = val; }
@@ -58,6 +59,10 @@ namespace Rendering
 		void SetMinCoords(glm::vec3 val) { m_minCoords = val; }
 		glm::vec3 GetMaxCoords() const { return m_maxCoords; }
 		void SetMaxCoords(glm::vec3 val) { m_maxCoords = val; }
+		float GetBoundingSphereRadius() const { return m_boundingSphereRadius; }
+		void SetBoundingSphereRadius(float val) { m_boundingSphereRadius = val; }
+
+		bool operator==(const IPhysicsObject &other) { return GetID() == other.GetID(); }
 	protected:
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
 		std::vector<VertexFormat> m_transformedVertices;
@@ -65,7 +70,7 @@ namespace Rendering
 		glm::mat4 m_modelMatrix;
 		glm::vec4 m_color;
 		CollisionState m_collisionState;
-		unsigned long m_ID;
+		size_t m_ID;
 		glm::vec3 m_position;
 		glm::vec3 m_rotation;
 		float m_rotationAngle;
@@ -79,6 +84,8 @@ namespace Rendering
 
 		glm::vec3 m_minCoords;
 		glm::vec3 m_maxCoords;
+
+		float m_boundingSphereRadius;
 	};
 
 	inline IPhysicsObject::~IPhysicsObject() {}
