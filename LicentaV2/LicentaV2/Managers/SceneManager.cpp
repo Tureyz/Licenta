@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include "..\Core\Utils.hpp"
 
 Managers::SceneManager::SceneManager()
 {
@@ -32,6 +33,7 @@ Managers::SceneManager::~SceneManager()
 
 void Managers::SceneManager::notifyBeginFrame()
 {
+	Core::Utils::UpdateTick();
 	m_modelManager->Update();
 	m_simulationManager->Update();
 	m_FPSCounter.Update();

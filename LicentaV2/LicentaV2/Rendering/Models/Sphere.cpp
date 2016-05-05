@@ -1,8 +1,9 @@
 #include "Sphere.h"
 
-Rendering::Models::Sphere::Sphere(const glm::vec4 & color, Managers::ModelManager *modelManager) : Model(color, modelManager)
+Rendering::Models::Sphere::Sphere(const glm::vec4 & color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager) : Model(color, modelManager, simulationManager)
 {
 	SetBoundingBox(new Collision::DataStructures::BoundingBox(this));
+	SetObjectType(1);
 }
 
 Rendering::Models::Sphere::~Sphere()
@@ -41,6 +42,7 @@ void Rendering::Models::Sphere::Draw(const glm::mat4 & projectionMatrix, const g
 
 void Rendering::Models::Sphere::Update()
 {
+	Rendering::Models::Model::Update();
 }
 
 void Rendering::Models::Sphere::DrawBB(const glm::mat4& projection_matrix, const glm::mat4& view_matrix)

@@ -7,7 +7,7 @@ namespace Collision
 	class SpatialGrid : public ICollisionMethod
 	{
 	public:
-		SpatialGrid(std::vector<Rendering::IPhysicsObject *> *allObjects);
+		SpatialGrid(std::vector<Rendering::IPhysicsObject *> *allObjects, int numberOfCells);
 
 		virtual std::vector<Rendering::IPhysicsObject *> TestCollision(Rendering::IPhysicsObject *queriedObject) override;
 
@@ -22,6 +22,12 @@ namespace Collision
 
 	private:
 		std::vector<glm::vec3> FindCells(Rendering::IPhysicsObject *obj);
+
+		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
 
 
 		glm::vec3 m_worldMin;

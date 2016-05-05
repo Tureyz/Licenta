@@ -22,9 +22,17 @@ std::vector<IPhysicsObject *> Collision::BVH::TestCollision(IPhysicsObject *quer
 
 void Collision::BVH::Update()
 {
+	auto start = std::chrono::high_resolution_clock::now();
+
 	delete m_root;
 	//m_leaves.clear();
 	MakeTopDownTree(&m_root, m_allObjects->data(), m_allObjects->size());
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Structure Update"] = (float)timeSpent;
 }
 
 void Collision::BVH::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -48,6 +56,7 @@ void Collision::BVH::MakeTopDownTree(DataStructures::BVHTree **node, IPhysicsObj
 	newNode->m_boundingBox = new Collision::DataStructures::BoundingBox(objects, numObjects);
 	//newNode->m_boundingBox->SetProgram(Managers::ShaderManager::GetShader("colorShader"));
 	newNode->m_boundingBox->Create();
+	newNode->m_boundingBox->SetVisible(true);
 	newNode->m_objects = &objects[0];
 	newNode->m_numObjects = numObjects;
 
@@ -224,6 +233,7 @@ std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::BVH::Query
 
 	while (1)
 	{
+		m_lastFrameComparisons++;
 		if (first && second && first->m_boundingBox->Collides(second->m_boundingBox))
 		{
 			if (first->m_type == Collision::DataStructures::BVHTree::LEAF && second->m_type == Collision::DataStructures::BVHTree::LEAF && first != second)
@@ -298,7 +308,29 @@ std::vector<IPhysicsObject *> Collision::BVH::QueryBVH(DataStructures::BVHTree *
 	return result;
 }
 
+void Collision::BVH::ObjectMoved(Rendering::IPhysicsObject *object)
+{
+}
+
+void Collision::BVH::ObjectAdded(Rendering::IPhysicsObject *object)
+{
+}
+
+void Collision::BVH::ObjectRemoved(Rendering::IPhysicsObject *object)
+{
+}
+
 std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::BVH::TestCollision()
 {	
-	return QueryBVHPairs(m_root, m_root);
+	m_lastFrameComparisons = 0;
+	auto start = std::chrono::high_resolution_clock::now();
+	std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> result = QueryBVHPairs(m_root, m_root);
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Collisions"] = (float) timeSpent;
+	m_lastFrameCriteria["Intersection Tests"] = (float) m_lastFrameComparisons;
+
+	return result;
 }

@@ -3,6 +3,7 @@
 #include "../../Managers/ModelManager.h"
 #include "../IPhysicsObject.h"
 #include "../../Collision/DataStructures/BoundingBox.h"
+#include "../../Managers/SimulationManager.h"
 
 namespace Rendering
 {
@@ -12,7 +13,7 @@ namespace Rendering
 		class Model : public IPhysicsObject
 		{
 		public:
-			Model(const glm::vec4 & color, Managers::ModelManager *modelManager);
+			Model(const glm::vec4 & color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager);
 			virtual ~Model();
 			// methods from interface
 			virtual void Create() override;
@@ -37,16 +38,22 @@ namespace Rendering
 
 			virtual void UpdateVertices(glm::mat4 mat) override;
 
-			virtual void SetBoundingBoxVisible(bool value);			
+			virtual void SetBoundingBoxVisible(bool value);
 
 			Collision::DataStructures::BoundingBox * GetBoundingBox() const { return m_boundingBox; }
 			void SetBoundingBox(Collision::DataStructures::BoundingBox * val) { m_boundingBox = val; }
 			Managers::ModelManager * GetModelManager() const { return m_modelManager; }
 			void SetModelManager(Managers::ModelManager * val) { m_modelManager = val; }
 			GLuint m_program;
+			Managers::SimulationManager * GetSimulationManager() const { return m_simulationManager; }
+			void SetSimulationManager(Managers::SimulationManager * val) { m_simulationManager = val; }
+
+			virtual void ObjectMoved() override;
+
 		protected:
 			GLuint m_vao;
 			Managers::ModelManager *m_modelManager;
+			Managers::SimulationManager *m_simulationManager;
 			std::vector<GLuint> m_vbos;
 			Collision::DataStructures::BoundingBox *m_boundingBox;
 		};

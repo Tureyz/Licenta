@@ -25,6 +25,8 @@ std::vector<Rendering::IPhysicsObject *> Collision::Octree::TestCollision(Render
 
 void Collision::Octree::Update()
 {
+	auto start = std::chrono::high_resolution_clock::now();
+
 	delete m_root;
 
 	m_root = new DataStructures::OctreeNode();
@@ -34,7 +36,13 @@ void Collision::Octree::Update()
 	for (auto obj : *m_allObjects)
 	{
 		InsertIntoTree(obj);
-	}
+	}	
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Structure Update"] = (float)timeSpent;
 }
 
 void Collision::Octree::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -49,7 +57,15 @@ std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
 {
 	std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
 
+	m_lastFrameComparisons = 0;
+	auto start = std::chrono::high_resolution_clock::now();
 	TestCollisionsRecursive(m_root, result);
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Collisions"] = (float)timeSpent;
+	m_lastFrameCriteria["Intersection Tests"] = (float)m_lastFrameComparisons;
 
 	return result;
 }
@@ -184,6 +200,7 @@ void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node
 				if (firstObj == secondObj)
 					break;
 
+				m_lastFrameComparisons++;
 				if (((Rendering::Models::Model *) firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *) secondObj)->GetBoundingBox()))
 				{
 					collisions.push_back(std::make_pair(firstObj, secondObj));
@@ -201,4 +218,16 @@ void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node
 	}
 
 	depth--;
+}
+
+void Collision::Octree::ObjectMoved(Rendering::IPhysicsObject *object)
+{
+}
+
+void Collision::Octree::ObjectAdded(Rendering::IPhysicsObject *object)
+{
+}
+
+void Collision::Octree::ObjectRemoved(Rendering::IPhysicsObject *object)
+{
 }

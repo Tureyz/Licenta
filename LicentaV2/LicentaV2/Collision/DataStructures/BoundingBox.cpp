@@ -6,14 +6,14 @@ Collision::DataStructures::BoundingBox::BoundingBox(Rendering::IPhysicsObject * 
 {
 	m_parentObject = parentObject;
 	m_parentObjects = NULL;
-	m_isVisible = true;
+	m_isVisible = false;
 	m_color = glm::vec4(0.2, 0.3, 0.4, 1);
 	m_numObjects = 1;
 }
 
 Collision::DataStructures::BoundingBox::BoundingBox(Rendering::IPhysicsObject ** parentObjects, size_t numObjects)
 {
-	m_isVisible = true;
+	m_isVisible = false;
 	m_color = glm::vec4(0.2, 0.3, 0.4, 1);
 	m_parentObjects = parentObjects;
 	m_numObjects = numObjects;
@@ -24,11 +24,12 @@ Collision::DataStructures::BoundingBox::BoundingBox()
 {
 	m_parentObjects = NULL;
 	m_parentObject = NULL;
-	m_isVisible = true;
+	m_isVisible = false;
 }
 
 Collision::DataStructures::BoundingBox::~BoundingBox()
 {
+	Destroy();
 }
 
 void Collision::DataStructures::BoundingBox::Create()
@@ -83,6 +84,13 @@ void Collision::DataStructures::BoundingBox::Draw(const glm::mat4 & projectionMa
 
 	//glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+}
+
+void Collision::DataStructures::BoundingBox::Destroy()
+{
+// 	glDeleteVertexArrays(1, &m_vao);
+// 	glDeleteBuffers((GLsizei)m_vbos.size(), &m_vbos[0]);
+// 	m_vbos.clear();
 }
 
 void Collision::DataStructures::BoundingBox::UpdateValues()

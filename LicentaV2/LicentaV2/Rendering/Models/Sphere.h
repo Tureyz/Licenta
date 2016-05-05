@@ -12,7 +12,7 @@ namespace Rendering
 		class Sphere : public Model
 		{
 		public:
-			Sphere(const glm::vec4 &color, Managers::ModelManager *modelManager);
+			Sphere(const glm::vec4 &color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager);
 			~Sphere();
 
 			virtual void Create() override final;

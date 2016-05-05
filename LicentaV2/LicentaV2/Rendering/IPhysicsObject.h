@@ -54,15 +54,28 @@ namespace Rendering
 		std::vector<VertexFormat>* GetVerticesPtr() { return &m_transformedVertices; }
 		void SetVertices(std::vector<VertexFormat> val) { m_transformedVertices = val; }
 		virtual void UpdateVertices(glm::mat4 mvp) = 0;
+		virtual void ObjectMoved() = 0;
 
 		glm::vec3 GetMinCoords() const { return m_minCoords; }
 		void SetMinCoords(glm::vec3 val) { m_minCoords = val; }
 		glm::vec3 GetMaxCoords() const { return m_maxCoords; }
 		void SetMaxCoords(glm::vec3 val) { m_maxCoords = val; }
-		float GetBoundingSphereRadius() const { return m_boundingSphereRadius; }
-		void SetBoundingSphereRadius(float val) { m_boundingSphereRadius = val; }
 
 		bool operator==(const IPhysicsObject &other) { return GetID() == other.GetID(); }
+
+		glm::vec3 GetTranslationStep() const { return m_translationStep; }
+		void SetTranslationStep(glm::vec3 val) { m_translationStep = val; }
+		glm::vec3 GetScaleStep() const { return m_scaleStep; }
+		void SetScaleStep(glm::vec3 val) { m_scaleStep = val; }
+		glm::vec3 GetRotationStep() const { return m_rotationStep; }
+		void SetRotationStep(glm::vec3 val) { m_rotationStep = val; }
+		float GetRotationAngleStep() const { return m_rotationAngleStep; }
+		void SetRotationAngleStep(float val) { m_rotationAngleStep = val; }
+
+		void *m_auxCollisionData;
+
+		int GetObjectType() const { return m_objectType; }
+		void SetObjectType(int val) { m_objectType = val; }
 	protected:
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
 		std::vector<VertexFormat> m_transformedVertices;
@@ -85,7 +98,10 @@ namespace Rendering
 		glm::vec3 m_minCoords;
 		glm::vec3 m_maxCoords;
 
-		float m_boundingSphereRadius;
+		bool m_matrixChanged;
+
+		int m_objectType;
+
 	};
 
 	inline IPhysicsObject::~IPhysicsObject() {}

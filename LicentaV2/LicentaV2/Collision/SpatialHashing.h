@@ -29,9 +29,20 @@ namespace Collision
 		static std::string BinaryToString(size_t x);
 	private:
 
-		void InsertObject(Rendering::IPhysicsObject *obj);
 		void InsertPoint(glm::vec3 point, Rendering::IPhysicsObject *obj);
+		void InsertObject(Rendering::IPhysicsObject *obj);
+
+		void RemoveObject(Rendering::IPhysicsObject *obj);
+
+		void MoveObject(Rendering::IPhysicsObject *obj);
+
 		size_t ObjectHash(glm::vec3 el);
+
+		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
 
 		float m_cellSize;
 		std::vector<std::unordered_set<IPhysicsObject*>> m_hashTable;

@@ -92,6 +92,19 @@ bool Collision::KDTree::Straddle(Rendering::IPhysicsObject *object, DataStructur
 	}
 }
 
+void Collision::KDTree::ObjectMoved(Rendering::IPhysicsObject *object)
+{
+	
+}
+
+void Collision::KDTree::ObjectAdded(Rendering::IPhysicsObject *object)
+{
+}
+
+void Collision::KDTree::ObjectRemoved(Rendering::IPhysicsObject *object)
+{
+}
+
 std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::KDTree::TestCollision()
 {
 	throw std::logic_error("The method or operation is not implemented.");

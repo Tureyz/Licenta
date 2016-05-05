@@ -28,6 +28,21 @@ std::vector<Rendering::IPhysicsObject *> Collision::SpatialHashing::TestCollisio
 
 void Collision::SpatialHashing::Update()
 {
+	auto start = std::chrono::high_resolution_clock::now();
+
+	m_hashTable.clear();
+	m_bucketIndices.clear();
+
+	for (auto obj : (*m_allObjects))
+	{
+		InsertObject(obj);
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Structure Update"] = (float)timeSpent;
 }
 
 void Collision::SpatialHashing::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -54,15 +69,45 @@ void Collision::SpatialHashing::InsertPoint(glm::vec3 point, Rendering::IPhysics
 {
 	size_t hashKey = ObjectHash(point);
 
-	if (m_bucketIndices.count(hashKey))
-	{
-		m_hashTable[m_bucketIndices[hashKey]].insert(obj);
-	}
-	else
+// 	if (m_bucketIndices.count(hashKey))
+// 	{
+// 		m_hashTable[m_bucketIndices[hashKey]].insert(obj);
+// 	}
+// 	else
+// 	{
+// 		m_hashTable.push_back(std::unordered_set<Rendering::IPhysicsObject*>());
+// 		m_bucketIndices[hashKey] = m_hashTable.size() - 1;
+// 	}
+
+	if (!m_bucketIndices.count(hashKey))
 	{
 		m_hashTable.push_back(std::unordered_set<Rendering::IPhysicsObject*>());
 		m_bucketIndices[hashKey] = m_hashTable.size() - 1;
 	}
+
+	m_hashTable[m_bucketIndices[hashKey]].insert(obj);
+}
+
+void Collision::SpatialHashing::RemoveObject(Rendering::IPhysicsObject *obj)
+{
+	
+	for (auto set : m_hashTable)
+	{
+		if (!set.empty())
+		{
+			set.erase(obj);
+		}
+	}
+}
+
+void Collision::SpatialHashing::MoveObject(Rendering::IPhysicsObject *obj)
+{
+	for (auto bucket : m_hashTable)
+	{
+		bucket.erase(obj);
+	}
+
+	InsertObject(obj);
 }
 
 size_t Collision::SpatialHashing::ObjectHash(glm::vec3 el)
@@ -92,6 +137,24 @@ size_t Collision::SpatialHashing::ObjectHash(glm::vec3 el)
 	return result;
 }
 
+void Collision::SpatialHashing::ObjectMoved(Rendering::IPhysicsObject *object)
+{
+// 	RemoveObject(object);
+// 	InsertObject(object);
+
+	//MoveObject(object);
+}
+
+void Collision::SpatialHashing::ObjectAdded(Rendering::IPhysicsObject *object)
+{
+	//InsertObject(object);
+}
+
+void Collision::SpatialHashing::ObjectRemoved(Rendering::IPhysicsObject *object)
+{
+	//RemoveObject(object);
+}
+
 std::string Collision::SpatialHashing::BinaryToString(short int x)
 {
 	return "(" + std::to_string(x) + ") " + std::bitset<sizeof(x) * 8>(x).to_string();
@@ -110,7 +173,9 @@ std::string Collision::SpatialHashing::BinaryToString(size_t x)
 std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::SpatialHashing::TestCollision()
 {
  	std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
-
+	m_lastFrameComparisons = 0;
+	auto start = std::chrono::high_resolution_clock::now();
+	
 	for (auto bucket : m_hashTable)
 	{
 		auto beg = bucket.begin();
@@ -122,6 +187,7 @@ std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
 			for (auto it2 = it; it2 != end; ++it2)
 			{
 				auto secondObj = (*it2);
+				m_lastFrameComparisons++;
 				if (secondObj != firstObj && ((Rendering::Models::Model *)firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *)secondObj)->GetBoundingBox()))
 				{
 					result.push_back(std::make_pair(firstObj, secondObj));
@@ -129,6 +195,13 @@ std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
 			}
 		}
 	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Collisions"] = (float)timeSpent;
+	m_lastFrameCriteria["Intersection Tests"] = (float)m_lastFrameComparisons;
 
 	return result;
 }

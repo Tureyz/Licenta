@@ -27,11 +27,25 @@ namespace Collision
 			Rendering::IPhysicsObject *m_object;
 		};
 
-		void InsertionSort(std::vector<Projection> &list);
+		struct ObjectProjectionPointers
+		{
+			Projection *m_xBegin, *m_xEnd;
+			Projection *m_yBegin, *m_yEnd;
+			Projection *m_zBegin, *m_zEnd;
+		};
+
+		void InsertionSort(std::vector<Projection *> &list);
 		void InsertionSort();
-		
+
+		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+
+
 		//DataStructures::LinkedList<Projection> m_xList, m_yList, m_zList;
-		std::vector<Projection> m_xList, m_yList, m_zList;
+		std::vector<Projection *> m_xList, m_yList, m_zList;
 
 		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> m_collisionPairs;
 	};

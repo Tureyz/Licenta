@@ -5,7 +5,6 @@
 
 namespace Managers
 {
-	enum physicsObjectType {OBJ_CUBE = 0, OBJ_SPHERE = 1, OBJ_TETRAHEDRON = 2, OBJ_RANDOM};
 	class ModelManager
 	{
 	public:
@@ -16,6 +15,7 @@ namespace Managers
 		void Draw();
 		void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 		void Update();
+		void DeleteAllModels();
 		void DeleteModel(unsigned long id);
 		void DeleteModelNDC(unsigned long id);
 		const Rendering::IPhysicsObject* GetModel(unsigned long id) const;

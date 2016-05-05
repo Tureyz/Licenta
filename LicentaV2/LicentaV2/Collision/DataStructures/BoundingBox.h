@@ -16,6 +16,7 @@ namespace Collision
 			void Create();
 			virtual void Update();
 			virtual void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
+			void Destroy();
 			void UpdateValues();
 			bool GetVisible() const { return m_isVisible; }
 			void SetVisible(bool val) { m_isVisible = val; }

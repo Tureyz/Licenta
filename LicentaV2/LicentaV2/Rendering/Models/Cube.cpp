@@ -5,9 +5,10 @@ using namespace Models;
 
 #define PI 3.14159265
 
-Rendering::Models::Cube::Cube(const glm::vec4 & color, Managers::ModelManager *modelManager) : Model(color, modelManager)
+Rendering::Models::Cube::Cube(const glm::vec4 & color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager) : Model(color, modelManager, simulationManager)
 {
 	SetBoundingBox(new Collision::DataStructures::BoundingBox(this));
+	SetObjectType(0);
 }
 
 Rendering::Models::Cube::~Cube()
@@ -45,6 +46,7 @@ void Rendering::Models::Cube::Draw(const glm::mat4 & projectionMatrix, const glm
 
 void Rendering::Models::Cube::Update()
 {
+	Rendering::Models::Model::Update();
 }
 
 void Rendering::Models::Cube::DrawBB(const glm::mat4& projection_matrix, const glm::mat4& view_matrix)

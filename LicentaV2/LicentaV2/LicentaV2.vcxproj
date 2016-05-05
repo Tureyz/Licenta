@@ -140,6 +140,8 @@
     <ClCompile Include="Rendering\Models\Sphere.cpp" />
     <ClCompile Include="Rendering\Models\Tetrahedron.cpp" />
     <ClCompile Include="Rendering\Models\Triangle.cpp" />
+    <ClCompile Include="Simulation\Scenario.cpp" />
+    <ClCompile Include="Simulation\ScenarioGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Benchmark\FPSCounter.h" />
@@ -161,7 +163,7 @@
     <ClInclude Include="Core\Init\InitGLEW.h" />
     <ClInclude Include="Core\Init\InitGLUT.h" />
     <ClInclude Include="Core\Init\InitListener.h" />
-    <ClInclude Include="Core\Utils.h" />
+    <ClInclude Include="Core\Utils.hpp" />
     <ClInclude Include="Core\Init\WindowProperties.h" />
     <ClInclude Include="Managers\ModelManager.h" />
     <ClInclude Include="Managers\SimulationManager.h" />
@@ -200,6 +202,8 @@
     <ClInclude Include="Dependencies\glm\vector_relational.hpp" />
     <ClInclude Include="Managers\SceneManager.h" />
     <ClInclude Include="Managers\ShaderManager.h" />
+    <ClInclude Include="Simulation\Scenario.h" />
+    <ClInclude Include="Simulation\ScenarioGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />

@@ -6,9 +6,19 @@
 
 using namespace Rendering;
 
-Collision::SpatialGrid::SpatialGrid(std::vector<Rendering::IPhysicsObject *> *allObjects)
+Collision::SpatialGrid::SpatialGrid(std::vector<Rendering::IPhysicsObject *> *allObjects, int numberOfCells)
 {
 	m_allObjects = allObjects;
+	m_numberOfCells = numberOfCells;
+	m_grid.resize(m_numberOfCells);
+	for (int i = 0; i < m_numberOfCells; ++i)
+	{
+		m_grid[i].resize(m_numberOfCells);
+		for (int j = 0; j < m_numberOfCells; ++j)
+		{
+			m_grid[i][j].resize(m_numberOfCells);
+		}
+	}
 }
 
 std::vector<IPhysicsObject *> Collision::SpatialGrid::TestCollision(IPhysicsObject *queriedObject)
@@ -18,6 +28,8 @@ std::vector<IPhysicsObject *> Collision::SpatialGrid::TestCollision(IPhysicsObje
 
 void Collision::SpatialGrid::Update()
 {
+	auto start = std::chrono::high_resolution_clock::now();
+
 	m_grid.clear();
 
 	m_grid.resize(m_numberOfCells);
@@ -38,6 +50,12 @@ void Collision::SpatialGrid::Update()
 			m_grid[cellIndexes[i].x][cellIndexes[i].y][cellIndexes[i].z].push_back(currentObj);
 		}
 	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Structure Update"] = (float)timeSpent;
 }
 
 void Collision::SpatialGrid::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -136,10 +154,24 @@ std::vector<glm::vec3> Collision::SpatialGrid::FindCells(IPhysicsObject *obj)
 	return result;
 }
 
+void Collision::SpatialGrid::ObjectMoved(Rendering::IPhysicsObject *object)
+{
+}
+
+void Collision::SpatialGrid::ObjectAdded(Rendering::IPhysicsObject *object)
+{
+}
+
+void Collision::SpatialGrid::ObjectRemoved(Rendering::IPhysicsObject *object)
+{
+}
+
 std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::SpatialGrid::TestCollision()
 {
 	std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> result;
-
+	m_lastFrameComparisons = 0;
+	auto start = std::chrono::high_resolution_clock::now();
+	
 	//m_checkedPairs.clear();
 
 	size_t breakCount = m_allObjects->size() * m_allObjects->size();
@@ -159,6 +191,7 @@ std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::SpatialGri
 
 // 				if (!m_checkedPairs[firstPair] && !m_checkedPairs[secondPair])
 // 				{
+					m_lastFrameComparisons++;
 					if (((Models::Model *)obj)->GetBoundingBox()->Collides(((Models::Model *)secondObj)->GetBoundingBox()))
 					{
 						result.push_back(firstPair);
@@ -172,5 +205,11 @@ std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::SpatialGri
  		}
 	}
 
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	m_lastFrameCriteria["Time Spent - Collisions"] = (float)timeSpent;
+	m_lastFrameCriteria["Intersection Tests"] = (float)m_lastFrameComparisons;
 	return result;
 }

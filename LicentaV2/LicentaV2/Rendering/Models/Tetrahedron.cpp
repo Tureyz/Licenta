@@ -1,8 +1,9 @@
 #include "Tetrahedron.h"
 
-Rendering::Models::Tetrahedron::Tetrahedron(const glm::vec4 & color, Managers::ModelManager *modelManager) : Model(color, modelManager)
+Rendering::Models::Tetrahedron::Tetrahedron(const glm::vec4 & color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager) : Model(color, modelManager, simulationManager)
 {
 	SetBoundingBox(new Collision::DataStructures::BoundingBox(this));
+	SetObjectType(2);
 }
 
 Rendering::Models::Tetrahedron::~Tetrahedron()
@@ -41,6 +42,7 @@ void Rendering::Models::Tetrahedron::Draw(const glm::mat4 & projectionMatrix, co
 void Rendering::Models::Tetrahedron::Update()
 {
 	//m_modelMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+	Rendering::Models::Model::Update();
 }
 
 void Rendering::Models::Tetrahedron::DrawBB(const glm::mat4& projection_matrix, const glm::mat4& view_matrix)

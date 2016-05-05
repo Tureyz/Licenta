@@ -34,7 +34,14 @@ namespace Collision
 		bool StraddleY(Rendering::IPhysicsObject *object, DataStructures::KDTreeNode *node);
 		bool StraddleZ(Rendering::IPhysicsObject *object, DataStructures::KDTreeNode *node);
 		bool Straddle(Rendering::IPhysicsObject *object, DataStructures::KDTreeNode *node);
-		DataStructures::KDTreeNode *m_root;		
+
+		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+
+		DataStructures::KDTreeNode *m_root;
 		glm::vec3 m_worldMin;
 		glm::vec3 m_worldMax;
 		GLuint m_vao, m_vbo, m_ibo;

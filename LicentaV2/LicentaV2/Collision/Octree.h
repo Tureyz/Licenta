@@ -30,13 +30,21 @@ namespace Collision
 		void DrawRecursive(DataStructures::OctreeNode *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
 		void TestCollisionsRecursive(DataStructures::OctreeNode *node, std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &collisions);
-		
+
+		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+
+		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+
+
 		DataStructures::OctreeNode *m_root;
 		glm::vec3 m_worldCenter;
 		float m_worldHalfW;
 
 		int m_splitThreshold;
 		int m_maximumDepth;
+
 
 		
 	};

@@ -1,5 +1,5 @@
 #include "FPSCounter.h"
-#include "../Core/Utils.h"
+#include "../Core/Utils.hpp"
 #include "../Dependencies/freeglut/freeglut.h"
 
 void Benchmark::FPSCounter::Update()

@@ -57,6 +57,19 @@ void Managers::ModelManager::Update()
 	}
 }
 
+void Managers::ModelManager::DeleteAllModels()
+{
+	if (!m_physicsModelList.empty())
+	{
+		for (auto model : m_physicsModelList)
+		{
+			model->Destroy();
+		}
+
+		m_physicsModelList.clear();
+	}
+}
+
 void Managers::ModelManager::DeleteModel(unsigned long id)
 {
 	Rendering::IPhysicsObject *model = NULL;
