@@ -1,7 +1,6 @@
 #pragma once
 #include "ModelManager.h"
 #include "../Collision/BVH.h"
-#include "../Collision/KDTree.h"
 #include "../Collision/Octree.h"
 #include "../Collision/SpatialGrid.h"
 #include "../Collision/SweepAndPrune.h"
@@ -18,6 +17,7 @@ namespace Managers
 		SimulationManager(ModelManager *modelManager);
 		~SimulationManager();
 		void Init();
+		void FixedUpdate();
 		void Update();
 		void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 		void Draw();
@@ -50,8 +50,11 @@ namespace Managers
 		void ResetCollisions();
 		void LoadScenario(Simulation::Scenario *scenario);
 		void CleanupCurrentScenario();
+
+		void RecordLastFrameResults();
+		void CurrentScenarioEnded();
+
 		ModelManager *m_modelManager;
-		//Collision::ICollisionMethod *m_activeMethod;
 		std::unordered_map<std::string, Collision::ICollisionMethod *> m_collisionMethods;
 		std::unordered_map<std::string, Collision::ICollisionMethod *>::iterator m_activeMethod;
 		std::vector<IPhysicsObject*> *m_allObjects;
@@ -61,9 +64,7 @@ namespace Managers
 		bool m_objectBBs;
 
 		int m_time;
-		int m_timeBase;
-
-		const glm::vec4 m_defaultObjectColor = glm::vec4(0.7f, 0.7f, 0.7f, 1.f);
+		int m_timeBase;		
 
 		bool m_runningBenchmark;
 		size_t m_currentSimulationFrame;
@@ -76,14 +77,33 @@ namespace Managers
 
 		struct PerFrameCriteria
 		{
-			std::unordered_map<std::string, float> Element;
+			std::unordered_map<std::string, float> Element; // <criterion name, value>
 		};
 
 		struct MethodFrameResult
 		{
-			std::unordered_map<std::string, PerFrameCriteria> Element;
+			std::unordered_map<std::string, PerFrameCriteria> Element; // <method name, all criteria values>
 		};
 
 		std::vector<MethodFrameResult> m_benchmarkPerFrameResults;
+
+
+
+		struct PlottableMethodValue
+		{
+			std::unordered_map<std::string, float> Element; // <method name, value>
+		};
+
+		struct PlottableCriterionFrameResult
+		{
+			std::unordered_map<std::string, PlottableMethodValue> Element; // <criterion name, all method values>
+		};
+
+		std::vector<PlottableCriterionFrameResult> m_plottableBenchmarkPerFrameResults;
+
+		std::string m_lastActiveMethodName;
+
+		const std::string m_defaultMethodName = "None";
+		
 	};
 }

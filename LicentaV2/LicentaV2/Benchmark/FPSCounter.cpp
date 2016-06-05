@@ -20,6 +20,11 @@ void Benchmark::FPSCounter::Update()
 
 }
 
+void Benchmark::FPSCounter::FixedUpdate()
+{
+
+}
+
 void Benchmark::FPSCounter::Draw()
 {
 	// Doesn't work, used a cout ^^^^

@@ -10,8 +10,14 @@ namespace Rendering
 {
 	struct VertexFormat
 	{
-		glm::vec3 m_position;//our first vertex attribute
+		glm::vec3 m_position;
 		glm::vec4 m_color;
+
+		VertexFormat()
+		{
+			m_position = glm::vec3(0);
+			m_color = glm::vec4(1);
+		}
 
 		VertexFormat(const glm::vec3 &pos, const glm::vec4 &color)
 		{

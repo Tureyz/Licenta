@@ -12,21 +12,22 @@ namespace Collision
 	public:
 
 		SpatialHashing(std::vector<Rendering::IPhysicsObject *> *allObjects);
+
 		~SpatialHashing();
 
-		virtual std::vector<Rendering::IPhysicsObject *> TestCollision(Rendering::IPhysicsObject *queriedObject) override;
-
-		virtual std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> TestCollision() override;
-
-		virtual void Update() override;
-
 		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
-
 		
 		float GetCellSize() const { return m_cellSize; }
 		void SetCellSize(float val) { m_cellSize = val; }
 		static std::string BinaryToString(short int x);
 		static std::string BinaryToString(size_t x);
+
+	protected:
+
+		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+
+		virtual void _Update() override;
+
 	private:
 
 		void InsertPoint(glm::vec3 point, Rendering::IPhysicsObject *obj);

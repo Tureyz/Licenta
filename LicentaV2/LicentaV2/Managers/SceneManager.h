@@ -4,12 +4,12 @@
 #include "ModelManager.h"
 #include "SimulationManager.h"
 
-#include "../Core/Init/ListenerInterface.h"
+#include "../Core/DeltaTime.h"
 #include "../Rendering/Camera.h"
 
 namespace Managers
 {
-	class SceneManager : public Core::IListener
+	class SceneManager
 	{
 	public:
 		SceneManager();
@@ -18,7 +18,7 @@ namespace Managers
 		virtual void notifyBeginFrame();
 		virtual void notifyDisplayFrame();
 		virtual void notifyEndFrame();
-		virtual void notifyReshape(int width, int height, int previous_width, int previous_height);
+		virtual void notifyReshape(int width, int height, int previousWidth, int previousHeight);
 
 		virtual void KeyboardCallback(unsigned char key, int x, int y);
 		virtual void MouseCallback(int button, int state, int x, int y);
@@ -38,5 +38,9 @@ namespace Managers
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_viewMatrix;
 		Benchmark::FPSCounter m_FPSCounter;
+
+		Core::DeltaTime m_deltaTime;
+		int m_timeBase;
+		int m_time;
 	};
 }

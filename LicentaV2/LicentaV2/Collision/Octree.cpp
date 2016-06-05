@@ -1,6 +1,7 @@
 #include "Octree.h"
 #include <algorithm>
 #include "..\Rendering\Models\Model.h"
+#include "..\Rendering\ShapeRenderer.h"
 
 Collision::Octree::Octree(std::vector<Rendering::IPhysicsObject *> *allObjects, glm::vec3 worldMin, glm::vec3 worldMax)
 {
@@ -11,6 +12,8 @@ Collision::Octree::Octree(std::vector<Rendering::IPhysicsObject *> *allObjects, 
 	m_root = new DataStructures::OctreeNode();
 	m_root->m_center = m_worldCenter;
 	m_root->m_halfW = m_worldHalfW;
+
+	m_memoryCounter.addDynamic(sizeof(Collision::Octree) + sizeof(*m_root));
 }
 
 Collision::Octree::~Octree()
@@ -18,31 +21,21 @@ Collision::Octree::~Octree()
 	delete m_root;
 }
 
-std::vector<Rendering::IPhysicsObject *> Collision::Octree::TestCollision(Rendering::IPhysicsObject *queriedObject)
+void Collision::Octree::_Update()
 {
-	return std::vector<Rendering::IPhysicsObject *>();
-}
-
-void Collision::Octree::Update()
-{
-	auto start = std::chrono::high_resolution_clock::now();
-
 	delete m_root;
 
+	m_memoryCounter.resetAll();
 	m_root = new DataStructures::OctreeNode();
 	m_root->m_center = m_worldCenter;
 	m_root->m_halfW = m_worldHalfW;
+
+	m_memoryCounter.addDynamic(sizeof(Collision::Octree) + sizeof(*m_root));
 
 	for (auto obj : *m_allObjects)
 	{
 		InsertIntoTree(obj);
 	}	
-
-	auto end = std::chrono::high_resolution_clock::now();
-
-	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-	m_lastFrameCriteria["Time Spent - Structure Update"] = (float)timeSpent;
 }
 
 void Collision::Octree::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -53,19 +46,12 @@ void Collision::Octree::DrawDebug(const glm::mat4& projectionMatrix, const glm::
 	DrawRecursive(m_root, projectionMatrix, viewMatrix);
 }
 
-std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::Octree::TestCollision()
-{
-	std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
+std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::Octree::_TestCollision()
+{	
+	std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
 
-	m_lastFrameComparisons = 0;
-	auto start = std::chrono::high_resolution_clock::now();
+	m_lastFrameTests = 0;
 	TestCollisionsRecursive(m_root, result);
-	auto end = std::chrono::high_resolution_clock::now();
-
-	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-	m_lastFrameCriteria["Time Spent - Collisions"] = (float)timeSpent;
-	m_lastFrameCriteria["Intersection Tests"] = (float)m_lastFrameComparisons;
 
 	return result;
 }
@@ -101,6 +87,7 @@ void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rende
 	{
 		if (node->m_children[childIndex] == NULL)
 		{
+			m_memoryCounter.addDynamic(sizeof(DataStructures::OctreeNode));
 			DataStructures::OctreeNode *toBeAdded = new DataStructures::OctreeNode();
 			toBeAdded->m_halfW = newHalfWidth;
 			toBeAdded->m_center = newCenter;
@@ -166,11 +153,7 @@ void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const gl
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1), node->m_center) * glm::scale(glm::mat4(1), glm::vec3(node->m_halfW * 2));
 	glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-
-	glUniform1i(2, node->m_objects.empty() ? 0 : BOUNDINGBOX);
-	glUniformMatrix4fv(3, 1, false, &MVPMatrix[0][0]);
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	Rendering::ShapeRenderer::Draw(MVPMatrix, m_vao, *m_indices, node->m_objects.empty() ? 0 : BOUNDINGBOX);	
 
 	for (int i = 0; i < node->m_children.size(); ++i)
 	{
@@ -178,9 +161,8 @@ void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const gl
 	}
 }
 
-void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node, std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &collisions)
+void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node, std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &collisions)
 {
-	//static std::vector<
 	static std::vector<DataStructures::OctreeNode *> stack;
 	static int depth = 0;
 
@@ -200,10 +182,10 @@ void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node
 				if (firstObj == secondObj)
 					break;
 
-				m_lastFrameComparisons++;
+				m_lastFrameTests++;
 				if (((Rendering::Models::Model *) firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *) secondObj)->GetBoundingBox()))
 				{
-					collisions.push_back(std::make_pair(firstObj, secondObj));
+					collisions.insert(std::make_pair(firstObj, secondObj));
 				}
 			}
 		}

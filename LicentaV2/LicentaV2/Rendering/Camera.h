@@ -3,7 +3,8 @@
 #include "../Dependencies/glm/gtx/quaternion.hpp"
 namespace Rendering
 {
-	class Camera {
+	class Camera
+	{
 	public:
 		Camera();
 		~Camera();

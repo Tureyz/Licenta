@@ -7,7 +7,7 @@
 
 namespace Simulation
 {
-	enum PhysicsObjectType { OBJ_CUBE = 0, OBJ_SPHERE = 1, OBJ_TETRAHEDRON = 2, OBJ_RANDOM };
+	enum PhysicsObjectType { OBJ_CUBE = 0, OBJ_SPHERE = 1, OBJ_TETRAHEDRON = 2, OBJ_CYLINDER = 3, OBJ_CONE = 4, OBJ_RANDOM , OBJ_NUM_TOTAL = 5};
 
 	struct ObjectDescription
 	{
@@ -32,6 +32,7 @@ namespace Simulation
 		void LoadFromFile(std::string fileName);
 		void SaveToFile(std::string fileName);
 		std::vector<ObjectDescription> GetObjectDescriptions() const { return m_objectDescriptions; }
+		std::vector<Simulation::ObjectDescription> GetDescriptionsByFrame(int frameNumber);
 		void SetObjectDescriptions(std::vector<ObjectDescription> val) { m_objectDescriptions = val; }
 		size_t m_numberOfFrames;
 		std::string m_name;

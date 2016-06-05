@@ -3,8 +3,6 @@
 #include <cmath>
 #include <cstdlib>
 
-
-
 Collision::SpatialHashing::SpatialHashing(std::vector<Rendering::IPhysicsObject *> *allObjects)
 {
 	m_allObjects = allObjects;
@@ -21,28 +19,16 @@ Collision::SpatialHashing::~SpatialHashing()
 
 }
 
-std::vector<Rendering::IPhysicsObject *> Collision::SpatialHashing::TestCollision(Rendering::IPhysicsObject *queriedObject)
+void Collision::SpatialHashing::_Update()
 {
-	return std::vector<Rendering::IPhysicsObject *>();
-}
-
-void Collision::SpatialHashing::Update()
-{
-	auto start = std::chrono::high_resolution_clock::now();
-
 	m_hashTable.clear();
 	m_bucketIndices.clear();
+	m_memoryCounter.resetAll();
 
 	for (auto obj : (*m_allObjects))
 	{
 		InsertObject(obj);
 	}
-
-	auto end = std::chrono::high_resolution_clock::now();
-
-	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-	m_lastFrameCriteria["Time Spent - Structure Update"] = (float)timeSpent;
 }
 
 void Collision::SpatialHashing::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -83,9 +69,11 @@ void Collision::SpatialHashing::InsertPoint(glm::vec3 point, Rendering::IPhysics
 	{
 		m_hashTable.push_back(std::unordered_set<Rendering::IPhysicsObject*>());
 		m_bucketIndices[hashKey] = m_hashTable.size() - 1;
+		m_memoryCounter.addDynamic(sizeof(std::unordered_set<Rendering::IPhysicsObject*>) + sizeof(size_t));
 	}
 
 	m_hashTable[m_bucketIndices[hashKey]].insert(obj);
+	m_memoryCounter.addDynamic(sizeof(Rendering::IPhysicsObject *));
 }
 
 void Collision::SpatialHashing::RemoveObject(Rendering::IPhysicsObject *obj)
@@ -170,11 +158,10 @@ std::string Collision::SpatialHashing::BinaryToString(size_t x)
 	return "(" + std::to_string(x) + ") " + result;	
 }
 
-std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::SpatialHashing::TestCollision()
+std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::SpatialHashing::_TestCollision()
 {
- 	std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
-	m_lastFrameComparisons = 0;
-	auto start = std::chrono::high_resolution_clock::now();
+ 	std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
+	m_lastFrameTests = 0;
 	
 	for (auto bucket : m_hashTable)
 	{
@@ -187,21 +174,14 @@ std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
 			for (auto it2 = it; it2 != end; ++it2)
 			{
 				auto secondObj = (*it2);
-				m_lastFrameComparisons++;
+				m_lastFrameTests++;
 				if (secondObj != firstObj && ((Rendering::Models::Model *)firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *)secondObj)->GetBoundingBox()))
 				{
-					result.push_back(std::make_pair(firstObj, secondObj));
+					result.insert(std::make_pair(firstObj, secondObj));
 				}
 			}
 		}
 	}
-
-	auto end = std::chrono::high_resolution_clock::now();
-
-	auto timeSpent = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-	m_lastFrameCriteria["Time Spent - Collisions"] = (float)timeSpent;
-	m_lastFrameCriteria["Intersection Tests"] = (float)m_lastFrameComparisons;
 
 	return result;
 }

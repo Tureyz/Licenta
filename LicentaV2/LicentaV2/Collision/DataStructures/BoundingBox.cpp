@@ -1,6 +1,7 @@
 #include "BoundingBox.h"
 #include "../../Managers/ModelManager.h"
 #include "../../Rendering/Models/Model.h"
+#include "../../Rendering/ShapeRenderer.h"
 
 Collision::DataStructures::BoundingBox::BoundingBox(Rendering::IPhysicsObject * parentObject)
 {
@@ -52,16 +53,13 @@ void Collision::DataStructures::BoundingBox::Create()
 	this->m_vao = parent->GetModelManager()->m_cubeVao;
 	this->m_vbos.push_back(parent->GetModelManager()->m_cubeVbo);
 	this->m_vbos.push_back(parent->GetModelManager()->m_cubeIbo);
+	this->m_indices = parent->GetModelManager()->m_cubeIndices;
 	UpdateValues();
 }
 
 
 void Collision::DataStructures::BoundingBox::Update()
 {
-// 	std::cout << "PARENT POS: " << m_parentObject->GetPosition().x << " " << m_parentObject->GetPosition().y << " " << m_parentObject->GetPosition().z << std::endl;
-// 	TranslateAbsolute(m_parentObject->GetPosition());
-// 	ScaleAbsolute(m_parentObject->GetScale());
-// 	m_modelMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
 }
 
 void Collision::DataStructures::BoundingBox::Draw(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix)
@@ -75,22 +73,11 @@ void Collision::DataStructures::BoundingBox::Draw(const glm::mat4 & projectionMa
 
 	glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-	//For now, all objects use the same shaders
-	//glUseProgram(m_program);
-
-	glUniform1i(2, Rendering::BOUNDINGBOX);
-	glUniformMatrix4fv(3, 1, false, &MVPMatrix[0][0]);
-	glBindVertexArray(m_vao);
-
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	Rendering::ShapeRenderer::Draw(MVPMatrix, m_vao, m_indices, Rendering::BOUNDINGBOX);
 }
 
 void Collision::DataStructures::BoundingBox::Destroy()
 {
-// 	glDeleteVertexArrays(1, &m_vao);
-// 	glDeleteBuffers((GLsizei)m_vbos.size(), &m_vbos[0]);
-// 	m_vbos.clear();
 }
 
 void Collision::DataStructures::BoundingBox::UpdateValues()
@@ -130,7 +117,7 @@ void Collision::DataStructures::BoundingBox::UpdateValues()
 			if (maxCoords.y > m_maxY) m_maxY = maxCoords.y;
 			if (maxCoords.z > m_maxZ) m_maxZ = maxCoords.z;
 		}
-	}		
+	}
 }
 
 void Collision::DataStructures::BoundingBox::SetProgram(GLuint shaderName)
@@ -140,16 +127,6 @@ void Collision::DataStructures::BoundingBox::SetProgram(GLuint shaderName)
 
 bool Collision::DataStructures::BoundingBox::Collides(const BoundingBox * other)
 {
-// 	if () return false;
-// 	if () return false;
-// 
-// 	if (m_maxY < other->m_minY) return false;
-// 	if (m_minY > other->m_maxY) return false;
-// 
-// 	if (m_maxZ < other->m_minZ) return false;
-// 	if (m_minZ > other->m_maxZ) return false;
-	
 	return !(m_maxX < other->m_minX || m_minX > other->m_maxX || m_maxY < other->m_minY || m_minY > other->m_maxY || m_maxZ < other->m_minZ || m_minZ > other->m_maxZ);
-	//return true;
 }
 

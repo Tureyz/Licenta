@@ -11,6 +11,7 @@ namespace Benchmark
 		float m_fps;
 	public:
 		void Update();
+		void FixedUpdate();
 		void Draw();
 	};
 }

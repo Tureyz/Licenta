@@ -10,13 +10,14 @@
 
 namespace Core
 {
-	//TODO DT doesn't work, remake
-	static int t1 = glutGet(GLUT_ELAPSED_TIME), deltaTime = 0;
-	
+	const glm::vec4 defaultObjectColor(0.7f, 0.7f, 0.7f, 1.f);
+	const std::string benchmarkFolder("BenchmarkResults/");
+	const std::string rawResultFolder(benchmarkFolder + "RawResults/");
+	const std::string plotsFolder(benchmarkFolder + "Plots/");
+
 	class Utils
 	{
 	public:
-
 		static void printToScreen(glm::vec2 pos, std::string str)
 		{
 			//TODO find stuff that's not deprecated
@@ -76,22 +77,6 @@ namespace Core
 				min + (float)(std::rand()) / (float(RAND_MAX / (max - min))),
 				min + (float)(std::rand()) / (float(RAND_MAX / (max - min)))
 			);
-		}
-
-		static void UpdateTick()
-		{
-			int t2 = glutGet(GLUT_ELAPSED_TIME);
-
-			deltaTime = t2 - t1;
-
-			t1 = t2;
-		}
-
-		static float DeltaTime()
-		{
-			return (float) deltaTime;
-		}
-		
-		
+		}		
 	};
 }

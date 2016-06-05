@@ -43,11 +43,11 @@ void Simulation::Scenario::LoadFromFile(std::string fileName)
 
 	m_numberOfFrames = std::stoull(line);
 	m_objectDescriptions.clear();
+
 	while (getline(file, line))
 	{
 		std::stringstream strstr(line);
 
-		// use stream iterators to copy the stream to the vector as whitespace separated strings
 		std::istream_iterator<std::string> it(strstr);
 		std::istream_iterator<std::string> end;
 		std::vector<std::string> results(it, end);
@@ -88,7 +88,6 @@ void Simulation::Scenario::LoadFromFile(std::string fileName)
 		m_objectDescriptions.push_back(objDesc);
 	}
 
-	//std::cout << m_name;
 	file.close();
 }
 
@@ -101,7 +100,6 @@ void Simulation::Scenario::SaveToFile(std::string fileName)
 		std::cout << "ERROR OPENING FILE\n";
 	}
 	file << m_name << "\n";
-	//file << m_objectDescriptions.size() << "\n";
 	file << m_numberOfFrames << "\n";
 
 	for (auto objDesc : m_objectDescriptions)
@@ -119,4 +117,22 @@ void Simulation::Scenario::SaveToFile(std::string fileName)
 	}
 
 	file.close();
+}
+
+std::vector<Simulation::ObjectDescription> Simulation::Scenario::GetDescriptionsByFrame(int frameNumber)
+{
+	std::vector<Simulation::ObjectDescription> result(m_objectDescriptions);
+
+	for (int i = 0; i < frameNumber; ++i)
+	{
+		for (auto desc : result)
+		{
+			desc.m_initialPosition += desc.m_translationStep;
+			desc.m_initialRotation += desc.m_rotationStep;
+			desc.m_initialRotationAngle += desc.m_rotationAngleStep;
+			desc.m_initialScale += desc.m_scaleStep;
+		}
+	}
+
+	return result;
 }

@@ -3,16 +3,18 @@
 
 Managers::SceneManager::SceneManager()
 {
+	m_time = m_timeBase = 0;
+
 	glEnable(GL_DEPTH_TEST);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	m_shaderManager = new ShaderManager();
-	m_shaderManager->CreateProgram("colorShader", "Shaders\\VertexShader.glsl", "Shaders\\FragmentShader.glsl");
+	m_shaderManager->CreateProgram("Shaders\\VertexShader.glsl", "Shaders\\FragmentShader.glsl");
 
 	m_viewMatrix = glm::mat4(
-		1.0f, 0.0f,  0.0f, 0.0f,
-		0.0f, 1.0f,  0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, -1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
 	//m_viewMatrix = glm::mat4(1.f);
@@ -22,6 +24,7 @@ Managers::SceneManager::SceneManager()
 
 	m_modelManager->Init();
 	m_simulationManager->Init();
+	m_deltaTime.UpdateTick();
 }
 
 Managers::SceneManager::~SceneManager()
@@ -33,7 +36,16 @@ Managers::SceneManager::~SceneManager()
 
 void Managers::SceneManager::notifyBeginFrame()
 {
-	Core::Utils::UpdateTick();
+	m_time = glutGet(GLUT_ELAPSED_TIME);
+
+	m_timeBase = m_time;
+	m_deltaTime.UpdateTick();
+
+	m_modelManager->FixedUpdate();
+	m_simulationManager->FixedUpdate();
+	m_FPSCounter.FixedUpdate();
+
+
 	m_modelManager->Update();
 	m_simulationManager->Update();
 	m_FPSCounter.Update();
@@ -45,8 +57,7 @@ void Managers::SceneManager::notifyDisplayFrame()
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
 	m_FPSCounter.Draw();
-	glUseProgram(Managers::ShaderManager::GetShader("colorShader"));
-	m_modelManager->Draw();
+	glUseProgram(Managers::ShaderManager::GetShader());
 	m_modelManager->Draw(m_projectionMatrix, m_camera->GetViewMatrix());
 
 	m_simulationManager->Draw();
@@ -57,7 +68,7 @@ void Managers::SceneManager::notifyEndFrame()
 {
 }
 
-void Managers::SceneManager::notifyReshape(int width, int height, int previous_width, int previous_height)
+void Managers::SceneManager::notifyReshape(int width, int height, int previousWidth, int previousHeight)
 {
 	float ar = (float)glutGet(GLUT_WINDOW_WIDTH) / (float)glutGet(GLUT_WINDOW_HEIGHT);
 	float angle = 45.0f, near1 = 0.1f, far1 = 2000.0f;

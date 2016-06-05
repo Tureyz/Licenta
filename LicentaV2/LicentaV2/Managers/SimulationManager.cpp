@@ -5,11 +5,14 @@
 #include "../Simulation/Scenario.h"
 #include "../Core/Utils.hpp"
 #include "../Simulation/ScenarioGenerator.h"
+#include "../Rendering/Models/Cylinder.h"
+#include "../Rendering/Models/Cone.h"
+#include "../Collision/SeparatingAxisTheorem.h"
+#include "../Benchmark/Plotter.h"
 
 Managers::SimulationManager::SimulationManager(ModelManager *modelManager)
 {
 	m_objectIDCounter = 0;
-	m_time = m_timeBase = 0;
 	m_modelManager = modelManager;
 	m_allObjects = m_modelManager->GetModelListPtr();
 	m_collisionDebug = false;
@@ -17,6 +20,7 @@ Managers::SimulationManager::SimulationManager(ModelManager *modelManager)
 	m_runningBenchmark = false;
 	m_currentSimulationFrame = 0;
 	m_maxSimulationFrame = 0;
+	m_lastActiveMethodName = m_defaultMethodName;
 }
 
 Managers::SimulationManager::~SimulationManager()
@@ -26,109 +30,50 @@ Managers::SimulationManager::~SimulationManager()
 
 void Managers::SimulationManager::Init()
 {
-// 	SpawnManyAround(glm::vec3(0.f, 0.f, 0.f), 7.f, 5, Simulation::PhysicsObjectType::OBJ_RANDOM);
-// 	m_modelManager->SetBoundingBoxesVisibile(false);
-// 
-// 	for (int i = 0; i < m_modelManager->GetModelListPtr()->size(); ++i)
-// 	{
-// 		(*m_modelManager->GetModelListPtr())[i]->SetRotationStep(glm::vec3(1.001f));
-// 		(*m_modelManager->GetModelListPtr())[i]->SetRotationAngleStep(0.01f);
-// 	}
-	
-	Simulation::ScenarioGenerator::ExportScenarios(Simulation::ScenarioGenerator::GenerateScenarios(5));
-	//Simulation::ScenarioGenerator::GenerateScenarios(5);
-// 	Simulation::Scenario *scen = new Simulation::Scenario();
-// 	//scen.LoadFromObjects(*m_allObjects, "Test Scenario");
-// 	//scen.SaveToFile("SavedScenarios/test.txt");
-// 	scen->LoadFromFile("SavedScenarios/test.txt");
-// 	SpawnObjectsFromScenario(scen);
-
+	//The next line generates new scenarios every time. Comment for persistence
+	//Simulation::ScenarioGenerator::ExportScenarios(Simulation::ScenarioGenerator::GenerateScenarios(5));
 
 	ImportAllAvailableScenarios();
 
-// 	m_scenarios.push_back(scen);
-// 	m_activeScenario = scen;
-// 	m_currentScenarioIndex = 0;
-
 	m_modelManager->SetBoundingBoxesVisibile(m_objectBBs);
-	
+
 	InitCollisionMethods();
 
 	std::cout << "Current method: " << (*m_activeMethod).first.c_str() << std::endl;
 
-
 	LoadScenario(m_activeScenario);
+}
+
+void Managers::SimulationManager::FixedUpdate()
+{
+	m_currentSimulationFrame++;
+
+	if (!m_runningBenchmark)
+	{
+		(*m_activeMethod).second->Update();
+		TestCollision();
+
+		if (m_currentSimulationFrame > m_maxSimulationFrame)
+		{
+			CleanupCurrentScenario();
+			LoadScenario(m_activeScenario);
+		}
+	}
+	else
+	{
+		if (m_currentSimulationFrame <= m_maxSimulationFrame)
+		{
+			RecordLastFrameResults();
+		}
+		else
+		{
+			CurrentScenarioEnded();
+		}
+	}
 }
 
 void Managers::SimulationManager::Update()
 {
-	// Collision checks 30 times per second
-	m_time = glutGet(GLUT_ELAPSED_TIME);
-	if (m_time - m_timeBase > 1000.f / 30.f)
-	{
-		m_timeBase = m_time;
-		//std::cout << "TICK\n";
-		m_currentSimulationFrame++;
-
-		if (!m_runningBenchmark)
-		{
-			(*m_activeMethod).second->Update();
-			TestCollision();
-
-			if (m_currentSimulationFrame > m_maxSimulationFrame)
-			{
-				CleanupCurrentScenario();
-				LoadScenario(m_activeScenario);
-
-			}
-		}
-		else
-		{
-			if (m_currentSimulationFrame <= m_maxSimulationFrame)
-			{
-				std::unordered_map<std::string, PerFrameCriteria> currentFrameResults;
-				for (auto method : m_collisionMethods)
-				{
-					method.second->Update();
-
-					ResetCollisions();
-
-					std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> asd = method.second->TestCollision();
-
-					for (int i = 0; i < asd.size(); ++i)
-					{
-						asd[i].first->SetCollisionState(COLLIDING);
-						asd[i].second->SetCollisionState(COLLIDING);
-					}
-
-					PerFrameCriteria currentFrameResult;
-					currentFrameResult.Element = method.second->GetLastFrameCriteria();
-					currentFrameResults[method.first] = currentFrameResult;
-				}
-				MethodFrameResult allMethodsFrameResult;
-				allMethodsFrameResult.Element = currentFrameResults;
-				m_benchmarkPerFrameResults.push_back(allMethodsFrameResult);
-				
-			} 
-			else
-			{
-				CleanupCurrentScenario();
-				ExportCurrentScenarioResults();
-				m_currentScenarioIndex++;
-
-				if (m_currentScenarioIndex < m_scenarios.size())
-				{
-					LoadScenario(m_scenarios[m_currentScenarioIndex]);					
-				}
-				else
-				{
-					m_runningBenchmark = false;
-					std::cout << "Finished Benchmark" << std::endl;					
-					LoadScenario(m_scenarios[0]);
-				}
-			}
-		}
-	}
 }
 
 void Managers::SimulationManager::Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -172,6 +117,7 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 		m_activeMethod--;
 		ResetCollisions();
 		std::cout << "Current Method: " << (*m_activeMethod).first.c_str() << std::endl;
+		m_activeMethod->second->SetShowDebug(m_collisionDebug);
 		break;
 	case 'e':
 		m_activeMethod++;
@@ -181,6 +127,7 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 		}
 		ResetCollisions();
 		std::cout << "Current Method: " << (*m_activeMethod).first.c_str() << std::endl;
+		m_activeMethod->second->SetShowDebug(m_collisionDebug);
 		break;
 	case 'r':
 		m_collisionDebug = !m_collisionDebug;
@@ -251,12 +198,12 @@ void Managers::SimulationManager::TestCollision()
 
 	ResetCollisions();
 
-	std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> asd = (*m_activeMethod).second->TestCollision();
-	
-	for (int i = 0; i < asd.size(); ++i)
+	std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> asd = (*m_activeMethod).second->TestCollision();
+
+	for (auto pair : asd)
 	{
-		asd[i].first->SetCollisionState(COLLIDING);
-		asd[i].second->SetCollisionState(COLLIDING);
+		pair.first->SetCollisionState(COLLIDING);
+		pair.second->SetCollisionState(COLLIDING);
 	}
 }
 
@@ -264,26 +211,29 @@ void Managers::SimulationManager::BenchmarkAllScenarios()
 {
 	m_runningBenchmark = true;
 	CleanupCurrentScenario();
-	LoadScenario(m_scenarios[0]);
+	m_currentScenarioIndex = 0;
+	LoadScenario(m_scenarios[m_currentScenarioIndex]);
 	m_currentSimulationFrame = 0;
 	std::cout << "Starting benchmark..." << std::endl;
+
+
 }
 
 void Managers::SimulationManager::ExportCurrentScenarioResults()
 {
 	for (int i = 0; i < m_benchmarkPerFrameResults.size(); ++i)
 	{
-		auto frameResult = m_benchmarkPerFrameResults[i];		
+		auto frameResult = m_benchmarkPerFrameResults[i];
 		for (auto methodResult : frameResult.Element)
 		{
 			std::ofstream file;
 			if (i == 0)
 			{
-				file.open("BenchmarkResults/" + m_activeScenario->m_name + "_" + methodResult.first + ".txt", std::ios::out | std::ios::trunc);
+				file.open(Core::rawResultFolder + m_activeScenario->m_name + "_" + methodResult.first + ".txt", std::ios::out | std::ios::trunc);
 			}
 			else
 			{
-				file.open("BenchmarkResults/" + m_activeScenario->m_name + "_" + methodResult.first + ".txt", std::ios::out | std::ios::app);
+				file.open(Core::rawResultFolder + m_activeScenario->m_name + "_" + methodResult.first + ".txt", std::ios::out | std::ios::app);
 			}
 
 			if (!file.is_open())
@@ -334,7 +284,7 @@ void Managers::SimulationManager::ImportAllAvailableScenarios()
 		m_activeScenario = m_scenarios[0];
 		m_currentScenarioIndex = 0;
 	}
-	else 
+	else
 	{
 		m_activeScenario = NULL;
 		m_currentScenarioIndex = -1;
@@ -347,24 +297,32 @@ void Managers::SimulationManager::InitCollisionMethods()
 
 	m_collisionMethods["BVH"] = new Collision::BVH(m_allObjects);
 	m_collisionMethods["BVH"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	m_collisionMethods["BVH"]->SetIndices(&m_modelManager->m_cubeIndices);
 
 	m_collisionMethods["Octree"] = new Collision::Octree(m_allObjects, glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20));
 	m_collisionMethods["Octree"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	m_collisionMethods["Octree"]->SetIndices(&m_modelManager->m_cubeIndices);
 	((Collision::Octree *)m_collisionMethods["Octree"])->SetParams(5, 50);
 
-	m_collisionMethods["Spatial Grid"] = new Collision::SpatialGrid(m_allObjects, 10);
-	m_collisionMethods["Spatial Grid"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	((Collision::SpatialGrid *)m_collisionMethods["Spatial Grid"])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
+	m_collisionMethods["Spatial-Grid"] = new Collision::SpatialGrid(m_allObjects, 10);
+	m_collisionMethods["Spatial-Grid"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	m_collisionMethods["Spatial-Grid"]->SetIndices(&m_modelManager->m_cubeIndices);
+	((Collision::SpatialGrid *)m_collisionMethods["Spatial-Grid"])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
 
-	m_collisionMethods["Sweep and Prune"] = new Collision::SweepAndPrune(m_allObjects);
-	m_collisionMethods["Sweep and Prune"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	m_collisionMethods["Sweep-and-Prune"] = new Collision::SweepAndPrune(m_allObjects);
+	m_collisionMethods["Sweep-and-Prune"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	m_collisionMethods["Sweep-and-Prune"]->SetIndices(&m_modelManager->m_cubeIndices);
 
-	m_collisionMethods["Spatial Hashing"] = new Collision::SpatialHashing(m_allObjects);
-	m_collisionMethods["Spatial Hashing"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	((Collision::SpatialHashing *)m_collisionMethods["Spatial Hashing"])->SetCellSize(5);
+	m_collisionMethods["Spatial-Hashing"] = new Collision::SpatialHashing(m_allObjects);
+	m_collisionMethods["Spatial-Hashing"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	m_collisionMethods["Spatial-Hashing"]->SetIndices(&m_modelManager->m_cubeIndices);
+	((Collision::SpatialHashing *)m_collisionMethods["Spatial-Hashing"])->SetCellSize(5);
 
-	//m_activeMethod = m_collisionMethods["Sweep and Prune"];
-	m_activeMethod = m_collisionMethods.find("None");
+	// 	m_collisionMethods["Separating Axis Theorem"] = new Collision::SeparatingAxisTheorem(m_allObjects);
+	// 	m_collisionMethods["Separating Axis Theorem"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+
+		//m_activeMethod = m_collisionMethods["Sweep and Prune"];
+	m_activeMethod = m_collisionMethods.find(m_defaultMethodName);
 	//(*m_activeMethod).second->SetShowDebug(true);
 }
 
@@ -392,20 +350,81 @@ void Managers::SimulationManager::LoadScenario(Simulation::Scenario *scenario)
 		return;
 	}
 	m_activeScenario = scenario;
-	m_maxSimulationFrame = m_activeScenario->m_numberOfFrames;	
+	m_maxSimulationFrame = m_activeScenario->m_numberOfFrames;
 
 	InitCollisionMethods();
 	SpawnObjectsFromScenario(m_activeScenario);
+
+	for (auto it = m_collisionMethods.begin(); it != m_collisionMethods.end(); ++it)
+	{
+		if (!(*it).first.compare(m_lastActiveMethodName))
+		{
+			m_activeMethod = it;
+			break;
+		}
+	}
+
+
+	m_activeMethod->second->SetShowDebug(m_collisionDebug);
+	m_modelManager->SetBoundingBoxesVisibile(m_objectBBs);
 	std::cout << "Loaded Scenario: " << m_activeScenario->m_name << std::endl;
 }
 
 void Managers::SimulationManager::CleanupCurrentScenario()
-{	
+{
 	m_modelManager->DeleteAllModels();
 
+	m_lastActiveMethodName = m_activeMethod->first;
 	FreeCollisionMethods();
 
 	m_currentSimulationFrame = 0;
+}
+
+void Managers::SimulationManager::RecordLastFrameResults()
+{
+	std::unordered_map<std::string, PerFrameCriteria> currentFrameResults;
+	for (auto method : m_collisionMethods)
+	{
+		method.second->Update();
+
+		ResetCollisions();
+
+		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> asd = method.second->TestCollision();
+
+		for (auto pair : asd)
+		{
+			pair.first->SetCollisionState(COLLIDING);
+			pair.second->SetCollisionState(COLLIDING);
+		}
+
+		PerFrameCriteria currentFrameResult;
+		currentFrameResult.Element = method.second->GetLastFrameCriteria();
+		currentFrameResults[method.first] = currentFrameResult;
+	}
+	MethodFrameResult allMethodsFrameResult;
+	allMethodsFrameResult.Element = currentFrameResults;
+	m_benchmarkPerFrameResults.push_back(allMethodsFrameResult);
+}
+
+void Managers::SimulationManager::CurrentScenarioEnded()
+{
+	CleanupCurrentScenario();
+	ExportCurrentScenarioResults();
+	m_currentScenarioIndex++;
+
+	if (m_currentScenarioIndex < m_scenarios.size())
+	{
+		LoadScenario(m_scenarios[m_currentScenarioIndex]);
+	}
+	else
+	{
+		m_runningBenchmark = false;
+		std::cout << "Finished Benchmark" << std::endl;
+
+		Benchmark::Plotter::GeneratePlotsFromRawData();
+		
+		LoadScenario(m_scenarios[0]);
+	}
 }
 
 void Managers::SimulationManager::SpawnManyAround(const glm::vec3 & position, const float radius, const int numberOfObjects, Simulation::PhysicsObjectType typeOfObjects)
@@ -415,7 +434,7 @@ void Managers::SimulationManager::SpawnManyAround(const glm::vec3 & position, co
 		for (int i = 0; i < numberOfObjects; ++i)
 		{
 			glm::vec3 pos = Core::Utils::RandomVec3Around(position, radius);
-			SpawnObjectAt((Simulation::PhysicsObjectType)(rand() % 3), m_objectIDCounter++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), Core::Utils::RandomRange(0.5f, 1.f));
+			SpawnObjectAt((Simulation::PhysicsObjectType)(rand() % Simulation::PhysicsObjectType::OBJ_NUM_TOTAL), m_objectIDCounter++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), Core::Utils::RandomRange(0.5f, 1.f));
 		}
 	}
 	else
@@ -447,13 +466,20 @@ Rendering::IPhysicsObject* Managers::SimulationManager::SpawnObjectAt(const Simu
 	switch (objectType)
 	{
 	case Simulation::PhysicsObjectType::OBJ_CUBE:
-		newObj = new Rendering::Models::Cube(m_defaultObjectColor, m_modelManager, this);
+		newObj = new Rendering::Models::Cube(Core::defaultObjectColor, m_modelManager, this);
 		break;
 	case Simulation::PhysicsObjectType::OBJ_TETRAHEDRON:
-		newObj = new Rendering::Models::Tetrahedron(m_defaultObjectColor, m_modelManager, this);
+		newObj = new Rendering::Models::Tetrahedron(Core::defaultObjectColor, m_modelManager, this);
+		break;
+
+	case Simulation::PhysicsObjectType::OBJ_SPHERE:
+		newObj = new Rendering::Models::Sphere(Core::defaultObjectColor, m_modelManager, this);
+		break;
+	case Simulation::PhysicsObjectType::OBJ_CYLINDER:
+		newObj = new Rendering::Models::Cylinder(Core::defaultObjectColor, m_modelManager, this);
 		break;
 	default:
-		newObj = new Rendering::Models::Sphere(m_defaultObjectColor, m_modelManager, this);
+		newObj = new Rendering::Models::Cone(Core::defaultObjectColor, m_modelManager, this);
 		break;
 	}
 
@@ -464,7 +490,7 @@ Rendering::IPhysicsObject* Managers::SimulationManager::SpawnObjectAt(const Simu
 	newObj->TranslateAbsolute(position);
 	ObjectAdded(newObj);
 
-	m_modelManager->SetModel(ID, newObj);
+	m_modelManager->RegisterObject(ID, newObj);
 
 	return newObj;
 }

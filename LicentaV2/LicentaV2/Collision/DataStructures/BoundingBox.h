@@ -33,6 +33,7 @@ namespace Collision
 			GLuint m_vao;
 			GLuint m_program;
 			std::vector<GLuint> m_vbos;
+			std::vector<unsigned int> m_indices;
 		};
 	}
 }

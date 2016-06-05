@@ -10,25 +10,24 @@ namespace Collision
 	public:
 		BVH(std::vector<Rendering::IPhysicsObject *> *allObjects);
 
-		virtual std::vector<Rendering::IPhysicsObject *> TestCollision(Rendering::IPhysicsObject *queriedObject) override;
-
-		virtual std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> TestCollision() override;
-
-		virtual void Update() override;
-
 		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
 
-		void MakeTopDownTree(DataStructures::BVHTree **node, Rendering::IPhysicsObject ** objects, size_t numObjects);
+		void CreateTree(DataStructures::BVHTree **node, Rendering::IPhysicsObject ** objects, size_t numObjects);
 
-		size_t MakeSubsets(Collision::DataStructures::BVHTree *node);
+		size_t SplitObjects(Collision::DataStructures::BVHTree *node);
+
+	protected:
+		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+
+		virtual void _Update() override;
+
 	private:
 
 		void DrawRecursive(DataStructures::BVHTree *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
-		bool DescendDirection(DataStructures::BVHTree *left, DataStructures::BVHTree *right);
+		bool ChildrenSelectionRule(DataStructures::BVHTree *left, DataStructures::BVHTree *right);
 
-		std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> QueryBVHPairs(DataStructures::BVHTree *first, DataStructures::BVHTree *second);
-		std::vector<Rendering::IPhysicsObject *> QueryBVH(DataStructures::BVHTree *queriedLeaf);
+		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> QueryBVHPairs(DataStructures::BVHTree *first, DataStructures::BVHTree *second);
 
 		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
 

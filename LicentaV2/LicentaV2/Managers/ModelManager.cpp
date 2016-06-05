@@ -1,6 +1,4 @@
 #include "ModelManager.h"
-#include "../Rendering/Models/Triangle.h"
-#include "../Rendering/Models/Quad.h"
 #include "../Rendering/Models/Cube.h"
 #include "../Rendering/Models/Tetrahedron.h"
 #include "../Rendering/Models/Sphere.h"
@@ -8,6 +6,9 @@
 #include <utility>
 #include <string>
 #include <cstdlib>
+#include "../Core/Utils.hpp"
+
+#include "../Rendering/ShapeRenderer.h"
 
 Managers::ModelManager::ModelManager()
 {
@@ -15,30 +16,24 @@ Managers::ModelManager::ModelManager()
 
 Managers::ModelManager::~ModelManager()
 {
-	for (auto model : m_physicsModelList)
+	for (auto model : m_objectList)
 	{
 		delete model;
 	}
-	m_physicsModelList.clear();
-
-	for (auto model : m_physicsModelListNDC)
-	{
-		delete model;
-	}
-	m_physicsModelListNDC.clear();
+	m_objectList.clear();
 }
 
-void Managers::ModelManager::Draw()
+void Managers::ModelManager::FixedUpdate()
 {
-	for (auto model : m_physicsModelListNDC)
+	for (auto model : m_objectList)
 	{
-		model->Draw();
+		model->FixedUpdate();
 	}
 }
 
 void Managers::ModelManager::Draw(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix)
 {
-	for (auto model : m_physicsModelList)
+	for (auto model : m_objectList)
 	{
 		model->Draw(projectionMatrix, viewMatrix);
 	}
@@ -46,12 +41,7 @@ void Managers::ModelManager::Draw(const glm::mat4 & projectionMatrix, const glm:
 
 void Managers::ModelManager::Update()
 {
-	for (auto model : m_physicsModelList)
-	{
-		model->Update();
-	}
-
-	for (auto model : m_physicsModelListNDC)
+	for (auto model : m_objectList)
 	{
 		model->Update();
 	}
@@ -59,40 +49,26 @@ void Managers::ModelManager::Update()
 
 void Managers::ModelManager::DeleteAllModels()
 {
-	if (!m_physicsModelList.empty())
+	if (!m_objectList.empty())
 	{
-		for (auto model : m_physicsModelList)
+		for (auto model : m_objectList)
 		{
 			model->Destroy();
 		}
 
-		m_physicsModelList.clear();
+		m_objectList.clear();
 	}
 }
 
 void Managers::ModelManager::DeleteModel(unsigned long id)
 {
 	Rendering::IPhysicsObject *model = NULL;
-	for (std::vector<Rendering::IPhysicsObject*>::iterator it = m_physicsModelList.begin(); it != m_physicsModelList.end(); ++it)
+	for (auto it = m_objectList.begin(); it != m_objectList.end(); ++it)
 	{
 		if ((*it)->GetID() == id)
 		{
 			(*it)->Destroy();
-			m_physicsModelList.erase(it);
-			break;
-		}
-	}
-}
-
-void Managers::ModelManager::DeleteModelNDC(unsigned long id)
-{
-	Rendering::IPhysicsObject *model = NULL;
-	for (std::vector<Rendering::IPhysicsObject*>::iterator it = m_physicsModelListNDC.begin(); it != m_physicsModelListNDC.end(); ++it)
-	{
-		if ((*it)->GetID() == id)
-		{
-			(*it)->Destroy();
-			m_physicsModelListNDC.erase(it);
+			m_objectList.erase(it);
 			break;
 		}
 	}
@@ -100,7 +76,7 @@ void Managers::ModelManager::DeleteModelNDC(unsigned long id)
 
 const Rendering::IPhysicsObject* Managers::ModelManager::GetModel(unsigned long id) const
 {
-	for (auto mod : m_physicsModelList)
+	for (auto mod : m_objectList)
 	{
 		if (mod->GetID() == id)
 		{
@@ -111,23 +87,10 @@ const Rendering::IPhysicsObject* Managers::ModelManager::GetModel(unsigned long 
 	return NULL;
 }
 
-const Rendering::IPhysicsObject* Managers::ModelManager::GetModelNDC(unsigned long id) const
-{
-	for (auto mod : m_physicsModelListNDC)
-	{
-		if (mod->GetID() == id)
-		{
-			return mod;
-		}
-	}
-
-	return NULL;
-}
-
-void Managers::ModelManager::SetModel(size_t id, Rendering::IPhysicsObject *gameObject)
+void Managers::ModelManager::RegisterObject(size_t id, Rendering::IPhysicsObject *gameObject)
 {
 	bool found = false;
-	for (auto mod : m_physicsModelList)
+	for (auto mod : m_objectList)
 	{
 		if (mod->GetID() == id)
 		{
@@ -139,13 +102,13 @@ void Managers::ModelManager::SetModel(size_t id, Rendering::IPhysicsObject *game
 
 	if (!found) {
 		gameObject->SetID(id);
-		m_physicsModelList.push_back(gameObject);
+		m_objectList.push_back(gameObject);
 	}
 }
 
 void Managers::ModelManager::SetBoundingBoxesVisibile(bool value)
 {
-	for (auto obj : m_physicsModelList)
+	for (auto obj : m_objectList)
 	{
 		((Rendering::Models::Model *) obj)->SetBoundingBoxVisible(value);
 	}
@@ -158,115 +121,207 @@ void Managers::ModelManager::Init()
 
 void Managers::ModelManager::CreateBufferObjects()
 {
+	CreateCubeProps();
+	Rendering::ShapeRenderer::CreateBufferObjects(m_cubeVao, m_cubeVbo, m_cubeIbo, m_cubeVerts, m_cubeIndices);
 
-	// CUBE
+	CreateTetrahedronProps();
+	Rendering::ShapeRenderer::CreateBufferObjects(m_tetraVao, m_tetraVbo, m_tetraIbo, m_tetraVerts, m_tetraIndices);
 
-	glGenVertexArrays(1, &m_cubeVao);
-	glBindVertexArray(m_cubeVao);
+	CreateSphereProps();
+	Rendering::ShapeRenderer::CreateBufferObjects(m_sphereVao, m_sphereVbo, m_sphereIbo, m_sphereVerts, m_sphereIndices);
 
+	CreateCylinderProps();
+	Rendering::ShapeRenderer::CreateBufferObjects(m_cylinderVao, m_cylinderVbo, m_cylinderIbo, m_cylinderVerts, m_cylinderIndices);
+
+	CreateConeProps();
+	Rendering::ShapeRenderer::CreateBufferObjects(m_coneVao, m_coneVbo, m_coneIbo, m_coneVerts, m_coneIndices);
+}
+
+void Managers::ModelManager::CreateCubeProps()
+{
 	m_cubeIndices = { 0, 1, 2, 0, 2, 3, //front
 		4, 5, 6, 4, 6, 7, //right
 		8, 9, 10, 8, 10, 11, //back
 		12, 13, 14, 12, 14, 15, //left
 		16, 17, 18, 16, 18, 19, //upper
-		20, 21, 22, 20, 22, 23 }; //bottom
+		20, 21, 22, 20, 22, 23 }; //bottom	
 
-								  //front
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
+	//front
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::defaultObjectColor));
 
 	//right
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::defaultObjectColor));
 
 	//back
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::defaultObjectColor));
 
 	//left
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::defaultObjectColor));
 
 	//upper
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::defaultObjectColor));
 
 	//bottom
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), glm::vec4(0.7, 0.7, 0.7, 1)));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::defaultObjectColor));
+}
 
-	glGenBuffers(1, &m_cubeVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_cubeVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * m_cubeVerts.size(), &m_cubeVerts[0], GL_STATIC_DRAW);
+void Managers::ModelManager::CreateTetrahedronProps()
+{
+	m_tetraIndices = { 0, 1, 2,
+		0, 1, 3,
+		0, 2, 3 };
 
-	glGenBuffers(1, &m_cubeIbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cubeIbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_cubeIndices.size() * sizeof(unsigned int), &m_cubeIndices[0], GL_STATIC_DRAW);
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, 1.0, 1.0), Core::defaultObjectColor));
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, -1.0, 1.0), Core::defaultObjectColor));
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, 1.0, -1.0), Core::defaultObjectColor));
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, -1.0, -1.0), Core::defaultObjectColor));
+}
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void*)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_color)));
-	glBindVertexArray(0);
+void Managers::ModelManager::CreateConeProps()
+{
+	float lats = 10, longs = 3;
 
-	//////////////////////////////////////////////////////////
+	float th = 0.f;
+	const float angleStep = glm::two_pi<float>() / lats;
+	const float zStep = 1 / longs;
+	const float rStep = 1 / longs;
 
-	// Tetrahedron
+	float r0 = 1.f, r1 = r0 - rStep;
+	float z0 = 0.f, z1 = zStep;
 
-	glGenVertexArrays(1, &m_tetraVao);
-	glBindVertexArray(m_tetraVao);
-	m_tetraIndices = { 0, 1, 2, 3, 0, 1 };
+	unsigned int crtIdx = 0;
 
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, 1.0, 1.0), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, -1.0, 1.0), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, 1.0, -1.0), glm::vec4(0.7, 0.7, 0.7, 1)));
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, -1.0, -1.0), glm::vec4(0.7, 0.7, 0.7, 1)));
+	for (int i = 0; i < longs - 1; ++i)
+	{
+		for (int j = 0; j < lats; ++j)
+		{
+			th = j * angleStep;
 
-	glGenBuffers(1, &m_tetraVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_tetraVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * m_tetraVerts.size(), &m_tetraVerts[0], GL_STATIC_DRAW);
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r1, glm::sin(th) * r1, z1), Core::defaultObjectColor));
 
-	glGenBuffers(1, &m_tetraIbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_tetraIbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_tetraIndices.size() * sizeof(unsigned int), &m_tetraIndices[0], GL_STATIC_DRAW);
+			th = (j + 1) * angleStep;
 
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r1, glm::sin(th) * r1, z1), Core::defaultObjectColor));
 
-	// 	glGenBuffers(1, &tbo);
-	// 	glBindBuffer(GL_ARRAY_BUFFER, tbo);
-	// 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * m_tetraVerts.size(), nullptr, GL_STATIC_READ);
-	// 	glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
+			m_coneIndices.push_back(crtIdx);
+			m_coneIndices.push_back(crtIdx + 2);
+			m_coneIndices.push_back(crtIdx + 3);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)0);
+			m_coneIndices.push_back(crtIdx);
+			m_coneIndices.push_back(crtIdx + 3);
+			m_coneIndices.push_back(crtIdx + 1);
 
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_color)));
+			crtIdx += 4;
+		}
 
-	glBindVertexArray(0);
+		z0 = z1;
+		z1 += zStep;
+		r0 = r1;
+		r1 -= rStep;
+	}
 
-	//////////////////////////////////////////////////////////
+	for (int i = 0; i < lats; ++i)
+	{
+		th = i * angleStep;
 
-	//Sphere
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(0, 0, 1), Core::defaultObjectColor));
 
+		m_coneIndices.push_back(crtIdx);
+		m_coneIndices.push_back(crtIdx + 1);
+		m_coneIndices.push_back(crtIdx + 2);
+
+		crtIdx += 3;
+	}
+
+	for (int j = lats; j >= 0; j--)
+	{
+		th = j * angleStep;
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th), glm::sin(th), 0), Core::defaultObjectColor));
+
+		th = (j - 1) * angleStep;
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th), glm::sin(th), 0), Core::defaultObjectColor));
+
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(0, 0, 0), Core::defaultObjectColor));
+
+		m_coneIndices.push_back(crtIdx);
+		m_coneIndices.push_back(crtIdx + 1);
+		m_coneIndices.push_back(crtIdx + 2);
+
+		crtIdx += 3;
+	}
+}
+
+void Managers::ModelManager::CreateCylinderProps()
+{
+	float lats = 11, longs = 5;
+
+	float heightStep = 1.0f / longs;
+	float height = -heightStep;
+	float deg = 0;
+
+	m_cylinderVerts.resize(lats * longs);
+
+	for (int i = 0; i < longs; ++i)
+	{
+		height += heightStep;
+
+		for (int j = 0; j < lats; ++j)
+		{
+			m_cylinderVerts[i * lats + j] = Rendering::VertexFormat(glm::vec3(glm::cos(glm::radians(deg)), height, glm::sin(glm::radians(deg))), Core::defaultObjectColor);
+			deg += 360.f / (lats - 1);
+		}
+		deg = 0;
+	}
+
+	m_cylinderIndices.resize(6 * (longs - 1) * lats);
+	int off = 0;
+
+	for (int i = 0; i < longs - 1; ++i)
+	{
+		for (int j = 0; j < lats; ++j)
+		{
+			m_cylinderIndices[off] = i * lats + j;
+			m_cylinderIndices[off + 1] = (i + 1) * lats + j;
+			m_cylinderIndices[off + 2] = i * lats + j + 1;
+
+			m_cylinderIndices[off + 3] = i * lats + j + 1;
+			m_cylinderIndices[off + 4] = (i + 1) * lats + j;
+			m_cylinderIndices[off + 5] = (i + 1) * lats + j + 1;
+			off += 6;
+		}
+	}
+
+	m_cylinderIndices.pop_back();
+}
+
+void Managers::ModelManager::CreateSphereProps()
+{
 	float longs = 15, lats = 15;
 	float const R = 1.f / (float)(longs - 1);
 	float const S = 1.f / (float)(lats - 1);
 	int r, s;
-
-	//vertices.resize(m_longs * m_lats * 3);
 
 	for (r = 0; r < longs; r++)
 	{
@@ -276,7 +331,7 @@ void Managers::ModelManager::CreateBufferObjects()
 			float x = cos(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R);
 			float z = sin(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R);
 
-			m_sphereVerts.push_back(Rendering::VertexFormat(glm::vec3(x, y, z), glm::vec4(0.7, 0.7, 0.7, 1)));
+			m_sphereVerts.push_back(Rendering::VertexFormat(glm::vec3(x, y, z), Core::defaultObjectColor));
 		}
 	}
 
@@ -284,34 +339,13 @@ void Managers::ModelManager::CreateBufferObjects()
 	{
 		for (s = 0; s < lats - 1; s++)
 		{
-			m_sphereIndices.push_back((GLuint)(r * lats + s));
-			m_sphereIndices.push_back((GLuint)(r * lats + (s + 1)));
-			m_sphereIndices.push_back((GLuint)((r + 1) * lats + (s + 1)));
+			m_sphereIndices.push_back((unsigned int)(r * lats + s));
+			m_sphereIndices.push_back((unsigned int)(r * lats + (s + 1)));
+			m_sphereIndices.push_back((unsigned int)((r + 1) * lats + (s + 1)));
 
-			m_sphereIndices.push_back((GLuint)((r + 1) * lats + (s + 1)));
-			m_sphereIndices.push_back((GLuint)((r + 1) * lats + s));
-			m_sphereIndices.push_back((GLuint)(r * lats + s));
-
+			m_sphereIndices.push_back((unsigned int)((r + 1) * lats + (s + 1)));
+			m_sphereIndices.push_back((unsigned int)((r + 1) * lats + s));
+			m_sphereIndices.push_back((unsigned int)(r * lats + s));
 		}
 	}
-
-	glGenVertexArrays(1, &m_sphereVao);
-	glBindVertexArray(m_sphereVao);
-
-	glGenBuffers(1, &m_sphereVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_sphereVbo);
-	glBufferData(GL_ARRAY_BUFFER, m_sphereVerts.size() * sizeof(Rendering::VertexFormat), &m_sphereVerts[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &m_sphereIbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_sphereIbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_sphereIndices.size() * sizeof(unsigned int), &m_sphereIndices[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void*)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_color)));
-	glBindVertexArray(0);
-
-
 }

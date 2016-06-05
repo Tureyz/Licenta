@@ -10,13 +10,10 @@ Collision::DummyMethod::~DummyMethod()
 {
 }
 
-std::vector<Rendering::IPhysicsObject *> Collision::DummyMethod::TestCollision(Rendering::IPhysicsObject *queriedObject)
+void Collision::DummyMethod::_Update()
 {
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void Collision::DummyMethod::Update()
-{
+	m_memoryCounter.resetAll();
+	m_memoryCounter.addDynamic(0);
 }
 
 void Collision::DummyMethod::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -35,7 +32,7 @@ void Collision::DummyMethod::ObjectRemoved(Rendering::IPhysicsObject *object)
 {
 }
 
-std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::DummyMethod::TestCollision()
+std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::DummyMethod::_TestCollision()
 {
-	return std::vector<std::pair<IPhysicsObject *, IPhysicsObject *>>();
+	return std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>>();
 }

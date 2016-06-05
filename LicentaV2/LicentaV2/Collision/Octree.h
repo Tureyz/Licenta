@@ -6,16 +6,18 @@ namespace Collision
 {
 	class Octree : public ICollisionMethod
 	{
-
-
 	public:
+
 		Octree(std::vector<Rendering::IPhysicsObject *> *allObjects, glm::vec3 worldMin, glm::vec3 worldMax);
 		~Octree();
-		virtual std::vector<Rendering::IPhysicsObject *> TestCollision(Rendering::IPhysicsObject *queriedObject) override;
-		virtual std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> TestCollision() override;
-		virtual void Update() override;
 		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
 		void SetParams(int splitThreshold, int maximumDepth);		
+
+	protected:
+
+		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+
+		virtual void _Update() override;
 
 	private:
 
@@ -29,7 +31,7 @@ namespace Collision
 
 		void DrawRecursive(DataStructures::OctreeNode *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
-		void TestCollisionsRecursive(DataStructures::OctreeNode *node, std::vector<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &collisions);
+		void TestCollisionsRecursive(DataStructures::OctreeNode *node, std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &collisions);
 
 		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
 
