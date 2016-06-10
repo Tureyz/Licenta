@@ -8,7 +8,7 @@
 
 namespace Rendering
 {
-	enum CollisionState { DEFAULT = 0, COLLIDING = 1, ACTIVE = 2, BOUNDINGBOX = 3 };
+	enum CollisionState { DEFAULT = 0, COLLIDING = 1, ACTIVE = 2, BOUNDINGBOX = 3, COLLISIONMETHOD = 4};
 	class IPhysicsObject
 	{
 	public:

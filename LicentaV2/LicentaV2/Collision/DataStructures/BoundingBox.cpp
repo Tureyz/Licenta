@@ -53,7 +53,7 @@ void Collision::DataStructures::BoundingBox::Create()
 	this->m_vao = parent->GetModelManager()->m_cubeVao;
 	this->m_vbos.push_back(parent->GetModelManager()->m_cubeVbo);
 	this->m_vbos.push_back(parent->GetModelManager()->m_cubeIbo);
-	this->m_indices = parent->GetModelManager()->m_cubeIndices;
+	this->m_indices = parent->GetModelManager()->m_lineCubeIndices;
 	UpdateValues();
 }
 
@@ -73,7 +73,7 @@ void Collision::DataStructures::BoundingBox::Draw(const glm::mat4 & projectionMa
 
 	glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-	Rendering::ShapeRenderer::Draw(MVPMatrix, m_vao, m_indices, Rendering::BOUNDINGBOX);
+	Rendering::ShapeRenderer::DrawWithLines(MVPMatrix, m_vao, m_indices, Rendering::BOUNDINGBOX);
 }
 
 void Collision::DataStructures::BoundingBox::Destroy()

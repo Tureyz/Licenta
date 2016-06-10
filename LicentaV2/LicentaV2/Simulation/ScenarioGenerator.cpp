@@ -4,7 +4,7 @@
 std::vector<Simulation::Scenario> Simulation::ScenarioGenerator::GenerateScenarios(int number)
 {
 	size_t numberOfObjects = 150;
-	size_t numberOfFrames = 300;
+	size_t numberOfFrames = 200;
 	
 	std::vector<Simulation::Scenario> result;
 	result.push_back(CreateStaticScenario(0, numberOfFrames, numberOfObjects, 10.f));
@@ -97,12 +97,15 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateManyMovingObjectsScena
 {
 	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_RANDOM);
 
-	for (int i = 0; i < 0.25 * (float) (defs.size()); ++i)
+	for (int i = 0; i < defs.size(); ++i)
 	{
-		defs[i].m_initialPosition = Core::Utils::RandomVec3Around(glm::vec3(0), movingObjectsRadius - radius) * glm::vec3(radius, radius, radius);
-		defs[i].m_rotationStep = Core::Utils::RandomRange(0.000, 1.000);
-		defs[i].m_rotationAngleStep = 0.00f + Core::Utils::RandomRange(0.00, 2.00).x / 50.f;
-		defs[i].m_translationStep = -glm::normalize(defs[i].m_initialPosition) * 1.f * glm::distance(defs[i].m_initialPosition, glm::vec3(0)) / (float)(numberOfFrames);
+		if (i % 4 == 0)
+		{
+			defs[i].m_initialPosition = Core::Utils::RandomVec3Around(glm::vec3(0), movingObjectsRadius - radius) * glm::vec3(radius, radius, radius);
+			defs[i].m_rotationStep = Core::Utils::RandomRange(0.000, 1.000);
+			defs[i].m_rotationAngleStep = 0.00f + Core::Utils::RandomRange(0.00, 2.00).x / 50.f;
+			defs[i].m_translationStep = -glm::normalize(defs[i].m_initialPosition) * 1.f * glm::distance(defs[i].m_initialPosition, glm::vec3(0)) / (float)(numberOfFrames);
+		}
 	}
 
 	return GenerateScenarioFromStats(defs, scenarioID, numberOfFrames);
@@ -125,9 +128,15 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateFrontalCrashScenario(i
 		defs2[i].m_translationStep = (defs1[i].m_initialPosition - defs2[i].m_initialPosition) / (float)(numberOfFrames);
 	}
 
-	defs1.insert(defs1.end(), defs2.begin(), defs2.end());
+	//defs1.insert(defs1.end(), defs2.begin(), defs2.end());
+	std::vector<Simulation::ObjectDescription> result;
+	for (int i = 0; i < defs1.size(); ++i)
+	{
+		result.push_back(defs1[i]);
+		result.push_back(defs2[i]);
+	}
 
-	return GenerateScenarioFromStats(defs1, scenarioID, numberOfFrames);
+	return GenerateScenarioFromStats(result, scenarioID, numberOfFrames);
 }
 
 Simulation::Scenario Simulation::ScenarioGenerator::CreateExplosionScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius)

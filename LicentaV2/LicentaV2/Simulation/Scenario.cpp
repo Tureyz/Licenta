@@ -14,7 +14,7 @@ void Simulation::Scenario::LoadFromObjects(std::vector<Rendering::IPhysicsObject
 	{
 		ObjectDescription objDesc;
 
-		objDesc.m_objectType = (PhysicsObjectType) obj->GetObjectType();
+		objDesc.m_objectType = (PhysicsObjectType)obj->GetObjectType();
 		objDesc.m_ID = obj->GetID();
 		objDesc.m_initialPosition = obj->GetPosition();
 		objDesc.m_initialRotation = obj->GetRotation();
@@ -86,6 +86,73 @@ void Simulation::Scenario::LoadFromFile(std::string fileName)
 		objDesc.m_translationStep.z = std::stof(results[i++]);
 
 		m_objectDescriptions.push_back(objDesc);
+	}
+
+	file.close();
+}
+
+void Simulation::Scenario::LoadFromFile(std::string fileName, int numberOfObjects)
+{
+	ifstream file(fileName);
+	if (!file.is_open())
+	{
+		std::cout << "ERROR OPENING FILE\n";
+	}
+	string line;
+	getline(file, m_name);
+
+	getline(file, line);
+
+	m_numberOfFrames = std::stoull(line);
+	m_objectDescriptions.clear();
+	for (int j = 0; j < numberOfObjects; ++j)
+	{
+		if (!getline(file, line))
+		{
+			break;
+		}
+		std::stringstream strstr(line);
+
+		std::istream_iterator<std::string> it(strstr);
+		std::istream_iterator<std::string> end;
+		std::vector<std::string> results(it, end);
+
+		ObjectDescription objDesc;
+		int i = 0;
+		objDesc.m_objectType = (Simulation::PhysicsObjectType) std::stoi(results[i++]);
+		objDesc.m_ID = std::stoull(results[i++]);
+
+		objDesc.m_initialPosition.x = std::stof(results[i++]);
+		objDesc.m_initialPosition.y = std::stof(results[i++]);
+		objDesc.m_initialPosition.z = std::stof(results[i++]);
+
+		objDesc.m_initialRotation.x = std::stof(results[i++]);
+		objDesc.m_initialRotation.y = std::stof(results[i++]);
+		objDesc.m_initialRotation.z = std::stof(results[i++]);
+
+		objDesc.m_initialRotationAngle = std::stof(results[i++]);
+
+		objDesc.m_initialScale.x = std::stof(results[i++]);
+		objDesc.m_initialScale.y = std::stof(results[i++]);
+		objDesc.m_initialScale.z = std::stof(results[i++]);
+
+		objDesc.m_rotationAngleStep = std::stof(results[i++]);
+
+		objDesc.m_rotationStep.x = std::stof(results[i++]);
+		objDesc.m_rotationStep.y = std::stof(results[i++]);
+		objDesc.m_rotationStep.z = std::stof(results[i++]);
+
+		objDesc.m_scaleStep.x = std::stof(results[i++]);
+		objDesc.m_scaleStep.y = std::stof(results[i++]);
+		objDesc.m_scaleStep.z = std::stof(results[i++]);
+
+		objDesc.m_translationStep.x = std::stof(results[i++]);
+		objDesc.m_translationStep.y = std::stof(results[i++]);
+		objDesc.m_translationStep.z = std::stof(results[i++]);
+
+		m_objectDescriptions.push_back(objDesc);
+
+
 	}
 
 	file.close();

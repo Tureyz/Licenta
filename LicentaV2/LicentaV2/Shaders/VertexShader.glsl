@@ -12,7 +12,7 @@ out vec4 fragColor;
 
 void main()
 {
-	vec4[4] colors = { inColor, vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, 1, 0) };
+	vec4[5] colors = { inColor, vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, 1, 0), vec4(0, 0.5f, 0, 0) };
 	fragColor = colors[collisionState];
 	gl_Position = MVPMatrix * vec4(inPosition, 1);
 }

@@ -25,7 +25,9 @@ void Collision::BVH::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat
 	if (!GetShowDebug())
 		return;
 
-	DrawRecursive(m_root, projectionMatrix, viewMatrix);	
+	glLineWidth(2);
+	DrawRecursive(m_root, projectionMatrix, viewMatrix);
+	glLineWidth(1);
 }
 
 void Collision::BVH::CreateTree(DataStructures::BVHTree **node, IPhysicsObject ** objects, size_t numObjects)

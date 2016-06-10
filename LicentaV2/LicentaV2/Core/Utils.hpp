@@ -14,6 +14,8 @@ namespace Core
 	const std::string benchmarkFolder("BenchmarkResults/");
 	const std::string rawResultFolder(benchmarkFolder + "RawResults/");
 	const std::string plotsFolder(benchmarkFolder + "Plots/");
+	const std::string perFramePlotsFloder(plotsFolder + "PerFrame/");
+	const std::string perScenarioPlotsFloder(plotsFolder + "PerScenario/");
 
 	class Utils
 	{

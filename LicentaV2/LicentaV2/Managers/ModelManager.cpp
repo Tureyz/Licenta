@@ -146,6 +146,8 @@ void Managers::ModelManager::CreateCubeProps()
 		16, 17, 18, 16, 18, 19, //upper
 		20, 21, 22, 20, 22, 23 }; //bottom	
 
+	m_lineCubeIndices = { 0, 1, 2, 3, 0, 8, 6, 1, 2, 5, 6, 8, 11, 3, 11, 5, 6, 1, 0};
+
 	//front
 	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::defaultObjectColor));
 	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::defaultObjectColor));

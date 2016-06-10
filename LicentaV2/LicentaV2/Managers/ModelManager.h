@@ -27,7 +27,7 @@ namespace Managers
 
 		std::vector<Rendering::VertexFormat> m_cubeVerts, m_sphereVerts, m_tetraVerts, m_cylinderVerts, m_coneVerts;
 		//care
-		std::vector<GLuint> m_cubeIndices, m_tetraIndices, m_sphereIndices, m_cylinderIndices, m_coneIndices;
+		std::vector<GLuint> m_cubeIndices, m_tetraIndices, m_sphereIndices, m_cylinderIndices, m_coneIndices, m_lineCubeIndices;
 		GLuint m_cubeVao, m_cubeVbo, m_cubeIbo;
 		GLuint m_tetraVao, m_tetraVbo, m_tetraIbo;
 		GLuint m_sphereVao, m_sphereVbo, m_sphereIbo;

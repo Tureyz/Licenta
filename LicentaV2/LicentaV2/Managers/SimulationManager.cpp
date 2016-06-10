@@ -21,6 +21,7 @@ Managers::SimulationManager::SimulationManager(ModelManager *modelManager)
 	m_currentSimulationFrame = 0;
 	m_maxSimulationFrame = 0;
 	m_lastActiveMethodName = m_defaultMethodName;
+	m_simulationDebug = false;
 }
 
 Managers::SimulationManager::~SimulationManager()
@@ -31,7 +32,7 @@ Managers::SimulationManager::~SimulationManager()
 void Managers::SimulationManager::Init()
 {
 	//The next line generates new scenarios every time. Comment for persistence
-	//Simulation::ScenarioGenerator::ExportScenarios(Simulation::ScenarioGenerator::GenerateScenarios(5));
+	Simulation::ScenarioGenerator::ExportScenarios(Simulation::ScenarioGenerator::GenerateScenarios(5));
 
 	ImportAllAvailableScenarios();
 
@@ -39,7 +40,8 @@ void Managers::SimulationManager::Init()
 
 	InitCollisionMethods();
 
-	std::cout << "Current method: " << (*m_activeMethod).first.c_str() << std::endl;
+	DisplayHelp();
+	std::cout << "Current Collision Method: " << (*m_activeMethod).first.c_str() << std::endl;
 
 	LoadScenario(m_activeScenario);
 }
@@ -56,7 +58,13 @@ void Managers::SimulationManager::FixedUpdate()
 		if (m_currentSimulationFrame > m_maxSimulationFrame)
 		{
 			CleanupCurrentScenario();
-			LoadScenario(m_activeScenario);
+			m_currentScenarioIndex.second++;
+			if (m_currentScenarioIndex.second == m_scenarios[m_currentScenarioIndex.first].size())
+			{
+				m_currentScenarioIndex.second = 0;
+			}
+
+			LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
 		}
 	}
 	else
@@ -116,7 +124,7 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 		}
 		m_activeMethod--;
 		ResetCollisions();
-		std::cout << "Current Method: " << (*m_activeMethod).first.c_str() << std::endl;
+		std::cout << "Current Collision Method: " << (*m_activeMethod).first.c_str() << std::endl;
 		m_activeMethod->second->SetShowDebug(m_collisionDebug);
 		break;
 	case 'e':
@@ -126,7 +134,7 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 			m_activeMethod = m_collisionMethods.begin();
 		}
 		ResetCollisions();
-		std::cout << "Current Method: " << (*m_activeMethod).first.c_str() << std::endl;
+		std::cout << "Current Collision Method: " << (*m_activeMethod).first.c_str() << std::endl;
 		m_activeMethod->second->SetShowDebug(m_collisionDebug);
 		break;
 	case 'r':
@@ -141,27 +149,37 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 	case 't':
 		m_objectBBs = !m_objectBBs;
 		m_modelManager->SetBoundingBoxesVisibile(m_objectBBs);
+		std::cout << "Bounding Volumes " << (m_objectBBs ? "ON" : "OFF") << std::endl;
+		break;
+	case 'y':
+		m_simulationDebug = !m_simulationDebug;
+		std::cout << "Simulation Debug " << (m_simulationDebug ? "ON" : "OFF") << std::endl;
 		break;
 	case 'b':
 		BenchmarkAllScenarios();
 		break;
 	case 'x':
 		CleanupCurrentScenario();
-		m_currentScenarioIndex++;
-		if (m_currentScenarioIndex >= m_scenarios.size())
+		m_currentScenarioIndex.first++;
+		if (m_currentScenarioIndex.first >= m_scenarios.size())
 		{
-			m_currentScenarioIndex = 0;
+			m_currentScenarioIndex.first = 0;
 		}
-		LoadScenario(m_scenarios[m_currentScenarioIndex]);
+		m_currentScenarioIndex.second = 0;
+		LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
 		break;
 	case 'z':
 		CleanupCurrentScenario();
-		m_currentScenarioIndex--;
-		if (m_currentScenarioIndex <= -1)
+		m_currentScenarioIndex.first--;
+		if (m_currentScenarioIndex.first <= -1)
 		{
-			m_currentScenarioIndex = m_scenarios.size() - 1;
+			m_currentScenarioIndex.first = m_scenarios.size() - 1;
 		}
-		LoadScenario(m_scenarios[m_currentScenarioIndex]);
+		m_currentScenarioIndex.second = 0;
+		LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
+		break;
+	case 'h':
+		DisplayHelp();
 		break;
 	default:
 		break;
@@ -210,13 +228,13 @@ void Managers::SimulationManager::TestCollision()
 void Managers::SimulationManager::BenchmarkAllScenarios()
 {
 	m_runningBenchmark = true;
+	m_benchmarkPerScenarioResults.push_back(MethodFrameResult());
 	CleanupCurrentScenario();
-	m_currentScenarioIndex = 0;
-	LoadScenario(m_scenarios[m_currentScenarioIndex]);
+	m_currentScenarioIndex = std::make_pair(0, 0);
+	LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
 	m_currentSimulationFrame = 0;
+	m_benchmarkStartTime = std::chrono::high_resolution_clock::now();
 	std::cout << "Starting benchmark..." << std::endl;
-
-
 }
 
 void Managers::SimulationManager::ExportCurrentScenarioResults()
@@ -258,6 +276,57 @@ void Managers::SimulationManager::ExportCurrentScenarioResults()
 			for (auto criterion : criteria.Element)
 			{
 				file << criterion.second << " ";
+				//m_benchmarkPerScenarioResults[m_benchmarkPerScenarioResults.size() - 1].Element[methodResult.first].Element[criterion.first] += (criterion.second / m_activeScenario->GetObjectDescriptions().size());
+			}
+			file << std::endl;
+
+			file.close();
+		}
+	}	
+	//m_benchmarkPerFrameResults.clear();
+	m_benchmarkPerFrameResults.clear();
+}
+
+void Managers::SimulationManager::ExportCurrentScenarioAverageResults()
+{
+	for (int i = 0; i < m_benchmarkPerScenarioResults.size(); ++i)
+	{
+		auto frameResult = m_benchmarkPerScenarioResults[i];
+		for (auto methodResult : frameResult.Element)
+		{
+			std::ofstream file;
+			if (i == 0)
+			{
+				file.open(Core::rawResultFolder + m_activeScenario->m_name + "_average_" + methodResult.first + ".txt", std::ios::out | std::ios::trunc);
+			}
+			else
+			{
+				file.open(Core::rawResultFolder + m_activeScenario->m_name + "_average_" + methodResult.first + ".txt", std::ios::out | std::ios::app);
+			}
+
+			if (!file.is_open())
+			{
+				std::cout << "ERROR opening file\n";
+			}
+
+			auto criteria = methodResult.second;
+
+			if (i == 0)
+			{
+				file << "[Objects] ";
+				for (auto criterion : criteria.Element)
+				{
+					file << "[" << criterion.first << "] ";
+				}
+
+				file << std::endl;
+			}
+			file << (i + 1) * 50 << " ";
+
+			for (auto criterion : criteria.Element)
+			{
+				file << criterion.second << " ";
+				//m_benchmarkPerScenarioResults[m_benchmarkPerScenarioResults.size() - 1].Element[methodResult.first].Element[criterion.first] += (criterion.second / m_activeScenario->GetObjectDescriptions().size());
 			}
 			file << std::endl;
 
@@ -265,7 +334,8 @@ void Managers::SimulationManager::ExportCurrentScenarioResults()
 		}
 	}
 
-	m_benchmarkPerFrameResults.clear();
+	m_benchmarkPerScenarioResults.clear();
+
 }
 
 void Managers::SimulationManager::ImportAllAvailableScenarios()
@@ -274,20 +344,30 @@ void Managers::SimulationManager::ImportAllAvailableScenarios()
 	{
 		//std::cout << fileName << std::endl;
 
-		Simulation::Scenario *scen = new Simulation::Scenario();
-		scen->LoadFromFile("SavedScenarios/" + fileName);
-		m_scenarios.push_back(scen);
+		m_scenarios.push_back(std::vector<Simulation::Scenario *>());
+
+		for (int i = 50; ; i += 50)
+		{
+			Simulation::Scenario *scen = new Simulation::Scenario();
+			scen->LoadFromFile("SavedScenarios/" + fileName, i);
+			if (scen->GetObjectDescriptions().size() != i)
+			{
+				break;
+			}
+			//todo vary obj
+			m_scenarios[m_scenarios.size() - 1].push_back(scen);
+		}
 	}
 
 	if (!m_scenarios.empty())
 	{
-		m_activeScenario = m_scenarios[0];
-		m_currentScenarioIndex = 0;
+		m_activeScenario = m_scenarios[0][0];
+		m_currentScenarioIndex = std::make_pair(0, 0);
 	}
 	else
 	{
 		m_activeScenario = NULL;
-		m_currentScenarioIndex = -1;
+		m_currentScenarioIndex = std::make_pair(-1, -1);
 	}
 }
 
@@ -301,12 +381,12 @@ void Managers::SimulationManager::InitCollisionMethods()
 
 	m_collisionMethods["Octree"] = new Collision::Octree(m_allObjects, glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20));
 	m_collisionMethods["Octree"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods["Octree"]->SetIndices(&m_modelManager->m_cubeIndices);
+	m_collisionMethods["Octree"]->SetIndices(&m_modelManager->m_lineCubeIndices);
 	((Collision::Octree *)m_collisionMethods["Octree"])->SetParams(5, 50);
 
 	m_collisionMethods["Spatial-Grid"] = new Collision::SpatialGrid(m_allObjects, 10);
 	m_collisionMethods["Spatial-Grid"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods["Spatial-Grid"]->SetIndices(&m_modelManager->m_cubeIndices);
+	m_collisionMethods["Spatial-Grid"]->SetIndices(&m_modelManager->m_lineCubeIndices);
 	((Collision::SpatialGrid *)m_collisionMethods["Spatial-Grid"])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
 
 	m_collisionMethods["Sweep-and-Prune"] = new Collision::SweepAndPrune(m_allObjects);
@@ -351,7 +431,7 @@ void Managers::SimulationManager::LoadScenario(Simulation::Scenario *scenario)
 	}
 	m_activeScenario = scenario;
 	m_maxSimulationFrame = m_activeScenario->m_numberOfFrames;
-
+	
 	InitCollisionMethods();
 	SpawnObjectsFromScenario(m_activeScenario);
 
@@ -367,7 +447,9 @@ void Managers::SimulationManager::LoadScenario(Simulation::Scenario *scenario)
 
 	m_activeMethod->second->SetShowDebug(m_collisionDebug);
 	m_modelManager->SetBoundingBoxesVisibile(m_objectBBs);
-	std::cout << "Loaded Scenario: " << m_activeScenario->m_name << std::endl;
+
+	if (m_simulationDebug)
+		std::cout << "Loaded Scenario: " << m_activeScenario->m_name << " - " << m_activeScenario->GetObjectDescriptions().size() << " objects" << std::endl;
 }
 
 void Managers::SimulationManager::CleanupCurrentScenario()
@@ -399,6 +481,12 @@ void Managers::SimulationManager::RecordLastFrameResults()
 
 		PerFrameCriteria currentFrameResult;
 		currentFrameResult.Element = method.second->GetLastFrameCriteria();
+
+		for (auto criterion : currentFrameResult.Element)
+		{
+			m_benchmarkPerScenarioResults[m_benchmarkPerScenarioResults.size() - 1].Element[method.first].Element["Average " + criterion.first] += (criterion.second / m_activeScenario->m_numberOfFrames);
+
+		}
 		currentFrameResults[method.first] = currentFrameResult;
 	}
 	MethodFrameResult allMethodsFrameResult;
@@ -410,21 +498,69 @@ void Managers::SimulationManager::CurrentScenarioEnded()
 {
 	CleanupCurrentScenario();
 	ExportCurrentScenarioResults();
-	m_currentScenarioIndex++;
 
-	if (m_currentScenarioIndex < m_scenarios.size())
+	if (m_currentScenarioIndex.second < m_scenarios[m_currentScenarioIndex.first].size() - 1)
 	{
-		LoadScenario(m_scenarios[m_currentScenarioIndex]);
+		m_currentScenarioIndex.second++;
+		m_benchmarkPerScenarioResults.push_back(MethodFrameResult());
+		//LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
 	}
 	else
 	{
-		m_runningBenchmark = false;
-		std::cout << "Finished Benchmark" << std::endl;
+		if (m_currentScenarioIndex.first < m_scenarios.size() - 1)
+		{
+			m_currentScenarioIndex.first++;
+			m_currentScenarioIndex.second = 0;
 
-		Benchmark::Plotter::GeneratePlotsFromRawData();
-		
-		LoadScenario(m_scenarios[0]);
+			ExportCurrentScenarioAverageResults();
+			m_benchmarkPerScenarioResults.push_back(MethodFrameResult());
+			//LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
+		}
+		else
+		{
+			m_currentScenarioIndex.first = 0;
+			m_currentScenarioIndex.second = 0;
+
+			m_runningBenchmark = false;
+			ExportCurrentScenarioAverageResults();
+			Benchmark::Plotter::GeneratePlotsFromRawData();
+
+			std::cout << "Finished Benchmark" << std::endl;
+			auto end = std::chrono::high_resolution_clock::now();
+
+			auto timeSpent = std::chrono::duration_cast<std::chrono::seconds>(end - m_benchmarkStartTime).count();
+
+			std::cout << "Benchmark Info:" << std::endl;
+			std::cout << "\tNumber of Scenarios: " << m_scenarios.size() << ", with number of objects varying from 50 to " << (m_scenarios[0].size()) * 50 << " in 50 increments" << std::endl;
+			std::cout << "\tTime spent: " << timeSpent << " seconds"<< std::endl;
+		}
 	}
+
+	LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
+// 	if (m_currentScenarioIndex < m_scenarios.size())
+// 	{
+// 		LoadScenario(m_scenarios[m_currentScenarioIndex]);
+// 	}
+// 	else
+// 	{
+// 		
+// 	}
+}
+
+void Managers::SimulationManager::DisplayHelp()
+{
+	std::cout << "------------------------------------------------" << std::endl;
+	std::cout << "Available Controls:" << std::endl;
+	std::cout << "H - display this help message" << std::endl;
+	std::cout << "WASD - camera movement" << std::endl;
+	std::cout << "Mouse drag - camera rotation" << std::endl;
+	std::cout << "Q / E - previous / next active collision method" << std::endl;
+	std::cout << "R - toggle collision method debug draw" << std::endl;
+	std::cout << "T - toggle bounding volume debug draw" << std::endl;
+	std::cout << "Z / X - previous / next scenario" << std::endl;
+	std::cout << "Y - toggle simulation debug messages" << std::endl;
+	std::cout << "B - start benchmark" << std::endl;
+	std::cout << "------------------------------------------------" << std::endl;
 }
 
 void Managers::SimulationManager::SpawnManyAround(const glm::vec3 & position, const float radius, const int numberOfObjects, Simulation::PhysicsObjectType typeOfObjects)

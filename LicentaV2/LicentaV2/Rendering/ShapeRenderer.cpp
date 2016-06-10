@@ -29,3 +29,12 @@ void Rendering::ShapeRenderer::Draw(const glm::mat4 mvp, const GLuint vao, const
 
 	glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, &indices[0]);
 }
+
+void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 mvp, const GLuint vao, const std::vector<GLuint> indices, const int collisionState)
+{	
+	glUniform1i(2, collisionState);
+	glUniformMatrix4fv(3, 1, false, &mvp[0][0]);
+	glBindVertexArray(vao);
+
+	glDrawElements(GL_LINE_LOOP, (GLsizei)indices.size(), GL_UNSIGNED_INT, &indices[0]);	
+}

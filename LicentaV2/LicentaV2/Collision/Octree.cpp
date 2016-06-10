@@ -43,7 +43,9 @@ void Collision::Octree::DrawDebug(const glm::mat4& projectionMatrix, const glm::
 	if (!GetShowDebug())
 		return;
 
+	glLineWidth(3);
 	DrawRecursive(m_root, projectionMatrix, viewMatrix);
+	glLineWidth(1);
 }
 
 std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::Octree::_TestCollision()
@@ -153,7 +155,7 @@ void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const gl
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1), node->m_center) * glm::scale(glm::mat4(1), glm::vec3(node->m_halfW * 2));
 	glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-	Rendering::ShapeRenderer::Draw(MVPMatrix, m_vao, *m_indices, node->m_objects.empty() ? 0 : BOUNDINGBOX);	
+	Rendering::ShapeRenderer::DrawWithLines(MVPMatrix, m_vao, *m_indices, node->m_objects.empty() ? 0 : COLLISIONMETHOD);	
 
 	for (int i = 0; i < node->m_children.size(); ++i)
 	{

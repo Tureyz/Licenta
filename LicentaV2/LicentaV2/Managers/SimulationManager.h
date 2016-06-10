@@ -40,6 +40,7 @@ namespace Managers
 
 		void BenchmarkAllScenarios();
 		void ExportCurrentScenarioResults();
+		void ExportCurrentScenarioAverageResults();
 
 		void ImportAllAvailableScenarios();
 
@@ -54,6 +55,8 @@ namespace Managers
 		void RecordLastFrameResults();
 		void CurrentScenarioEnded();
 
+		void DisplayHelp();
+
 		ModelManager *m_modelManager;
 		std::unordered_map<std::string, Collision::ICollisionMethod *> m_collisionMethods;
 		std::unordered_map<std::string, Collision::ICollisionMethod *>::iterator m_activeMethod;
@@ -62,6 +65,7 @@ namespace Managers
 
 		bool m_collisionDebug;
 		bool m_objectBBs;
+		bool m_simulationDebug;
 
 		int m_time;
 		int m_timeBase;		
@@ -69,11 +73,11 @@ namespace Managers
 		bool m_runningBenchmark;
 		size_t m_currentSimulationFrame;
 
-		std::vector<Simulation::Scenario *> m_scenarios;
+		std::vector<std::vector<Simulation::Scenario *>> m_scenarios;
 		Simulation::Scenario *m_activeScenario;
 
 		size_t m_maxSimulationFrame;
-		int m_currentScenarioIndex;
+		std::pair<int, int> m_currentScenarioIndex;
 
 		struct PerFrameCriteria
 		{
@@ -86,24 +90,15 @@ namespace Managers
 		};
 
 		std::vector<MethodFrameResult> m_benchmarkPerFrameResults;
-
-
-
-		struct PlottableMethodValue
-		{
-			std::unordered_map<std::string, float> Element; // <method name, value>
-		};
-
-		struct PlottableCriterionFrameResult
-		{
-			std::unordered_map<std::string, PlottableMethodValue> Element; // <criterion name, all method values>
-		};
-
-		std::vector<PlottableCriterionFrameResult> m_plottableBenchmarkPerFrameResults;
+		std::vector<MethodFrameResult> m_benchmarkPerScenarioResults;
 
 		std::string m_lastActiveMethodName;
 
 		const std::string m_defaultMethodName = "None";
+
+		std::chrono::time_point<std::chrono::steady_clock> m_benchmarkStartTime;		
+
+		std::string m_benchmarkTimeInfo;
 		
 	};
 }

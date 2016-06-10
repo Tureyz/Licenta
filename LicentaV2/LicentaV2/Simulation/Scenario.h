@@ -30,6 +30,7 @@ namespace Simulation
 	public:
 		void LoadFromObjects(std::vector<Rendering::IPhysicsObject*> objects, std::string scenarioName, size_t numberOfFrames);
 		void LoadFromFile(std::string fileName);
+		void LoadFromFile(std::string fileName, int numberOfObjects);
 		void SaveToFile(std::string fileName);
 		std::vector<ObjectDescription> GetObjectDescriptions() const { return m_objectDescriptions; }
 		std::vector<Simulation::ObjectDescription> GetDescriptionsByFrame(int frameNumber);

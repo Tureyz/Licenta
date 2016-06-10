@@ -15,7 +15,7 @@ void Benchmark::FPSCounter::Update()
 		m_fps = m_frames / (delta / 1000.f);
 		m_timeBase = m_time;
 		m_frames = 0;
-		std::cout << "FPS: " << m_fps << std::endl;
+		//std::cout << "FPS: " << m_fps << std::endl;
 	}
 
 }
