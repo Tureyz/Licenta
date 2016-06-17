@@ -87,12 +87,12 @@ namespace Collision
 			}
 
 			m_size++;
-			std::cout << "LIST [" << m_size << "] addrs: ";
+			std::wcout << "LIST [" << m_size << "] addrs: ";
 			for (auto asd = m_head; asd; asd = asd->m_next)
 			{
-				std::cout << asd << " ";
+				std::wcout << asd << " ";
 			}
-			std::cout << std::endl;
+			std::wcout << std::endl;
 		}
 
 		template <typename T>
@@ -118,12 +118,16 @@ namespace Collision
 		{
 			ListNode<T> *crawler = m_head;
 
-			while (crawler)
+			while (1)
 			{
 				if (crawler->m_data == data)
 					__Remove(crawler);
 
 				crawler = crawler->m_next;
+				if (crawler == m_head)
+				{
+					break;
+				}
 			}
 		}
 

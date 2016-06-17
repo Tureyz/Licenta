@@ -99,9 +99,6 @@
     <ClCompile Include="Collision\SeparatingAxisTheorem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Benchmark\MemoryCounter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Benchmark\Plotter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -109,6 +106,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Rendering\ShapeRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\BenchmarkResultManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision\SpatialGridOptimized.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -275,9 +278,6 @@
     <ClInclude Include="Collision\SeparatingAxisTheorem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Benchmark\MemoryCounter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Benchmark\Plotter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -285,6 +285,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Rendering\ShapeRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\BenchmarkResultManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision\SpatialGridOptimized.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

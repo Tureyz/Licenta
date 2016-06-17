@@ -212,7 +212,7 @@ namespace Rendering
 		for (int i = 1; i < m_initialVertices.size(); ++i)
 		{
 			asd = mvp * glm::vec4(m_initialVertices[i].m_position, 1);
-			//std::cout << "BEFORE: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
+			//std::wcout << "BEFORE: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
 
 			m_transformedVertices[i].m_position = glm::vec3(asd.x, asd.y, asd.z);
 			if (asd.x < m_minCoords.x)
@@ -228,7 +228,7 @@ namespace Rendering
 				m_maxCoords.y = asd.y;
 			if (asd.z > m_maxCoords.z)
 				m_maxCoords.z = asd.z;
-			//std::cout << "AFTER: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
+			//std::wcout << "AFTER: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
 		}
 	}
 

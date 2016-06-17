@@ -41,14 +41,15 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -79,8 +80,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
@@ -107,15 +110,26 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>No</GenerateDebugInformation>
     </Link>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Benchmark\FPSCounter.cpp" />
-    <ClCompile Include="Benchmark\MemoryCounter.cpp" />
     <ClCompile Include="Benchmark\Plotter.cpp" />
     <ClCompile Include="Collision\BVH.cpp" />
     <ClCompile Include="Collision\DataStructures\BVHTree.cpp" />
@@ -124,11 +138,13 @@
     <ClCompile Include="Collision\Octree.cpp" />
     <ClCompile Include="Collision\SeparatingAxisTheorem.cpp" />
     <ClCompile Include="Collision\SpatialGrid.cpp" />
+    <ClCompile Include="Collision\SpatialGridOptimized.cpp" />
     <ClCompile Include="Collision\SpatialHashing.cpp" />
     <ClCompile Include="Collision\SweepAndPrune.cpp" />
     <ClCompile Include="Core\DeltaTime.cpp" />
     <ClCompile Include="Core\InitGLUT.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Managers\BenchmarkResultManager.cpp" />
     <ClCompile Include="Managers\ModelManager.cpp" />
     <ClCompile Include="Managers\SceneManager.cpp" />
     <ClCompile Include="Managers\ShaderManager.cpp" />
@@ -147,7 +163,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Benchmark\FPSCounter.h" />
-    <ClInclude Include="Benchmark\MemoryCounter.h" />
     <ClInclude Include="Benchmark\Plotter.h" />
     <ClInclude Include="Collision\BVH.h" />
     <ClInclude Include="Collision\DataStructures\BVHTree.h" />
@@ -158,12 +173,14 @@
     <ClInclude Include="Collision\SeparatingAxisTheorem.h" />
     <ClInclude Include="Collision\SpatialGrid.h" />
     <ClInclude Include="Collision\ICollisionMethod.h" />
+    <ClInclude Include="Collision\SpatialGridOptimized.h" />
     <ClInclude Include="Collision\SpatialHashing.h" />
     <ClInclude Include="Collision\SweepAndPrune.h" />
     <ClInclude Include="Core\DeltaTime.h" />
     <ClInclude Include="Core\InitGLUT.h" />
     <ClInclude Include="Core\Init\InitListener.h" />
     <ClInclude Include="Core\Utils.hpp" />
+    <ClInclude Include="Managers\BenchmarkResultManager.h" />
     <ClInclude Include="Managers\ModelManager.h" />
     <ClInclude Include="Managers\SimulationManager.h" />
     <ClInclude Include="Rendering\Camera.h" />

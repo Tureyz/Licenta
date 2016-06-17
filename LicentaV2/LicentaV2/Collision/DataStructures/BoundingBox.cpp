@@ -47,7 +47,7 @@ void Collision::DataStructures::BoundingBox::Create()
 
 	if (!parent)
 	{
-		std::cout << "EROARE BA\n";
+		std::wcout << "EROARE BA\n";
 	}
 
 	this->m_vao = parent->GetModelManager()->m_cubeVao;

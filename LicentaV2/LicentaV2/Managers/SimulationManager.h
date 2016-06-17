@@ -3,11 +3,13 @@
 #include "../Collision/BVH.h"
 #include "../Collision/Octree.h"
 #include "../Collision/SpatialGrid.h"
+#include "../Collision/SpatialGridOptimized.h"
 #include "../Collision/SweepAndPrune.h"
 #include "../Collision/SpatialHashing.h"
 #include "../Collision/DummyMethod.h"
 #include <unordered_map>
 #include "../Simulation/Scenario.h"
+#include "BenchmarkResultManager.h"
 
 namespace Managers
 {
@@ -39,8 +41,6 @@ namespace Managers
 		void SetCollisionDebug(bool val) { m_collisionDebug = val; }
 
 		void BenchmarkAllScenarios();
-		void ExportCurrentScenarioResults();
-		void ExportCurrentScenarioAverageResults();
 
 		void ImportAllAvailableScenarios();
 
@@ -55,11 +55,14 @@ namespace Managers
 		void RecordLastFrameResults();
 		void CurrentScenarioEnded();
 
+		void DisplayPercentComplete();
+
 		void DisplayHelp();
 
+		std::wstring  PercentFinished();
 		ModelManager *m_modelManager;
-		std::unordered_map<std::string, Collision::ICollisionMethod *> m_collisionMethods;
-		std::unordered_map<std::string, Collision::ICollisionMethod *>::iterator m_activeMethod;
+		std::unordered_map<std::wstring , Collision::ICollisionMethod *> m_collisionMethods;
+		std::unordered_map<std::wstring , Collision::ICollisionMethod *>::iterator m_activeMethod;
 		std::vector<IPhysicsObject*> *m_allObjects;
 		size_t m_objectIDCounter;
 
@@ -79,26 +82,27 @@ namespace Managers
 		size_t m_maxSimulationFrame;
 		std::pair<int, int> m_currentScenarioIndex;
 
-		struct PerFrameCriteria
-		{
-			std::unordered_map<std::string, float> Element; // <criterion name, value>
-		};
+// 		struct PerFrameCriteria
+// 		{
+// 			std::unordered_map<std::wstring , float> Element; // <criterion name, value>
+// 		};
+// 
+// 		struct MethodFrameResult
+// 		{
+// 			std::unordered_map<std::wstring , PerFrameCriteria> Element; // <method name, all criteria values>
+// 		};
+// 
+// 		std::vector<MethodFrameResult> m_benchmarkPerFrameResults;
+// 		std::vector<MethodFrameResult> m_benchmarkPerScenarioResults;
 
-		struct MethodFrameResult
-		{
-			std::unordered_map<std::string, PerFrameCriteria> Element; // <method name, all criteria values>
-		};
+		Managers::BenchmarkResultManager m_resultManager;
+		std::wstring  m_lastActiveMethodName;
 
-		std::vector<MethodFrameResult> m_benchmarkPerFrameResults;
-		std::vector<MethodFrameResult> m_benchmarkPerScenarioResults;
+		const std::wstring  m_defaultMethodName = Core::METHOD_NONE;
 
-		std::string m_lastActiveMethodName;
+		std::chrono::time_point<std::chrono::steady_clock> m_benchmarkStartTime;
 
-		const std::string m_defaultMethodName = "None";
-
-		std::chrono::time_point<std::chrono::steady_clock> m_benchmarkStartTime;		
-
-		std::string m_benchmarkTimeInfo;
+		std::wstring  m_benchmarkTimeInfo;
 		
 	};
 }

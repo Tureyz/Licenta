@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void Simulation::Scenario::LoadFromObjects(std::vector<Rendering::IPhysicsObject*> objects, std::string scenarioName, size_t numberOfFrames)
+void Simulation::Scenario::LoadFromObjects(std::vector<Rendering::IPhysicsObject*> objects, std::wstring  scenarioName, size_t numberOfFrames)
 {
 	m_objectDescriptions.clear();
 	this->m_name = scenarioName;
@@ -29,15 +29,19 @@ void Simulation::Scenario::LoadFromObjects(std::vector<Rendering::IPhysicsObject
 	}
 }
 
-void Simulation::Scenario::LoadFromFile(std::string fileName)
+void Simulation::Scenario::LoadFromFile(std::wstring  fileName)
 {
 	ifstream file(fileName);
 	if (!file.is_open())
 	{
-		std::cout << "ERROR OPENING FILE\n";
+		std::wcout << "ERROR OPENING FILE\n";
 	}
 	string line;
-	getline(file, m_name);
+	
+	string name;
+	getline(file, name);
+
+	m_name = std::wstring(name.begin(), name.end());
 
 	getline(file, line);
 
@@ -46,11 +50,12 @@ void Simulation::Scenario::LoadFromFile(std::string fileName)
 
 	while (getline(file, line))
 	{
-		std::stringstream strstr(line);
+		std::wstring asd(line.begin(), line.end());
+		std::wstringstream strstr(asd);
 
-		std::istream_iterator<std::string> it(strstr);
-		std::istream_iterator<std::string> end;
-		std::vector<std::string> results(it, end);
+		std::istream_iterator<std::wstring, wchar_t, std::char_traits<wchar_t>> it(strstr);
+		std::istream_iterator<std::wstring, wchar_t, std::char_traits<wchar_t>> end;
+		std::vector<std::wstring > results(it, end);
 
 		ObjectDescription objDesc;
 		int i = 0;
@@ -91,16 +96,18 @@ void Simulation::Scenario::LoadFromFile(std::string fileName)
 	file.close();
 }
 
-void Simulation::Scenario::LoadFromFile(std::string fileName, int numberOfObjects)
+void Simulation::Scenario::LoadFromFile(std::wstring  fileName, int numberOfObjects)
 {
 	ifstream file(fileName);
 	if (!file.is_open())
 	{
-		std::cout << "ERROR OPENING FILE\n";
+		std::wcout << "ERROR OPENING FILE\n";
 	}
 	string line;
-	getline(file, m_name);
+	string name;
+	getline(file, name);
 
+	m_name = std::wstring(name.begin(), name.end());
 	getline(file, line);
 
 	m_numberOfFrames = std::stoull(line);
@@ -111,11 +118,12 @@ void Simulation::Scenario::LoadFromFile(std::string fileName, int numberOfObject
 		{
 			break;
 		}
-		std::stringstream strstr(line);
+		std::wstring asd(line.begin(), line.end());
+		std::wstringstream strstr(asd);		
 
-		std::istream_iterator<std::string> it(strstr);
-		std::istream_iterator<std::string> end;
-		std::vector<std::string> results(it, end);
+		std::istream_iterator<std::wstring, wchar_t, std::char_traits<wchar_t>> it(strstr);
+		std::istream_iterator<std::wstring, wchar_t, std::char_traits<wchar_t>> end;
+		std::vector<std::wstring > results(it, end);
 
 		ObjectDescription objDesc;
 		int i = 0;
@@ -158,15 +166,16 @@ void Simulation::Scenario::LoadFromFile(std::string fileName, int numberOfObject
 	file.close();
 }
 
-void Simulation::Scenario::SaveToFile(std::string fileName)
+void Simulation::Scenario::SaveToFile(std::wstring  fileName)
 {
 	ofstream file(fileName);
 
 	if (!file.is_open())
 	{
-		std::cout << "ERROR OPENING FILE\n";
+		std::wcout << "ERROR OPENING FILE\n";
 	}
-	file << m_name << "\n";
+	std::string name(m_name.begin(), m_name.end());
+	file << name << "\n";
 	file << m_numberOfFrames << "\n";
 
 	for (auto objDesc : m_objectDescriptions)

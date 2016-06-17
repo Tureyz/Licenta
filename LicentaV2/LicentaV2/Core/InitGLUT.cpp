@@ -19,9 +19,12 @@ void Core::Init::InitGLUT::InitGLUTFunc(int argc, char **argv)
 	glutInitWindowPosition((int)windowPos.x, (int)windowPos.y);
 	glutInitWindowSize((int)windowSize.x, (int)windowSize.y);
 
-	glutCreateWindow(Core::Init::windowName.c_str());
+	
+	std::string asd(Core::Init::windowName.begin(), Core::Init::windowName.end());
 
-	std::cout << "GLUT initialized" << std::endl;
+	glutCreateWindow(asd.c_str());
+
+	std::wcout << "GLUT initialized" << std::endl;
 
 	glutIdleFunc(IdleCallback);
 	glutCloseFunc(CloseCallback);
@@ -35,7 +38,7 @@ void Core::Init::InitGLUT::InitGLUTFunc(int argc, char **argv)
 	glewExperimental = true;
 	if (glewInit() == GLEW_OK)
 	{
-		std::cout << "GLEW initialized successfully" << std::endl;
+		std::wcout << "GLEW initialized successfully" << std::endl;
 	}
 
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
@@ -43,13 +46,13 @@ void Core::Init::InitGLUT::InitGLUTFunc(int argc, char **argv)
 
 void Core::Init::InitGLUT::Run()
 {
-	std::cout << "GLUT started running " << std::endl;
+	std::wcout << "GLUT started running " << std::endl;
 	glutMainLoop();
 }
 
 void Core::Init::InitGLUT::Close()
 {
-	std::cout << "GLUT finished running" << std::endl;
+	std::wcout << "GLUT finished running" << std::endl;
 	glutLeaveMainLoop();
 }
 
@@ -94,7 +97,7 @@ void Core::Init::InitGLUT::ReshapeCallback(int width, int height)
 	{
 		sceneManager->notifyReshape(width, height, (int)windowSize.x, (int)windowSize.y);
 		sceneManager->SetScreenProps(width, height);
-		std::cout << "GLUT reshaped" << std::endl;
+		std::wcout << "GLUT reshaped" << std::endl;
 	}
 	windowSize = glm::vec2(width, height);
 	glViewport(0, 0, width, height);

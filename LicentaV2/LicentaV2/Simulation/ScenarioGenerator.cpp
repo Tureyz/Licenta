@@ -3,15 +3,14 @@
 
 std::vector<Simulation::Scenario> Simulation::ScenarioGenerator::GenerateScenarios(int number)
 {
-	size_t numberOfObjects = 150;
-	size_t numberOfFrames = 200;
 	
 	std::vector<Simulation::Scenario> result;
-	result.push_back(CreateStaticScenario(0, numberOfFrames, numberOfObjects, 10.f));
-	result.push_back(CreateSingleMovingObjectScenario(1, numberOfFrames, numberOfObjects, 7.f, glm::vec3(8, 8, 8)));
-	result.push_back(CreateManyMovingObjectsScenario(2, numberOfFrames, numberOfObjects, 7.f, 9.f));
-	result.push_back(CreateFrontalCrashScenario(3, numberOfFrames, numberOfObjects, 4.f, 8));
-	result.push_back(CreateExplosionScenario(4, numberOfFrames, numberOfObjects, 1.f));
+	result.push_back(CreateStaticScenario(0, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 8.f));
+	result.push_back(CreateSingleMovingObjectScenario(1, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 7.f, glm::vec3(8, 8, 8)));
+	result.push_back(CreateManyMovingObjectsScenario(2, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 7.f, 9.f));
+	result.push_back(CreateFrontalCrashScenario(3, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 4.f, 8));
+	result.push_back(CreateExplosionScenario(4, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 1.f));
+	result.push_back(CreateScreenshotScenario(5, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 1.5f));
 
 	return result;
 }
@@ -20,7 +19,7 @@ void Simulation::ScenarioGenerator::ExportScenarios(std::vector<Simulation::Scen
 {
 	for (auto scen : scens)
 	{
-		scen.SaveToFile("SavedScenarios/" + scen.m_name + ".txt");
+		scen.SaveToFile(L"SavedScenarios/" + scen.m_name + L".txt");
 	}
 }
 
@@ -154,11 +153,26 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateExplosionScenario(int 
 	return GenerateScenarioFromStats(defs, scenarioID, numberOfFrames);
 }
 
+Simulation::Scenario Simulation::ScenarioGenerator::CreateScreenshotScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float distance)
+{
+	int index = 0;
+	glm::vec3 pos(0.f, 0.f, 0.f);
+	std::vector<Simulation::ObjectDescription> defs;
+	for (int i = 0; i < numberOfObjects; ++i)
+	{
+		defs.push_back(CreateDef((Simulation::PhysicsObjectType)(i % Simulation::PhysicsObjectType::OBJ_NUM_TOTAL), index++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), glm::vec3(0.5f)));
+		pos.x += distance;
+	}
+
+
+	return GenerateScenarioFromStats(defs, scenarioID, numberOfFrames);
+}
+
 Simulation::Scenario Simulation::ScenarioGenerator::GenerateScenarioFromStats(std::vector<ObjectDescription> &descriptions, size_t ID, size_t numberOfFrames)
 {
 	Simulation::Scenario scen;
 	scen.SetObjectDescriptions(descriptions);
-	scen.m_name = "Scenario_" + std::to_string(ID);
+	scen.m_name = L"Scenario_" + std::to_wstring(ID);
 	scen.m_numberOfFrames = numberOfFrames;
 
 	return scen;

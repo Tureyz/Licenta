@@ -10,7 +10,7 @@ Managers::SceneManager::SceneManager()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	m_shaderManager = new ShaderManager();
-	m_shaderManager->CreateProgram("Shaders\\VertexShader.glsl", "Shaders\\FragmentShader.glsl");
+	m_shaderManager->CreateProgram(L"Shaders\\VertexShader.glsl", L"Shaders\\FragmentShader.glsl");
 
 	m_viewMatrix = glm::mat4(
 		1.0f, 0.0f, 0.0f, 0.0f,
@@ -54,7 +54,7 @@ void Managers::SceneManager::notifyBeginFrame()
 void Managers::SceneManager::notifyDisplayFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClearColor(Core::BACKGROUND_COLOR.r, Core::BACKGROUND_COLOR.g, Core::BACKGROUND_COLOR.b, Core::BACKGROUND_COLOR.a);
 
 	m_FPSCounter.Draw();
 	glUseProgram(Managers::ShaderManager::GetShader());

@@ -19,8 +19,8 @@ namespace Collision
 		
 		float GetCellSize() const { return m_cellSize; }
 		void SetCellSize(float val) { m_cellSize = val; }
-		static std::string BinaryToString(short int x);
-		static std::string BinaryToString(size_t x);
+		static std::wstring  BinaryToString(short int x);
+		static std::wstring  BinaryToString(size_t x);
 
 	protected:
 

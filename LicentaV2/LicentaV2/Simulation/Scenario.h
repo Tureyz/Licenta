@@ -28,15 +28,15 @@ namespace Simulation
 	class Scenario
 	{
 	public:
-		void LoadFromObjects(std::vector<Rendering::IPhysicsObject*> objects, std::string scenarioName, size_t numberOfFrames);
-		void LoadFromFile(std::string fileName);
-		void LoadFromFile(std::string fileName, int numberOfObjects);
-		void SaveToFile(std::string fileName);
+		void LoadFromObjects(std::vector<Rendering::IPhysicsObject*> objects, std::wstring  scenarioName, size_t numberOfFrames);
+		void LoadFromFile(std::wstring  fileName);
+		void LoadFromFile(std::wstring  fileName, int numberOfObjects);
+		void SaveToFile(std::wstring  fileName);
 		std::vector<ObjectDescription> GetObjectDescriptions() const { return m_objectDescriptions; }
 		std::vector<Simulation::ObjectDescription> GetDescriptionsByFrame(int frameNumber);
 		void SetObjectDescriptions(std::vector<ObjectDescription> val) { m_objectDescriptions = val; }
 		size_t m_numberOfFrames;
-		std::string m_name;
+		std::wstring  m_name;
 	private:
 
 		std::vector<ObjectDescription> m_objectDescriptions;

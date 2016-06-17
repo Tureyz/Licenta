@@ -6,21 +6,43 @@
 #include "../Dependencies/glew/glew.h"
 #include "../Dependencies/glm/glm.hpp"
 #include "../Dependencies/freeglut/freeglut.h"
+#include <../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h>
 
 
 namespace Core
 {
-	const glm::vec4 defaultObjectColor(0.7f, 0.7f, 0.7f, 1.f);
-	const std::string benchmarkFolder("BenchmarkResults/");
-	const std::string rawResultFolder(benchmarkFolder + "RawResults/");
-	const std::string plotsFolder(benchmarkFolder + "Plots/");
-	const std::string perFramePlotsFloder(plotsFolder + "PerFrame/");
-	const std::string perScenarioPlotsFloder(plotsFolder + "PerScenario/");
+	const glm::vec4 DEFAULT_OBJECT_COLOR(0.2f, 0.2f, 0.2f, 1.f);
+	//const glm::vec4 BACKGROUND_COLOR(0.2f, 0.2f, 0.2f, 1.0f);
+	const glm::vec4 BACKGROUND_COLOR(0.8f, 0.8f, 0.8f, 1.f);
+	const std::wstring  BENCHMARK_FOLDER(L"BenchmarkResults/");
+	const std::wstring  RAW_RESULT_FOLDER(BENCHMARK_FOLDER + L"RawResults/");
+	const std::wstring  PLOTS_FOLDER(BENCHMARK_FOLDER + L"Plots/");
+	const std::wstring  PER_FRAME_PLOTS_FOLDER(PLOTS_FOLDER + L"PerFrame/");
+	const std::wstring  PER_SCENARIO_PLOTS_FOLDER(PLOTS_FOLDER + L"PerScenario/");
+
+	const size_t SCENARIO_CLASSES = 5;
+	const size_t MAX_NUMBER_OBJECTS = 1000;
+	const size_t FRAMES_NUM = 300;
+	const size_t OBJECT_INCREMENT = 250;
+
+	const std::wstring  STRUCTURE_TIME(L"Time Spent - Structure Update");
+	const std::wstring  COLLISION_TIME(L"Time Spent - Collisions");
+	const std::wstring  TOTAL_TIME(L"Time Spent - Total");
+	const std::wstring  INTERSECTION_TESTS(L"Intersection Tests");
+	const std::wstring  MEMORY(L"Memory Used (KB)");
+
+	const std::wstring  METHOD_NONE(L"None");
+	const std::wstring  METHOD_BVH(L"BVH");
+	const std::wstring  METHOD_OCTREE(L"Octree");
+	const std::wstring  METHOD_SPATIAL_GRID(L"Spatial-Grid");
+	const std::wstring  METHOD_SPATIAL_GRID_OPTIMIZED(L"Spatial-Grid-Optimized");
+	const std::wstring  METHOD_SPATIAL_HASHING(L"Spatial-Hashing");
+	const std::wstring  METHOD_SAP(L"Sweep-and-Prune");
 
 	class Utils
 	{
 	public:
-		static void printToScreen(glm::vec2 pos, std::string str)
+		static void printToScreen(glm::vec2 pos, std::wstring  str)
 		{
 			//TODO find stuff that's not deprecated
 
@@ -29,25 +51,37 @@ namespace Core
 			//glRasterPos2i(pos.x, pos.y);
 			//glWindowPos3f(pos.x, pos.y, 0);
 			//glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) str.c_str());
-			//std::cout << str << std::endl;
+			//std::wcout << str << std::endl;
 			//glEnable(GL_TEXTURE_2D);
 		}
 
-		static std::vector<std::string> GetAllFilesInFolder(std::string folder)
+		static wchar_t *convertCharArrayToLPCWSTR(const char* charArray)
 		{
-			std::vector<std::string> names;
-			char search_path[200];
-			sprintf_s(search_path, 200, "%s/*.txt", folder.c_str());
+			wchar_t* wString = new wchar_t[4096];
+			MultiByteToWideChar(CP_ACP, 0, charArray, -1, wString, 4096);
+			return wString;
+		}
+
+		static std::vector<std::wstring> GetAllFilesInFolder(std::wstring  folder)
+		{
+			std::vector<std::wstring> names;
+			//TCHAR search_path[200];
+			std::wstring  searchPath = folder + L"\\*.txt";
+			//_tprintf(search_path, 200, "%s/*.txt", folder.c_str());
 			WIN32_FIND_DATA fd;
-			HANDLE hFind = ::FindFirstFile(search_path, &fd);
+
+			auto str = searchPath.c_str();
+			HANDLE hFind = ::FindFirstFile(str, &fd);
 			if (hFind != INVALID_HANDLE_VALUE) {
 				do {
 					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-						names.push_back(fd.cFileName);
+						names.push_back(std::wstring(fd.cFileName));
 					}
 				} while (::FindNextFile(hFind, &fd));
 				::FindClose(hFind);
 			}
+
+			//delete str;
 			return names;
 		}
 

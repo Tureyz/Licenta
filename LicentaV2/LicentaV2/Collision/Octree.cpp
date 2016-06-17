@@ -13,7 +13,7 @@ Collision::Octree::Octree(std::vector<Rendering::IPhysicsObject *> *allObjects, 
 	m_root->m_center = m_worldCenter;
 	m_root->m_halfW = m_worldHalfW;
 
-	m_memoryCounter.addDynamic(sizeof(Collision::Octree) + sizeof(*m_root));
+	m_memoryUsed = sizeof(Collision::Octree) + sizeof(*m_root);
 }
 
 Collision::Octree::~Octree()
@@ -25,12 +25,12 @@ void Collision::Octree::_Update()
 {
 	delete m_root;
 
-	m_memoryCounter.resetAll();
+	
 	m_root = new DataStructures::OctreeNode();
 	m_root->m_center = m_worldCenter;
 	m_root->m_halfW = m_worldHalfW;
 
-	m_memoryCounter.addDynamic(sizeof(Collision::Octree) + sizeof(*m_root));
+	m_memoryUsed = sizeof(Collision::Octree) + sizeof(*m_root);
 
 	for (auto obj : *m_allObjects)
 	{
@@ -89,7 +89,7 @@ void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rende
 	{
 		if (node->m_children[childIndex] == NULL)
 		{
-			m_memoryCounter.addDynamic(sizeof(DataStructures::OctreeNode));
+			m_memoryUsed += sizeof(DataStructures::OctreeNode);
 			DataStructures::OctreeNode *toBeAdded = new DataStructures::OctreeNode();
 			toBeAdded->m_halfW = newHalfWidth;
 			toBeAdded->m_center = newCenter;

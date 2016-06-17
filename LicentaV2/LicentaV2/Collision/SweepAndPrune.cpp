@@ -5,7 +5,7 @@
 Collision::SweepAndPrune::SweepAndPrune(std::vector<Rendering::IPhysicsObject *> *allObjects)
 {
 	m_allObjects = allObjects;
-	m_memoryCounter.addDynamic(sizeof(Collision::SweepAndPrune));
+	m_memoryUsed = sizeof(Collision::SweepAndPrune);
 }
 
 Collision::SweepAndPrune::~SweepAndPrune()
@@ -27,7 +27,6 @@ Collision::SweepAndPrune::~SweepAndPrune()
 		delete proj;
 		proj = NULL;
 	}
-
 }
 
 void Collision::SweepAndPrune::_Update()
@@ -60,7 +59,7 @@ void Collision::SweepAndPrune::InsertionSort(std::vector<Projection *> &list)
 				if (((Rendering::Models::Model *)firstProj->m_object)->GetBoundingBox()->Collides(((Rendering::Models::Model *)secondProj->m_object)->GetBoundingBox()))
 				{
 					m_collisionPairs.insert(std::make_pair(firstProj->m_object, secondProj->m_object));
-					m_memoryCounter.addDynamic(sizeof(std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>));
+					m_memoryUsed += sizeof(std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>);
 				}
 			}
 
@@ -69,7 +68,7 @@ void Collision::SweepAndPrune::InsertionSort(std::vector<Projection *> &list)
 				m_lastFrameTests++;
 				if (m_collisionPairs.erase(std::make_pair(firstProj->m_object, secondProj->m_object)) == 1)
 				{
-					m_memoryCounter.subDynamic(sizeof(std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>));
+					m_memoryUsed -= sizeof(std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>);
 				}
 			}
 
@@ -87,8 +86,8 @@ void Collision::SweepAndPrune::ObjectMoved(Rendering::IPhysicsObject *object)
 
 	if (!ptrs)
 	{
-		ptrs = new ObjectProjectionPointers();		
-		m_memoryCounter.addDynamic(sizeof(ObjectProjectionPointers));
+		ptrs = new ObjectProjectionPointers();
+		m_memoryUsed += sizeof(ObjectProjectionPointers);
 	}
 
 	ptrs->m_xBegin->m_coord = bb->m_minX;
@@ -130,7 +129,7 @@ void Collision::SweepAndPrune::ObjectAdded(Rendering::IPhysicsObject *object)
 
 	object->m_auxCollisionData = ptrs;
 
-	m_memoryCounter.addDynamic(sizeof(Projection) * 6 + sizeof(ObjectProjectionPointers));
+	m_memoryUsed += sizeof(Projection) * 6 + sizeof(ObjectProjectionPointers);
 }
 
 void Collision::SweepAndPrune::ObjectRemoved(Rendering::IPhysicsObject *object)
@@ -141,7 +140,7 @@ void Collision::SweepAndPrune::ObjectRemoved(Rendering::IPhysicsObject *object)
 		if ((*it)->m_object == object)
 		{
 			it = m_xList.erase(it);
-			m_memoryCounter.subDynamic(sizeof(Projection));
+			m_memoryUsed -= sizeof(Projection);
 		}
 	}
 
@@ -150,7 +149,7 @@ void Collision::SweepAndPrune::ObjectRemoved(Rendering::IPhysicsObject *object)
 		if ((*it)->m_object == object)
 		{
 			it = m_yList.erase(it);
-			m_memoryCounter.subDynamic(sizeof(Projection));
+			m_memoryUsed -= sizeof(Projection);
 		}
 	}
 
@@ -159,7 +158,7 @@ void Collision::SweepAndPrune::ObjectRemoved(Rendering::IPhysicsObject *object)
 		if ((*it)->m_object == object)
 		{
 			it = m_zList.erase(it);
-			m_memoryCounter.subDynamic(sizeof(Projection));
+			m_memoryUsed -= sizeof(Projection);
 		}
 	}
 }

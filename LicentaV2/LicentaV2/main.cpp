@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
+#include "Windows.h"
 #include "Core\InitGLUT.h"
 #include "Managers\SceneManager.h"
 #include "Rendering\Models\Cube.h"
-
 using namespace Core;
 
+//int wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmdLine, int cmdShow);
 int main(int argc, char **argv)
 {
 	std::srand((unsigned int) time(NULL));

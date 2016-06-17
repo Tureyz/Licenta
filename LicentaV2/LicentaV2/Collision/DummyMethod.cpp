@@ -4,6 +4,7 @@
 Collision::DummyMethod::DummyMethod(std::vector<IPhysicsObject *> *allObjects)
 {
 	m_allObjects = allObjects;
+	m_memoryUsed = 0;
 }
 
 Collision::DummyMethod::~DummyMethod()
@@ -12,8 +13,6 @@ Collision::DummyMethod::~DummyMethod()
 
 void Collision::DummyMethod::_Update()
 {
-	m_memoryCounter.resetAll();
-	m_memoryCounter.addDynamic(0);
 }
 
 void Collision::DummyMethod::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)

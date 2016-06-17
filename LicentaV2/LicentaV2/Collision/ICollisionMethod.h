@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
 #include "..\Rendering\IPhysicsObject.h"
-#include "../Benchmark/MemoryCounter.h"
 #include <chrono>
 #include <unordered_map>
 #include <unordered_set>
+#include "..\Core\Utils.hpp"
 
 
 using namespace Rendering;
@@ -26,6 +26,14 @@ namespace std
 		inline bool operator()(const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &l, const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &r) const
 		{
 			return ((l.first->GetID() == r.first->GetID()) && (r.second->GetID() == l.second->GetID())) || ((l.first->GetID() == r.second->GetID()) && (l.second->GetID() == r.first->GetID()));
+		}
+	};
+
+	template <> struct hash<glm::vec3>
+	{
+		inline size_t operator()(const glm::vec3 &v) const {
+			std::hash<size_t> hasher;
+			return hasher(v.x) ^ hasher(v.y) ^ hasher(v.z);
 		}
 	};
 }
@@ -52,8 +60,8 @@ namespace Collision
 		bool GetShowDebug() const { return m_showDebug; }
 		void SetShowDebug(bool val) { m_showDebug = val; }
 
-		std::unordered_map<std::string, float> GetLastFrameCriteria() const { return m_lastFrameCriteria; }
-		void SetLastFrameCriteria(std::unordered_map<std::string, float> val) { m_lastFrameCriteria = val; }
+		std::unordered_map<std::wstring , float> GetLastFrameCriteria() const { return m_lastFrameCriteria; }
+		void SetLastFrameCriteria(std::unordered_map<std::wstring , float> val) { m_lastFrameCriteria = val; }
 
 	protected:
 
@@ -64,10 +72,10 @@ namespace Collision
 		bool m_showDebug;
 		GLuint m_vao, m_vbo, m_ibo;
 		std::vector<GLuint> *m_indices;
-		std::unordered_map<std::string, float> m_lastFrameCriteria;
+		std::unordered_map<std::wstring , float> m_lastFrameCriteria;
 
 		size_t m_lastFrameTests;
-		Benchmark::MemoryCounter m_memoryCounter;
+		size_t m_memoryUsed;
 	private:
 
 	};
@@ -83,10 +91,9 @@ namespace Collision
 
 		auto timeSpent = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-		m_lastFrameCriteria["Time Spent - Collisions"] = ((float) timeSpent) / 1000000;
-		m_lastFrameCriteria["Intersection Tests"] = (float)m_lastFrameTests;
-		m_lastFrameCriteria["Max Memory Used (KB)"] = ((float)m_memoryCounter.GetMaxMemory()) / 1024;
-		m_lastFrameCriteria["Min Memory Used (KB)"] = ((float)m_memoryCounter.GetMinMemory()) / 1024;
+		m_lastFrameCriteria[Core::COLLISION_TIME] = ((float) timeSpent) / 1000000;
+		m_lastFrameCriteria[Core::INTERSECTION_TESTS] = (float)m_lastFrameTests;
+		m_lastFrameCriteria[Core::MEMORY] = ((float)m_memoryUsed) / 1024;
 
 		return result;
 	}
@@ -99,7 +106,7 @@ namespace Collision
 
 		auto timeSpent = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
-		m_lastFrameCriteria["Time Spent - Structure Update"] = ((float) timeSpent) / 1000000;
+		m_lastFrameCriteria[Core::STRUCTURE_TIME] = ((float) timeSpent) / 1000000;
 	}
 
 }

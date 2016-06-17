@@ -53,7 +53,7 @@ void Managers::ModelManager::DeleteAllModels()
 	{
 		for (auto model : m_objectList)
 		{
-			model->Destroy();
+			delete model;
 		}
 
 		m_objectList.clear();
@@ -149,40 +149,40 @@ void Managers::ModelManager::CreateCubeProps()
 	m_lineCubeIndices = { 0, 1, 2, 3, 0, 8, 6, 1, 2, 5, 6, 8, 11, 3, 11, 5, 6, 1, 0};
 
 	//front
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
 
 	//right
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
 
 	//back
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
 
 	//left
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
 
 	//upper
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, 0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, 0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
 
 	//bottom
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::defaultObjectColor));
-	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::defaultObjectColor));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, -0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(0.5, -0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
+	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
 }
 
 void Managers::ModelManager::CreateTetrahedronProps()
@@ -191,10 +191,10 @@ void Managers::ModelManager::CreateTetrahedronProps()
 		0, 1, 3,
 		0, 2, 3 };
 
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, 1.0, 1.0), Core::defaultObjectColor));
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, -1.0, 1.0), Core::defaultObjectColor));
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, 1.0, -1.0), Core::defaultObjectColor));
-	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, -1.0, -1.0), Core::defaultObjectColor));
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, 1.0, 1.0), Core::DEFAULT_OBJECT_COLOR));
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, -1.0, 1.0), Core::DEFAULT_OBJECT_COLOR));
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(-1.0, 1.0, -1.0), Core::DEFAULT_OBJECT_COLOR));
+	m_tetraVerts.push_back(Rendering::VertexFormat(glm::vec3(1.0, -1.0, -1.0), Core::DEFAULT_OBJECT_COLOR));
 }
 
 void Managers::ModelManager::CreateConeProps()
@@ -217,13 +217,13 @@ void Managers::ModelManager::CreateConeProps()
 		{
 			th = j * angleStep;
 
-			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
-			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r1, glm::sin(th) * r1, z1), Core::defaultObjectColor));
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::DEFAULT_OBJECT_COLOR));
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r1, glm::sin(th) * r1, z1), Core::DEFAULT_OBJECT_COLOR));
 
 			th = (j + 1) * angleStep;
 
-			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
-			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r1, glm::sin(th) * r1, z1), Core::defaultObjectColor));
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::DEFAULT_OBJECT_COLOR));
+			m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r1, glm::sin(th) * r1, z1), Core::DEFAULT_OBJECT_COLOR));
 
 			m_coneIndices.push_back(crtIdx);
 			m_coneIndices.push_back(crtIdx + 2);
@@ -246,9 +246,9 @@ void Managers::ModelManager::CreateConeProps()
 	{
 		th = i * angleStep;
 
-		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
-		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::defaultObjectColor));
-		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(0, 0, 1), Core::defaultObjectColor));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::DEFAULT_OBJECT_COLOR));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th) * r0, glm::sin(th) * r0, z0), Core::DEFAULT_OBJECT_COLOR));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(0, 0, 1), Core::DEFAULT_OBJECT_COLOR));
 
 		m_coneIndices.push_back(crtIdx);
 		m_coneIndices.push_back(crtIdx + 1);
@@ -260,12 +260,12 @@ void Managers::ModelManager::CreateConeProps()
 	for (int j = lats; j >= 0; j--)
 	{
 		th = j * angleStep;
-		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th), glm::sin(th), 0), Core::defaultObjectColor));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th), glm::sin(th), 0), Core::DEFAULT_OBJECT_COLOR));
 
 		th = (j - 1) * angleStep;
-		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th), glm::sin(th), 0), Core::defaultObjectColor));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th), glm::sin(th), 0), Core::DEFAULT_OBJECT_COLOR));
 
-		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(0, 0, 0), Core::defaultObjectColor));
+		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(0, 0, 0), Core::DEFAULT_OBJECT_COLOR));
 
 		m_coneIndices.push_back(crtIdx);
 		m_coneIndices.push_back(crtIdx + 1);
@@ -291,7 +291,7 @@ void Managers::ModelManager::CreateCylinderProps()
 
 		for (int j = 0; j < lats; ++j)
 		{
-			m_cylinderVerts[i * lats + j] = Rendering::VertexFormat(glm::vec3(glm::cos(glm::radians(deg)), height, glm::sin(glm::radians(deg))), Core::defaultObjectColor);
+			m_cylinderVerts[i * lats + j] = Rendering::VertexFormat(glm::vec3(glm::cos(glm::radians(deg)), height, glm::sin(glm::radians(deg))), Core::DEFAULT_OBJECT_COLOR);
 			deg += 360.f / (lats - 1);
 		}
 		deg = 0;
@@ -333,7 +333,7 @@ void Managers::ModelManager::CreateSphereProps()
 			float x = cos(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R);
 			float z = sin(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R);
 
-			m_sphereVerts.push_back(Rendering::VertexFormat(glm::vec3(x, y, z), Core::defaultObjectColor));
+			m_sphereVerts.push_back(Rendering::VertexFormat(glm::vec3(x, y, z), Core::DEFAULT_OBJECT_COLOR));
 		}
 	}
 

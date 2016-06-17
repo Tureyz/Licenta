@@ -7,15 +7,14 @@ using namespace Collision;
 Collision::BVH::BVH(std::vector<IPhysicsObject *> *allObjects)
 {
 	m_allObjects = allObjects;
-	m_memoryCounter.addDynamic(sizeof(Collision::BVH));
+	m_memoryUsed = sizeof(Collision::BVH);
 	CreateTree(&m_root, m_allObjects->data(), m_allObjects->size());
 }
 
 void Collision::BVH::_Update()
 {
 	delete m_root;
-	m_memoryCounter.resetAll();
-	m_memoryCounter.addDynamic(sizeof(Collision::BVH));
+	m_memoryUsed = sizeof(Collision::BVH);
 
 	CreateTree(&m_root, m_allObjects->data(), m_allObjects->size());
 }
@@ -46,8 +45,8 @@ void Collision::BVH::CreateTree(DataStructures::BVHTree **node, IPhysicsObject *
 	newNode->m_objects = &objects[0];
 	newNode->m_numObjects = numObjects;
 
-	m_memoryCounter.addDynamic(sizeof(*newNode));
-	m_memoryCounter.addDynamic(sizeof(*newNode->m_boundingBox));
+	m_memoryUsed += sizeof(*newNode);
+	m_memoryUsed += sizeof(*newNode->m_boundingBox);
 
 	if (numObjects <= 1)
 	{
@@ -131,17 +130,7 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree *node)
 		}
 	}
 
-	int i = 0;
-
-	for (auto obj : leftSide)
-	{
-		node->m_objects[i++] = obj;
-	}
-	for (auto obj : rightSide)
-	{
-		node->m_objects[i++] = obj;
-	}
-	
+	int i = 0;	
 
 	// If all objects fall on one side, choose object median instead.
 	if (leftSide.empty())
@@ -157,6 +146,11 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree *node)
 		else
 		{
 			std::sort(rightSide.begin(), rightSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().z < b->GetPosition().z; });
+		}
+
+		for (auto obj : rightSide)
+		{
+			node->m_objects[i++] = obj;
 		}
 
 		return node->m_numObjects / 2;
@@ -177,7 +171,21 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree *node)
 			std::sort(leftSide.begin(), leftSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().z < b->GetPosition().z; });
 		}
 
+		for (auto obj : leftSide)
+		{
+			node->m_objects[i++] = obj;
+		}
+
 		return node->m_numObjects / 2;
+	}
+
+	for (auto obj : leftSide)
+	{
+		node->m_objects[i++] = obj;
+	}
+	for (auto obj : rightSide)
+	{
+		node->m_objects[i++] = obj;
 	}
 
 	return leftSide.size();
@@ -193,6 +201,7 @@ void Collision::BVH::DrawRecursive(DataStructures::BVHTree * node, const glm::ma
 	DrawRecursive(node->m_right, projectionMatrix, viewMatrix);
 }
 
+// false = right, true = left
 bool Collision::BVH::ChildrenSelectionRule(DataStructures::BVHTree * left, DataStructures::BVHTree * right)
 {	
 	DataStructures::BoundingBox *leftBoundingBox = left->m_boundingBox;

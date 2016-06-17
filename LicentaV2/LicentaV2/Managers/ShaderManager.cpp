@@ -13,26 +13,27 @@ ShaderManager::~ShaderManager(void)
 	glDeleteProgram(shaderProgram);
 }
 
-std::string ShaderManager::ReadShader(const std::string& filename)
+std::wstring  ShaderManager::ReadShader(const std::wstring & filename)
 {
-	std::string shaderCode;
+	std::wstring  shaderCode;
 	std::ifstream shaderFile(filename, std::ios::in);
 
 	if (!shaderFile.good())
 	{
-		std::cout << "ERROR reading shader file " << filename.c_str() << std::endl;
+		std::wcout << "ERROR reading shader file " << filename.c_str() << std::endl;
 		std::terminate();
 	}
 
-	return std::string((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
+	return std::wstring ((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
 }
 
-GLuint Managers::ShaderManager::CreateShader(GLenum shaderType, const std::string& source)
+GLuint Managers::ShaderManager::CreateShader(GLenum shaderType, const std::wstring & source)
 {
 	int ret = 0;
 
 	GLuint shader = glCreateShader(shaderType);
-	const char *shaderCodePtr = source.c_str();
+	std::string src(source.begin(), source.end());
+	const char *shaderCodePtr = src.c_str();
 	const int shaderCodeSize = (const int) source.size();
 
 	glShaderSource(shader, 1, &shaderCodePtr, &shaderCodeSize);
@@ -41,15 +42,15 @@ GLuint Managers::ShaderManager::CreateShader(GLenum shaderType, const std::strin
 
 	if (ret == GL_FALSE)
 	{		
-		std::cout << "ERROR compiling shader" << std::endl;
+		std::wcout << "ERROR compiling shader" << std::endl;
 	}
 	return shader;
 }
 
-void ShaderManager::CreateProgram(const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename)
+void ShaderManager::CreateProgram(const std::wstring & vertexShaderFilename, const std::wstring & fragmentShaderFilename)
 {
-	std::string vertexShaderCode = ReadShader(vertexShaderFilename);
-	std::string fragmentShaderCode = ReadShader(fragmentShaderFilename);
+	std::wstring  vertexShaderCode = ReadShader(vertexShaderFilename);
+	std::wstring  fragmentShaderCode = ReadShader(fragmentShaderFilename);
 
 	GLuint vertexShaderHandle = CreateShader(GL_VERTEX_SHADER, vertexShaderCode);
 	GLuint fragmentShaderHandle = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -64,7 +65,7 @@ void ShaderManager::CreateProgram(const std::string& vertexShaderFilename, const
  	glGetProgramiv(program, GL_LINK_STATUS, &ret);
 	if (ret == GL_FALSE)
 	{		
-		std::cout << "SHADER LINK ERROR" << std::endl;
+		std::wcout << "SHADER LINK ERROR" << std::endl;
 		return;
 	}
 

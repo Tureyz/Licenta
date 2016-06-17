@@ -16,14 +16,14 @@ namespace Managers
 		ShaderManager(void);
 		~ShaderManager(void);
 
-		void CreateProgram(const std::string& VertexShaderFilename,	const std::string& FragmentShaderFilename);
+		void CreateProgram(const std::wstring & VertexShaderFilename,	const std::wstring & FragmentShaderFilename);
 
 		static const GLuint GetShader();
 
 	private:
 
-		std::string ReadShader(const std::string& filename);
-		GLuint CreateShader(GLenum shaderType,	const std::string& source);
+		std::wstring  ReadShader(const std::wstring & filename);
+		GLuint CreateShader(GLenum shaderType,	const std::wstring & source);
 
 		static GLuint shaderProgram;
 	};
