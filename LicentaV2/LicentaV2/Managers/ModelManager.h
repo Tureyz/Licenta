@@ -47,5 +47,7 @@ namespace Managers
 		std::vector<Rendering::IPhysicsObject*> m_objectList;
 
 		float m_dt;
+		float m_linearVelDecay;
+		float m_angularVelDecay;
 	};
 }

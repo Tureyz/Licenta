@@ -10,7 +10,7 @@ std::vector<Simulation::Scenario> Simulation::ScenarioGenerator::GenerateScenari
 	result.push_back(CreateManyMovingObjectsScenario(2, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 7.f, 9.f));
 	result.push_back(CreateFrontalCrashScenario(3, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 4.f, 8));
 	result.push_back(CreateExplosionScenario(4, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 1.f));
-	result.push_back(CreateScreenshotScenario(5, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 1.5f));
+	//result.push_back(CreateScreenshotScenario(5, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 1.5f));
 
 	return result;
 }

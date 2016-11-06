@@ -1,1 +1,16 @@
-﻿
+﻿  ModelManager.cpp
+d:\git repos\licenta\licentav2\licentav2\collision\icollisionmethod.h(36): warning C4244: 'argument': conversion from 'const float' to 'const unsigned __int64', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(15): warning C4305: '=': truncation from 'double' to 'float'
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(16): warning C4305: '=': truncation from 'double' to 'float'
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(265): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(291): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(299): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(305): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(312): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(313): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(314): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(316): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(317): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+d:\git repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(318): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+  LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe
+  LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.pdb (Partial PDB)

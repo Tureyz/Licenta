@@ -12,6 +12,8 @@
 
 Managers::ModelManager::ModelManager()
 {
+	m_linearVelDecay = 0.994;
+	m_angularVelDecay = 0.994;
 }
 
 Managers::ModelManager::~ModelManager()
@@ -28,6 +30,9 @@ void Managers::ModelManager::FixedUpdate()
 	for (auto model : m_objectList)
 	{
 		model->FixedUpdate();
+
+		model->SetTranslationStep(model->GetTranslationStep() * m_linearVelDecay);
+		model->SetRotationAngleStep(model->GetRotationAngleStep() * m_angularVelDecay);
 	}
 }
 

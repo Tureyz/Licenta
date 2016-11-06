@@ -57,7 +57,7 @@ void Managers::SimulationManager::FixedUpdate()
 		(*m_activeMethod).second->Update();
 		TestCollision();
 
-		if (m_currentSimulationFrame > m_maxSimulationFrame)
+		if (m_currentSimulationFrame > m_maxSimulationFrame && Core::REPLAY_SCENARIO)
 		{
 			CleanupCurrentScenario();
 			m_currentScenarioIndex.second++;
