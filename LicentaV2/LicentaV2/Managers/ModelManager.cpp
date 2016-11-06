@@ -14,6 +14,9 @@ Managers::ModelManager::ModelManager()
 {
 	m_linearVelDecay = 0.994;
 	m_angularVelDecay = 0.994;
+	m_gravityCenter = glm::vec3(0);
+	m_gravityVel = 0.0001;
+	m_gravityToggle = true;
 }
 
 Managers::ModelManager::~ModelManager()
@@ -31,8 +34,17 @@ void Managers::ModelManager::FixedUpdate()
 	{
 		model->FixedUpdate();
 
-		model->SetTranslationStep(model->GetTranslationStep() * m_linearVelDecay);
 		model->SetRotationAngleStep(model->GetRotationAngleStep() * m_angularVelDecay);
+
+		if (m_gravityToggle)
+		{
+			model->SetTranslationStep(model->GetTranslationStep()  + (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition()))));
+		}
+		else
+		{
+			model->SetTranslationStep(model->GetTranslationStep() * m_linearVelDecay);		
+		}
+		
 	}
 }
 
