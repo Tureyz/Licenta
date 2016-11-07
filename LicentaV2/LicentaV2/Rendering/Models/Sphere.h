@@ -13,7 +13,7 @@ namespace Rendering
 			Sphere(const glm::vec4 &color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager);
 			~Sphere();
 
-			virtual void Create() override final;
+			virtual void Create() override final;			
 		};
 	}
 }

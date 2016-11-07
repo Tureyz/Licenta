@@ -21,6 +21,9 @@ Rendering::Models::Model::Model(const glm::vec4 & color, Managers::ModelManager 
 	SetRotationAngle(0.f);
 	SetScaleStep(glm::vec3(0.f));
 	SetTranslationStep(glm::vec3(0.f));
+	
+
+	SetMass(1.f);
 }
 
 Rendering::Models::Model::Model(const Model &other)

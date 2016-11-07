@@ -65,7 +65,7 @@ std::vector<Simulation::ObjectDescription> Simulation::ScenarioGenerator::Create
 		for (int i = 0; i < numberOfObjects; ++i)
 		{
 			glm::vec3 pos = Core::Utils::RandomVec3Around(position, radius);
-			result.push_back(CreateDef(typeOfObjects, ID++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), Core::Utils::RandomRange(0.5f, 1.f)));
+			result.push_back(CreateDef(typeOfObjects, ID++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), glm::vec3(0.25 + ((float)(std::rand() % 200)/200.f ))));// Core::Utils::RandomRange(0.5f, 1.f)));
 		}
 	}
 
@@ -75,14 +75,14 @@ std::vector<Simulation::ObjectDescription> Simulation::ScenarioGenerator::Create
 
 Simulation::Scenario Simulation::ScenarioGenerator::CreateStaticScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius)
 {
-	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_RANDOM);
+	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_SPHERE);
 
 	return GenerateScenarioFromStats(defs, scenarioID, numberOfFrames);
 }
 
 Simulation::Scenario Simulation::ScenarioGenerator::CreateSingleMovingObjectScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius, glm::vec3 movingObjectPosition)
 {
-	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_RANDOM);
+	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_SPHERE);
 
 	defs[0].m_initialPosition = movingObjectPosition;
 	defs[0].m_rotationStep = Core::Utils::RandomRange(0.000, 1.000);
@@ -94,7 +94,7 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateSingleMovingObjectScen
 
 Simulation::Scenario Simulation::ScenarioGenerator::CreateManyMovingObjectsScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius, float movingObjectsRadius)
 {
-	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_RANDOM);
+	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_SPHERE);
 
 	for (int i = 0; i < defs.size(); ++i)
 	{
@@ -113,8 +113,8 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateManyMovingObjectsScena
 Simulation::Scenario Simulation::ScenarioGenerator::CreateFrontalCrashScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius, float clusterDistance)
 {	
 	size_t index = 0;
-	auto defs1 = CreateDefsAround(index, glm::vec3(-clusterDistance, 0.f, 0.f), radius, numberOfObjects / 2, Simulation::PhysicsObjectType::OBJ_RANDOM);
-	auto defs2 = CreateDefsAround(index, glm::vec3(clusterDistance, 0.f, 0.f), radius, numberOfObjects / 2, Simulation::PhysicsObjectType::OBJ_RANDOM);
+	auto defs1 = CreateDefsAround(index, glm::vec3(-clusterDistance, 0.f, 0.f), radius, numberOfObjects / 2, Simulation::PhysicsObjectType::OBJ_SPHERE);
+	auto defs2 = CreateDefsAround(index, glm::vec3(clusterDistance, 0.f, 0.f), radius, numberOfObjects / 2, Simulation::PhysicsObjectType::OBJ_SPHERE);
 
 	for (int i = 0; i < defs1.size(); ++i)
 	{
@@ -140,7 +140,7 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateFrontalCrashScenario(i
 
 Simulation::Scenario Simulation::ScenarioGenerator::CreateExplosionScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius)
 {
-	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_RANDOM);
+	auto defs = CreateDefsAround(glm::vec3(0.f, 0.f, 0.f), radius, numberOfObjects, Simulation::PhysicsObjectType::OBJ_SPHERE);
 
 	for (int i = 0; i < defs.size(); ++i)
 	{

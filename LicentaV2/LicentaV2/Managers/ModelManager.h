@@ -46,11 +46,6 @@ namespace Managers
 
 		std::vector<Rendering::IPhysicsObject*> m_objectList;
 
-		glm::vec3 m_gravityCenter;
-		float m_gravityVel;
-		bool m_gravityToggle;
-		float m_dt;
-		float m_linearVelDecay;
-		float m_angularVelDecay;
+		float m_dt;		
 	};
 }

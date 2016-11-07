@@ -21,6 +21,7 @@ Managers::SceneManager::SceneManager()
 	m_modelManager = new ModelManager();
 	m_camera = new Rendering::Camera();
 	m_simulationManager = new SimulationManager(m_modelManager);
+	m_physicsManager = new PhysicsManager(m_modelManager->GetModelListPtr());
 
 	m_modelManager->Init();
 	m_simulationManager->Init();
@@ -32,6 +33,7 @@ Managers::SceneManager::~SceneManager()
 	delete m_shaderManager;
 	delete m_modelManager;
 	delete m_simulationManager;
+	delete m_physicsManager;
 }
 
 void Managers::SceneManager::notifyBeginFrame()
@@ -44,11 +46,16 @@ void Managers::SceneManager::notifyBeginFrame()
 	m_modelManager->FixedUpdate();
 	m_simulationManager->FixedUpdate();
 	m_FPSCounter.FixedUpdate();
+	m_physicsManager->FixedUpdate();
+	m_physicsManager->SetCollisionPairs(m_simulationManager->GetCurrentCollisionPairsPtr());
+	m_physicsManager->CollisionResponse();
 
 
 	m_modelManager->Update();
 	m_simulationManager->Update();
+	m_physicsManager->Update();
 	m_FPSCounter.Update();
+
 }
 
 void Managers::SceneManager::notifyDisplayFrame()

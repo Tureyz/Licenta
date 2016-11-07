@@ -88,6 +88,7 @@
     <Link>
       <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -140,12 +141,14 @@
     <ClCompile Include="Collision\SpatialGrid.cpp" />
     <ClCompile Include="Collision\SpatialGridOptimized.cpp" />
     <ClCompile Include="Collision\SpatialHashing.cpp" />
+    <ClCompile Include="Collision\SphereToSphereTest.cpp" />
     <ClCompile Include="Collision\SweepAndPrune.cpp" />
     <ClCompile Include="Core\DeltaTime.cpp" />
     <ClCompile Include="Core\InitGLUT.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Managers\BenchmarkResultManager.cpp" />
     <ClCompile Include="Managers\ModelManager.cpp" />
+    <ClCompile Include="Managers\PhysicsManager.cpp" />
     <ClCompile Include="Managers\SceneManager.cpp" />
     <ClCompile Include="Managers\ShaderManager.cpp" />
     <ClCompile Include="Managers\SimulationManager.cpp" />
@@ -169,12 +172,14 @@
     <ClInclude Include="Collision\DataStructures\LinkedList.hpp" />
     <ClInclude Include="Collision\DataStructures\OctreeNode.h" />
     <ClInclude Include="Collision\DummyMethod.h" />
+    <ClInclude Include="Collision\INarrowPhaseMethod.h" />
     <ClInclude Include="Collision\Octree.h" />
     <ClInclude Include="Collision\SeparatingAxisTheorem.h" />
     <ClInclude Include="Collision\SpatialGrid.h" />
     <ClInclude Include="Collision\ICollisionMethod.h" />
     <ClInclude Include="Collision\SpatialGridOptimized.h" />
     <ClInclude Include="Collision\SpatialHashing.h" />
+    <ClInclude Include="Collision\SphereToSphereTest.h" />
     <ClInclude Include="Collision\SweepAndPrune.h" />
     <ClInclude Include="Core\DeltaTime.h" />
     <ClInclude Include="Core\InitGLUT.h" />
@@ -182,6 +187,7 @@
     <ClInclude Include="Core\Utils.hpp" />
     <ClInclude Include="Managers\BenchmarkResultManager.h" />
     <ClInclude Include="Managers\ModelManager.h" />
+    <ClInclude Include="Managers\PhysicsManager.h" />
     <ClInclude Include="Managers\SimulationManager.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\IPhysicsObject.h" />

@@ -114,6 +114,12 @@
     <ClCompile Include="Collision\SpatialGridOptimized.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Managers\PhysicsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision\SphereToSphereTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\glm\common.hpp">
@@ -291,6 +297,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Collision\SpatialGridOptimized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision\INarrowPhaseMethod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\PhysicsManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision\SphereToSphereTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

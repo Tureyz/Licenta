@@ -33,7 +33,7 @@ namespace std
 	{
 		inline size_t operator()(const glm::vec3 &v) const {
 			std::hash<size_t> hasher;
-			return hasher(v.x) ^ hasher(v.y) ^ hasher(v.z);
+			return hasher((uint64_t)(v.x)) ^ hasher((uint64_t)(v.y)) ^ hasher((uint64_t)(v.z));
 		}
 	};
 }

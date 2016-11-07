@@ -90,8 +90,11 @@ namespace Rendering
 		std::vector<unsigned int> GetIndices() const { return m_indices; }
 		void SetIndices(std::vector<unsigned int> val) { m_indices = val; }
 
+		float GetMass() const { return m_mass; }
+		void SetMass(float val) { m_mass = val; }
 
-
+		float GetSphereRadius() const { return m_sphereRadius; }
+		void SetSphereRadius(float val) { m_sphereRadius = val; }
 	protected:
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
 		std::vector<VertexFormat> m_transformedVertices;
@@ -122,6 +125,9 @@ namespace Rendering
 		GLuint m_vao;
 
 		std::vector<GLuint> m_vbos;
+
+		float m_mass;
+		float m_sphereRadius;
 
 	};
 
@@ -208,7 +214,10 @@ namespace Rendering
 		glm::vec4 asd = mvp * glm::vec4(m_initialVertices[0].m_position, 1);
 		m_transformedVertices[0].m_position = glm::vec3(asd.x, asd.y, asd.z);
 		m_minCoords = m_maxCoords = m_transformedVertices[0].m_position;
+		
+		SetMass(m_sphereRadius);
 
+		float max = 0.0f;
 		for (int i = 1; i < m_initialVertices.size(); ++i)
 		{
 			asd = mvp * glm::vec4(m_initialVertices[i].m_position, 1);
@@ -228,8 +237,18 @@ namespace Rendering
 				m_maxCoords.y = asd.y;
 			if (asd.z > m_maxCoords.z)
 				m_maxCoords.z = asd.z;
+
+			auto crtDist = glm::distance(m_position, m_transformedVertices[i].m_position);
+
+			if (crtDist > max)
+			{
+				max = crtDist;
+			}
 			//std::wcout << "AFTER: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
 		}
+
+		m_sphereRadius = max;
+
 	}
 
 }

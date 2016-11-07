@@ -46,6 +46,8 @@ namespace Managers
 
 		void InitCollisionMethods();
 		void FreeCollisionMethods();
+		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> *GetCurrentCollisionPairsPtr() { return &m_currentCollisionPairs; }
+		void SetCurrentCollisionPairs(std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> &val) { m_currentCollisionPairs = val; }
 	private:
 
 		void ResetCollisions();
@@ -103,6 +105,8 @@ namespace Managers
 		std::chrono::time_point<std::chrono::steady_clock> m_benchmarkStartTime;
 
 		std::wstring  m_benchmarkTimeInfo;
+
+		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> m_currentCollisionPairs;
 		
 	};
 }

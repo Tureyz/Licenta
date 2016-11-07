@@ -12,11 +12,7 @@
 
 Managers::ModelManager::ModelManager()
 {
-	m_linearVelDecay = 0.994;
-	m_angularVelDecay = 0.994;
-	m_gravityCenter = glm::vec3(0);
-	m_gravityVel = 0.0001;
-	m_gravityToggle = true;
+
 }
 
 Managers::ModelManager::~ModelManager()
@@ -33,18 +29,6 @@ void Managers::ModelManager::FixedUpdate()
 	for (auto model : m_objectList)
 	{
 		model->FixedUpdate();
-
-		model->SetRotationAngleStep(model->GetRotationAngleStep() * m_angularVelDecay);
-
-		if (m_gravityToggle)
-		{
-			model->SetTranslationStep(model->GetTranslationStep()  + (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition()))));
-		}
-		else
-		{
-			model->SetTranslationStep(model->GetTranslationStep() * m_linearVelDecay);		
-		}
-		
 	}
 }
 
@@ -53,6 +37,8 @@ void Managers::ModelManager::Draw(const glm::mat4 & projectionMatrix, const glm:
 	for (auto model : m_objectList)
 	{
 		model->Draw(projectionMatrix, viewMatrix);
+		//std::wcout << model->GetPosition().x << L" " << model->GetPosition().y << L" " << model->GetPosition().z << std::endl;
+		
 	}
 }
 
@@ -163,7 +149,7 @@ void Managers::ModelManager::CreateCubeProps()
 		16, 17, 18, 16, 18, 19, //upper
 		20, 21, 22, 20, 22, 23 }; //bottom	
 
-	m_lineCubeIndices = { 0, 1, 2, 3, 0, 8, 6, 1, 2, 5, 6, 8, 11, 3, 11, 5, 6, 1, 0};
+	m_lineCubeIndices = { 0, 1, 2, 3, 0, 8, 6, 1, 2, 5, 6, 8, 11, 3, 11, 5, 6, 1, 0 };
 
 	//front
 	m_cubeVerts.push_back(Rendering::VertexFormat(glm::vec3(-0.5, -0.5, 0.5), Core::DEFAULT_OBJECT_COLOR));
@@ -274,7 +260,7 @@ void Managers::ModelManager::CreateConeProps()
 		crtIdx += 3;
 	}
 
-	for (int j = lats; j >= 0; j--)
+	for (int j = (int)lats; j >= 0; j--)
 	{
 		th = j * angleStep;
 		m_coneVerts.push_back(Rendering::VertexFormat(glm::vec3(glm::cos(th), glm::sin(th), 0), Core::DEFAULT_OBJECT_COLOR));
@@ -300,7 +286,7 @@ void Managers::ModelManager::CreateCylinderProps()
 	float height = -heightStep;
 	float deg = 0;
 
-	m_cylinderVerts.resize(lats * longs);
+	m_cylinderVerts.resize((size_t)(lats * longs));
 
 	for (int i = 0; i < longs; ++i)
 	{
@@ -321,13 +307,13 @@ void Managers::ModelManager::CreateCylinderProps()
 	{
 		for (int j = 0; j < lats; ++j)
 		{
-			m_cylinderIndices[off] = i * lats + j;
-			m_cylinderIndices[off + 1] = (i + 1) * lats + j;
-			m_cylinderIndices[off + 2] = i * lats + j + 1;
+			m_cylinderIndices[off] = (GLuint)(i * lats + j);
+			m_cylinderIndices[off + 1] = (GLuint)((i + 1) * lats + j);
+			m_cylinderIndices[off + 2] = (GLuint)(i * lats + j + 1);
 
-			m_cylinderIndices[off + 3] = i * lats + j + 1;
-			m_cylinderIndices[off + 4] = (i + 1) * lats + j;
-			m_cylinderIndices[off + 5] = (i + 1) * lats + j + 1;
+			m_cylinderIndices[off + 3] = (GLuint)(i * lats + j + 1);
+			m_cylinderIndices[off + 4] = (GLuint)((i + 1) * lats + j);
+			m_cylinderIndices[off + 5] = (GLuint)((i + 1) * lats + j + 1);
 			off += 6;
 		}
 	}

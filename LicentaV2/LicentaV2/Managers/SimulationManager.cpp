@@ -8,6 +8,8 @@
 #include "../Rendering/Models/Cylinder.h"
 #include "../Rendering/Models/Cone.h"
 #include "../Collision/SeparatingAxisTheorem.h"
+#include "../Collision/SphereToSphereTest.h"
+
 #include <algorithm>
 
 Managers::SimulationManager::SimulationManager(ModelManager *modelManager)
@@ -179,7 +181,7 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 		m_currentScenarioIndex.first--;
 		if (m_currentScenarioIndex.first <= -1)
 		{
-			m_currentScenarioIndex.first = m_scenarios.size() - 1;
+			m_currentScenarioIndex.first = (int) (m_scenarios.size() - 1);
 		}
 		m_currentScenarioIndex.second = 0;
 		LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
@@ -222,9 +224,9 @@ void Managers::SimulationManager::TestCollision()
 
 	ResetCollisions();
 
-	std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> asd = (*m_activeMethod).second->TestCollision();
+	m_currentCollisionPairs = (*m_activeMethod).second->TestCollision();
 
-	for (auto pair : asd)
+	for (auto pair : m_currentCollisionPairs)
 	{
 		pair.first->SetCollisionState(COLLIDING);
 		pair.second->SetCollisionState(COLLIDING);
@@ -289,33 +291,36 @@ void Managers::SimulationManager::InitCollisionMethods()
 {
 	m_collisionMethods[Core::METHOD_NONE] = new Collision::DummyMethod(m_allObjects);
 
-	m_collisionMethods[Core::METHOD_BVH] = new Collision::BVH(m_allObjects);
-	m_collisionMethods[Core::METHOD_BVH]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods[Core::METHOD_BVH]->SetIndices(&m_modelManager->m_cubeIndices);
+// 	m_collisionMethods[Core::METHOD_BVH] = new Collision::BVH(m_allObjects);
+// 	m_collisionMethods[Core::METHOD_BVH]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+// 	m_collisionMethods[Core::METHOD_BVH]->SetIndices(&m_modelManager->m_cubeIndices);
+// 
+// 	m_collisionMethods[Core::METHOD_OCTREE] = new Collision::Octree(m_allObjects, glm::vec3(-20, -20, -20)/2.f, glm::vec3(20, 20, 20)/2.f);
+// 	m_collisionMethods[Core::METHOD_OCTREE]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+// 	m_collisionMethods[Core::METHOD_OCTREE]->SetIndices(&m_modelManager->m_lineCubeIndices);
+// 	((Collision::Octree *)m_collisionMethods[Core::METHOD_OCTREE])->SetParams(5, 50);
+// 
+// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID] = new Collision::SpatialGrid(m_allObjects, 10);
+// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetIndices(&m_modelManager->m_lineCubeIndices);
+// 	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID])->SetParams(glm::vec3(-20, -20, -20)/2.f, glm::vec3(20, 20, 20)/2.f, 4);
+// 
+// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED] = new Collision::SpatialGrid(m_allObjects, 10);
+// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetIndices(&m_modelManager->m_lineCubeIndices);
+// 	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
+// 
+// 	m_collisionMethods[Core::METHOD_SAP] = new Collision::SweepAndPrune(m_allObjects);
+// 	m_collisionMethods[Core::METHOD_SAP]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+// 	m_collisionMethods[Core::METHOD_SAP]->SetIndices(&m_modelManager->m_cubeIndices);
+// 
+// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING] = new Collision::SpatialHashing(m_allObjects);
+// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetIndices(&m_modelManager->m_cubeIndices);
+// 	((Collision::SpatialHashing *)m_collisionMethods[Core::METHOD_SPATIAL_HASHING])->SetCellSize(5);
 
-	m_collisionMethods[Core::METHOD_OCTREE] = new Collision::Octree(m_allObjects, glm::vec3(-20, -20, -20)/2.f, glm::vec3(20, 20, 20)/2.f);
-	m_collisionMethods[Core::METHOD_OCTREE]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods[Core::METHOD_OCTREE]->SetIndices(&m_modelManager->m_lineCubeIndices);
-	((Collision::Octree *)m_collisionMethods[Core::METHOD_OCTREE])->SetParams(5, 50);
 
-	m_collisionMethods[Core::METHOD_SPATIAL_GRID] = new Collision::SpatialGrid(m_allObjects, 10);
-	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetIndices(&m_modelManager->m_lineCubeIndices);
-	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID])->SetParams(glm::vec3(-20, -20, -20)/2.f, glm::vec3(20, 20, 20)/2.f, 4);
-
-	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED] = new Collision::SpatialGrid(m_allObjects, 10);
-	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetIndices(&m_modelManager->m_lineCubeIndices);
-	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
-
-	m_collisionMethods[Core::METHOD_SAP] = new Collision::SweepAndPrune(m_allObjects);
-	m_collisionMethods[Core::METHOD_SAP]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods[Core::METHOD_SAP]->SetIndices(&m_modelManager->m_cubeIndices);
-
-	m_collisionMethods[Core::METHOD_SPATIAL_HASHING] = new Collision::SpatialHashing(m_allObjects);
-	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetIndices(&m_modelManager->m_cubeIndices);
-	((Collision::SpatialHashing *)m_collisionMethods[Core::METHOD_SPATIAL_HASHING])->SetCellSize(5);
+	m_collisionMethods[Core::METHOD_S2S] = new Collision::SphereToSphereTest(m_allObjects);
 
 	// 	m_collisionMethods["Separating Axis Theorem"] = new Collision::SeparatingAxisTheorem(m_allObjects);
 	// 	m_collisionMethods["Separating Axis Theorem"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);

@@ -8,7 +8,6 @@
 #include "../Dependencies/freeglut/freeglut.h"
 #include <../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h>
 
-
 namespace Core
 {
 	const glm::vec4 DEFAULT_OBJECT_COLOR(0.2f, 0.2f, 0.2f, 1.f);
@@ -21,9 +20,9 @@ namespace Core
 	const std::wstring  PER_SCENARIO_PLOTS_FOLDER(PLOTS_FOLDER + L"PerScenario/");
 
 	const size_t SCENARIO_CLASSES = 5;
-	const size_t MAX_NUMBER_OBJECTS = 10;
+	const size_t MAX_NUMBER_OBJECTS = 30;
 	const size_t FRAMES_NUM = 300;
-	const size_t OBJECT_INCREMENT = 5;
+	const size_t OBJECT_INCREMENT = 15;
 	const bool REPLAY_SCENARIO = false;
 
 	const std::wstring  STRUCTURE_TIME(L"Time Spent - Structure Update");
@@ -39,6 +38,7 @@ namespace Core
 	const std::wstring  METHOD_SPATIAL_GRID_OPTIMIZED(L"Spatial-Grid-Optimized");
 	const std::wstring  METHOD_SPATIAL_HASHING(L"Spatial-Hashing");
 	const std::wstring  METHOD_SAP(L"Sweep-and-Prune");
+	const std::wstring  METHOD_S2S(L"Sphere-to-Sphere");
 
 	class Utils
 	{
