@@ -185,7 +185,8 @@ void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node
 					break;
 
 				m_lastFrameTests++;
-				if (((Rendering::Models::Model *) firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *) secondObj)->GetBoundingBox()))
+				//if (((Rendering::Models::Model *) firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *) secondObj)->GetBoundingBox()))
+				if (firstObj->SphereTest(secondObj))
 				{
 					collisions.insert(std::make_pair(firstObj, secondObj));
 				}
