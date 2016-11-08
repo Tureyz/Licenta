@@ -194,6 +194,11 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 	}
 }
 
+void Managers::SimulationManager::KeyReleased(unsigned char key)
+{
+
+}
+
 void Managers::SimulationManager::MousePressed(int button, int state, int x, int y)
 {
 
@@ -310,9 +315,9 @@ void Managers::SimulationManager::InitCollisionMethods()
 // 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetIndices(&m_modelManager->m_lineCubeIndices);
 // 	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
 // 
-// 	m_collisionMethods[Core::METHOD_SAP] = new Collision::SweepAndPrune(m_allObjects);
-// 	m_collisionMethods[Core::METHOD_SAP]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-// 	m_collisionMethods[Core::METHOD_SAP]->SetIndices(&m_modelManager->m_cubeIndices);
+	m_collisionMethods[Core::METHOD_SAP] = new Collision::SweepAndPrune(m_allObjects);
+	m_collisionMethods[Core::METHOD_SAP]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	m_collisionMethods[Core::METHOD_SAP]->SetIndices(&m_modelManager->m_cubeIndices);
 // 
 // 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING] = new Collision::SpatialHashing(m_allObjects);
 // 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
@@ -320,7 +325,7 @@ void Managers::SimulationManager::InitCollisionMethods()
 // 	((Collision::SpatialHashing *)m_collisionMethods[Core::METHOD_SPATIAL_HASHING])->SetCellSize(5);
 
 
-	m_collisionMethods[Core::METHOD_S2S] = new Collision::SphereToSphereTest(m_allObjects);
+	//m_collisionMethods[Core::METHOD_S2S] = new Collision::SphereToSphereTest(m_allObjects);
 
 	// 	m_collisionMethods["Separating Axis Theorem"] = new Collision::SeparatingAxisTheorem(m_allObjects);
 	// 	m_collisionMethods["Separating Axis Theorem"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);

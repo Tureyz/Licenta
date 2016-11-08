@@ -56,7 +56,8 @@ void Collision::SweepAndPrune::InsertionSort(std::vector<Projection *> &list)
 			if (firstProj->m_begin && !secondProj->m_begin)
 			{
 				m_lastFrameTests++;
-				if (((Rendering::Models::Model *)firstProj->m_object)->GetBoundingBox()->Collides(((Rendering::Models::Model *)secondProj->m_object)->GetBoundingBox()))
+				//if (((Rendering::Models::Model *)firstProj->m_object)->GetBoundingBox()->Collides(((Rendering::Models::Model *)secondProj->m_object)->GetBoundingBox()))
+				if (firstProj->m_object->SphereTest(secondProj->m_object))
 				{
 					m_collisionPairs.insert(std::make_pair(firstProj->m_object, secondProj->m_object));
 					m_memoryUsed += sizeof(std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>);

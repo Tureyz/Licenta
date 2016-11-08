@@ -55,7 +55,7 @@ void Managers::SceneManager::notifyBeginFrame()
 	m_simulationManager->Update();
 	m_physicsManager->Update();
 	m_FPSCounter.Update();
-
+	m_camera->Update();
 }
 
 void Managers::SceneManager::notifyDisplayFrame()
@@ -87,10 +87,16 @@ void Managers::SceneManager::notifyReshape(int width, int height, int previousWi
 	m_projectionMatrix[3][2] = 2.0f * near1 * far1 / (near1 - far1);
 }
 
-void Managers::SceneManager::KeyboardCallback(unsigned char key, int x, int y)
+void Managers::SceneManager::KeyboardDownCallback(unsigned char key, int x, int y)
 {
 	m_camera->KeyPressed(key);
 	m_simulationManager->KeyPressed(key);
+}
+
+void Managers::SceneManager::KeyboardUpCallback(unsigned char key, int x, int y)
+{
+	m_camera->KeyReleased(key);
+	m_simulationManager->KeyReleased(key);
 }
 
 void Managers::SceneManager::MouseCallback(int button, int state, int x, int y)

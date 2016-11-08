@@ -1,7 +1,46 @@
-﻿  PhysicsManager.cpp
-d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(65): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(66): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(102): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(103): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+﻿  FPSCounter.cpp
+  Generating Code...
+  Compiling...
+  main.cpp
+  ScenarioGenerator.cpp
+  Tetrahedron.cpp
+  Sphere.cpp
+  Model.cpp
+  Cylinder.cpp
+  Cube.cpp
+  Cone.cpp
+  SimulationManager.cpp
+d:\github repos\licenta\licentav2\licentav2\managers\simulationmanager.cpp(535): warning C4244: 'initializing': conversion from 'std::size_t' to 'float', possible loss of data
+  SceneManager.cpp
+  PhysicsManager.cpp
+d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(67): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(68): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  ModelManager.cpp
+d:\github repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(297): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\managers\modelmanager.cpp(303): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+  BenchmarkResultManager.cpp
+  InitGLUT.cpp
+  SweepAndPrune.cpp
+  SphereToSphereTest.cpp
+  SpatialHashing.cpp
+  SpatialGridOptimized.cpp
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgridoptimized.cpp(33): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgridoptimized.cpp(70): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgridoptimized.cpp(157): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgridoptimized.cpp(159): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgridoptimized.cpp(161): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgridoptimized.cpp(163): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+  SpatialGrid.cpp
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgrid.cpp(33): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\collision\spatialgrid.cpp(68): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+  SeparatingAxisTheorem.cpp
+  Generating Code...
+  Compiling...
+  Octree.cpp
+  DummyMethod.cpp
+  BoundingBox.cpp
+  BVH.cpp
+  Plotter.cpp
+  Generating Code...
   LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe
   LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Debug\LicentaV2.pdb (Full PDB)

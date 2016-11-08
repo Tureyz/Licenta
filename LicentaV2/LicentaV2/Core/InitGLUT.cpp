@@ -31,7 +31,8 @@ void Core::Init::InitGLUT::InitGLUTFunc(int argc, char **argv)
 	glutDisplayFunc(DisplayCallback);
 	glutReshapeFunc(ReshapeCallback);
 
-	glutKeyboardFunc(KeyboardCallback);
+	glutKeyboardFunc(KeyboardDownCallback);
+	glutKeyboardUpFunc(KeyboardUpCallback);
 	glutMouseFunc(MouseCallback);
 	glutMotionFunc(MotionCallback);
 
@@ -109,9 +110,14 @@ void Core::Init::InitGLUT::CloseCallback()
 	Close();
 }
 
-void Core::Init::InitGLUT::KeyboardCallback(unsigned char key, int x, int y)
+void Core::Init::InitGLUT::KeyboardDownCallback(unsigned char key, int x, int y)
 {
-	sceneManager->KeyboardCallback(key, x, y);
+	sceneManager->KeyboardDownCallback(key, x, y);
+}
+
+void Core::Init::InitGLUT::KeyboardUpCallback(unsigned char key, int x, int y)
+{
+	sceneManager->KeyboardUpCallback(key, x, y);
 }
 
 void Core::Init::InitGLUT::MouseCallback(int button, int state, int x, int y)

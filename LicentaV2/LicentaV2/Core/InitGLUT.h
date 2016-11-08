@@ -30,7 +30,8 @@ namespace Core {
 			static void DisplayCallback(void);
 			static void ReshapeCallback(int width, int height);
 			static void CloseCallback();
-			static void KeyboardCallback(unsigned char key, int x, int y);
+			static void KeyboardDownCallback(unsigned char key, int x, int y);
+			static void KeyboardUpCallback(unsigned char key, int x, int y);
 			static void MouseCallback(int button, int state, int x, int y);
 			static void MotionCallback(int x, int y);
 		};

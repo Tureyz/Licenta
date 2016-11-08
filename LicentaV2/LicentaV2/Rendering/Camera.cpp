@@ -15,6 +15,7 @@ Rendering::Camera::Camera()
 	m_keyPitch = m_keyRoll = m_keyYaw = 0.f;
 	m_cameraQuat = glm::quat(0.f, 0.f, 0.f, 0.f);
 	m_isMousePressed = false;
+	m_leftPressed = m_forwardPressed = m_backwardPressed = m_rightPressed = false;
 	UpdateView();
 }
 
@@ -36,19 +37,44 @@ glm::mat4 Rendering::Camera::GetViewMatrix() const
 
 void Rendering::Camera::KeyPressed(const unsigned char key)
 {
-	float distancePerStep = 2;
-	float dx = key == 'a' ? -distancePerStep : key == 'd' ? distancePerStep : 0;
-	float dz = key == 'w' ? -distancePerStep : key == 's' ? distancePerStep : 0;
-	
-	glm::mat4 mat = GetViewMatrix();
-	
-	glm::vec3 forward(mat[0][2], mat[1][2], mat[2][2]);
-	glm::vec3 strafe(mat[0][0], mat[1][0], mat[2][0]);
+	switch (key)
+	{
+	case 'a':
+		m_leftPressed = true;
+		break;
+	case 'd':
+		m_rightPressed = true;
+		break;
+	case 's':
+		m_backwardPressed = true;
+		break;
+	case 'w':
+		m_forwardPressed = true;
+		break;
+	default:
+		break;
+	}
+}
 
-	const float speed = 0.12f;
-	m_eyeVector += (-dz * forward + dx * strafe) * speed;
-	
-	UpdateView();
+void Rendering::Camera::KeyReleased(const unsigned char key)
+{
+	switch (key)
+	{
+	case 'a':
+		m_leftPressed = false;
+		break;
+	case 'd':
+		m_rightPressed = false;
+		break;
+	case 's':
+		m_backwardPressed = false;
+		break;
+	case 'w':
+		m_forwardPressed = false;
+		break;
+	default:
+		break;
+	}
 }
 
 void Rendering::Camera::MouseMove(int x, int y, int width, int height)
@@ -79,4 +105,22 @@ void Rendering::Camera::MousePressed(int button, int state, int x, int y)
 		m_mousePosition.x = (float) x;
 		m_mousePosition.y = (float) y;
 	}
+}
+
+void Rendering::Camera::Update()
+{
+	float distancePerStep = 2;
+	
+	float dx = (m_leftPressed ? -distancePerStep : 0) + (m_rightPressed ? distancePerStep : 0);
+	float dz = (m_forwardPressed ? -distancePerStep : 0) + (m_backwardPressed ? distancePerStep : 0);
+
+	glm::mat4 mat = GetViewMatrix();
+
+	glm::vec3 forward(mat[0][2], mat[1][2], mat[2][2]);
+	glm::vec3 strafe(mat[0][0], mat[1][0], mat[2][0]);
+
+	const float speed = 0.12f;
+	m_eyeVector += (-dz * forward + dx * strafe) * speed;
+
+	UpdateView();
 }

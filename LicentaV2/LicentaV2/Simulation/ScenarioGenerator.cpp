@@ -65,7 +65,7 @@ std::vector<Simulation::ObjectDescription> Simulation::ScenarioGenerator::Create
 		for (int i = 0; i < numberOfObjects; ++i)
 		{
 			glm::vec3 pos = Core::Utils::RandomVec3Around(position, radius);
-			result.push_back(CreateDef(typeOfObjects, ID++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), glm::vec3(0.25 + ((float)(std::rand() % 200)/200.f ))));// Core::Utils::RandomRange(0.5f, 1.f)));
+			result.push_back(CreateDef(typeOfObjects, ID++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), glm::vec3(((float)(std::rand() % 300)/600.f ))));// Core::Utils::RandomRange(0.5f, 1.f)));
 		}
 	}
 

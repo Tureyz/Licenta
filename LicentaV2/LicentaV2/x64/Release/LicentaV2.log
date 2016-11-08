@@ -1,11 +1,40 @@
-﻿  InitGLEW.cpp
+﻿  FPSCounter.cpp
+  Plotter.cpp
+  BVH.cpp
+  BoundingBox.cpp
+  DummyMethod.cpp
+  Octree.cpp
+  SeparatingAxisTheorem.cpp
+  SpatialGrid.cpp
+Collision\SpatialGrid.cpp(33): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGrid.cpp(68): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+  SpatialGridOptimized.cpp
+  SpatialHashing.cpp
+  SphereToSphereTest.cpp
+  SweepAndPrune.cpp
   InitGLUT.cpp
-  main.cpp
+  BenchmarkResultManager.cpp
   ModelManager.cpp
+  PhysicsManager.cpp
+Collision\SpatialGridOptimized.cpp(33): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(70): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+Collision\SpatialGridOptimized.cpp(157): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(159): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(161): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(163): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Managers\ModelManager.cpp(297): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Managers\ModelManager.cpp(303): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Managers\PhysicsManager.cpp(67): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+Managers\PhysicsManager.cpp(68): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   SceneManager.cpp
-  ShaderManager.cpp
+  SimulationManager.cpp
+  Cone.cpp
   Cube.cpp
+  Cylinder.cpp
   Model.cpp
-  Quad.cpp
-  Triangle.cpp
-LINK : fatal error LNK1104: cannot open file 'freeglut.lib'
+  Sphere.cpp
+  Tetrahedron.cpp
+Managers\SimulationManager.cpp(535): warning C4244: 'initializing': conversion from 'std::size_t' to 'float', possible loss of data
+  ScenarioGenerator.cpp
+  main.cpp
+  LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe

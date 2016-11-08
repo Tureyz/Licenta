@@ -20,9 +20,9 @@ namespace Core
 	const std::wstring  PER_SCENARIO_PLOTS_FOLDER(PLOTS_FOLDER + L"PerScenario/");
 
 	const size_t SCENARIO_CLASSES = 5;
-	const size_t MAX_NUMBER_OBJECTS = 30;
+	const size_t MAX_NUMBER_OBJECTS = 200;
 	const size_t FRAMES_NUM = 300;
-	const size_t OBJECT_INCREMENT = 15;
+	const size_t OBJECT_INCREMENT = 100;
 	const bool REPLAY_SCENARIO = false;
 
 	const std::wstring  STRUCTURE_TIME(L"Time Spent - Structure Update");

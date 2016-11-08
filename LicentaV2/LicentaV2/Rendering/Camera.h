@@ -11,8 +11,11 @@ namespace Rendering
 		void UpdateView();
 		glm::mat4 GetViewMatrix() const;
 		void KeyPressed(const unsigned char key);
+		void KeyReleased(const unsigned char key);
 		void MouseMove(int x, int y, int width, int height);
 		void MousePressed(int button, int state, int x, int y);
+
+		void Update();
 
 	private:
 
@@ -24,5 +27,7 @@ namespace Rendering
 		float m_keyYaw;
 		float m_keyRoll;
 		glm::quat m_cameraQuat;
+
+		bool m_leftPressed, m_rightPressed, m_forwardPressed, m_backwardPressed;
 	};
 }

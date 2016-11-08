@@ -21,7 +21,8 @@ namespace Managers
 		virtual void notifyEndFrame();
 		virtual void notifyReshape(int width, int height, int previousWidth, int previousHeight);
 
-		virtual void KeyboardCallback(unsigned char key, int x, int y);
+		virtual void KeyboardDownCallback(unsigned char key, int x, int y);
+		virtual void KeyboardUpCallback(unsigned char key, int x, int y);
 		virtual void MouseCallback(int button, int state, int x, int y);
 		virtual void MotionCallback(int x, int y);
 

@@ -130,3 +130,4 @@ bool Collision::DataStructures::BoundingBox::Collides(const BoundingBox * other)
 	return !(m_maxX < other->m_minX || m_minX > other->m_maxX || m_maxY < other->m_minY || m_minY > other->m_maxY || m_maxZ < other->m_minZ || m_minZ > other->m_maxZ);
 }
 
+

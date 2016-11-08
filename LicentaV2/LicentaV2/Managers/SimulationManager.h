@@ -29,6 +29,7 @@ namespace Managers
 		void ObjectRemoved(IPhysicsObject *object);
 
 		void KeyPressed(unsigned char key);
+		void KeyReleased(unsigned char key);
 		void MousePressed(int button, int state, int x, int y);
 		void MouseMove(int x, int y, int width, int height);
 

@@ -7,7 +7,7 @@ Managers::PhysicsManager::PhysicsManager(std::vector<Rendering::IPhysicsObject*>
 	m_linearVelDecay = 0.994f;
 	m_angularVelDecay = 0.994f;
 	m_gravityCenter = glm::vec3(0);
-	m_gravityVel = 0.0003f;
+	m_gravityVel = 0.0001f;
 	m_gravityToggle = true;
 }
 
@@ -19,7 +19,8 @@ void Managers::PhysicsManager::FixedUpdate()
 
 		if (m_gravityToggle)
 		{
-			glm::vec3 gravitationalPull = model->GetMass() * (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition())));
+			//glm::vec3 gravitationalPull = model->GetMass() * (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition())));
+			glm::vec3 gravitationalPull = model->GetMass() * m_gravityVel * (m_gravityCenter - model->GetPosition());
 			model->SetTranslationStep(model->GetTranslationStep() + gravitationalPull);
 		}
 		else
@@ -57,15 +58,14 @@ void Managers::PhysicsManager::CollisionResponse()
 		{
 			continue;
 		}
+
 		glm::vec3 delta = firstCenter - secondCenter;
 		float d = glm::length(delta);
 
 		glm::vec3 mtd = delta * (((firstRadius + secondRadius) - d) / d);
 
 		float im1 = 1.0 / firstObj->GetMass();
-		float im2 = 1.0 / secondObj->GetMass();
-
-		
+		float im2 = 1.0 / secondObj->GetMass();		
 
 		glm::vec3 translationFirst = (mtd * (im1 / (im1 + im2)));
 		glm::vec3 translationSecond = -(mtd * (im2 / (im1 + im2)));
@@ -73,39 +73,24 @@ void Managers::PhysicsManager::CollisionResponse()
 // 		printVec(translationSecond);
 		firstObj->TranslateRelative(translationFirst);
 		secondObj->TranslateRelative(translationSecond);
-	}
-
-	for (auto pair : *m_collisionPairs)
-	{
-		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
-		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
-
-		auto firstCenter = firstObj->GetPosition();
-		auto secondCenter = secondObj->GetPosition();
-
-		auto firstRadius = firstObj->GetSphereRadius();
-		auto secondRadius = secondObj->GetSphereRadius();
-
-		auto delta = firstCenter - secondCenter;
-		auto d = glm::length(delta);
-
-		auto mtd = delta * (((firstRadius + secondRadius) - d) / d);
 
 		auto v = firstObj->GetTranslationStep() - secondObj->GetTranslationStep();
-		float vn = glm::dot(v, glm::normalize(mtd));
+
+		auto normalizedMtd = glm::length(mtd) < 0.0001 ? glm::vec3(0) : glm::normalize(mtd);
+		float vn = glm::dot(v, normalizedMtd);		
 
 		if (vn > 0.0f)
 		{
 			continue;
 		}
 
-		float im1 = 1.0 / firstObj->GetMass();
-		float im2 = 1.0 / secondObj->GetMass();
-		float i = (-(1.0f + 1.0f) * vn) / (im1 + im2);
-		std::wcout << L"i: " << i << L", vn: " << vn << L" -- ";
-		printVec(mtd);
+		float i = (-(1.0f + 10.5f) * vn) / (im1 + im2);
+		//std::wcout << L"i: " << i << L", vn: " << vn << L" -- ";
+		//printVec(mtd);
 		glm::vec3 impulse = mtd * i;
 		firstObj->SetTranslationStep(firstObj->GetTranslationStep() + (impulse * im1));
 		secondObj->SetTranslationStep(secondObj->GetTranslationStep() - (impulse * im2));
+
 	}
+
 }

@@ -95,6 +95,8 @@ namespace Rendering
 
 		float GetSphereRadius() const { return m_sphereRadius; }
 		void SetSphereRadius(float val) { m_sphereRadius = val; }
+
+		virtual bool SphereTest(Rendering::IPhysicsObject *other) final;
 	protected:
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
 		std::vector<VertexFormat> m_transformedVertices;
@@ -215,7 +217,6 @@ namespace Rendering
 		m_transformedVertices[0].m_position = glm::vec3(asd.x, asd.y, asd.z);
 		m_minCoords = m_maxCoords = m_transformedVertices[0].m_position;
 		
-		SetMass(m_sphereRadius);
 
 		float max = 0.0f;
 		for (int i = 1; i < m_initialVertices.size(); ++i)
@@ -248,7 +249,13 @@ namespace Rendering
 		}
 
 		m_sphereRadius = max;
+		SetMass(m_sphereRadius);
 
+	}
+
+	inline bool IPhysicsObject::SphereTest(Rendering::IPhysicsObject *other)
+	{
+		return glm::distance(this->GetPosition(), other->GetPosition()) < this->GetSphereRadius() + other->GetSphereRadius();
 	}
 
 }
