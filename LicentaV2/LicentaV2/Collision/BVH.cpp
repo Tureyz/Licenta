@@ -225,9 +225,11 @@ std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObj
 		m_lastFrameTests++;
 		if (first && second && first->m_boundingBox->Collides(second->m_boundingBox))
 		{
+			//if (first->m_type == Collision::DataStructures::BVHTree::LEAF && second->m_type == Collision::DataStructures::BVHTree::LEAF && first != second)
 			if (first->m_type == Collision::DataStructures::BVHTree::LEAF && second->m_type == Collision::DataStructures::BVHTree::LEAF && first != second)
 			{
-				result.insert(std::make_pair(first->m_objects[0], second->m_objects[0]));
+				if (first->m_objects[0]->SphereTest(second->m_objects[0]))
+					result.insert(std::make_pair(first->m_objects[0], second->m_objects[0]));
 			}
 			else
 			{

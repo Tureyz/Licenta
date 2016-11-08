@@ -22,7 +22,7 @@ namespace Collision
 	private:
 
 		void InsertIntoTree(Rendering::IPhysicsObject *object);
-		void __InsertIntoTree(DataStructures::OctreeNode *node, Rendering::IPhysicsObject *object);
+		void __InsertIntoTree(DataStructures::OctreeNode *node, Rendering::IPhysicsObject *object, int &depth);
 
 		bool CompletelyInside(Rendering::IPhysicsObject *object, glm::vec3 center, float halfWidth);
 		bool StraddleX(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node);

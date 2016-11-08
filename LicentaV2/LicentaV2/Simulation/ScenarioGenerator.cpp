@@ -6,7 +6,7 @@ std::vector<Simulation::Scenario> Simulation::ScenarioGenerator::GenerateScenari
 	
 	std::vector<Simulation::Scenario> result;
 	result.push_back(CreateStaticScenario(0, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 8.f));
-	result.push_back(CreateSingleMovingObjectScenario(1, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 7.f, glm::vec3(25, 25, 25)));
+	result.push_back(CreateSingleMovingObjectScenario(1, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 7.f, glm::vec3(15, 15, 15)));
 	result.push_back(CreateManyMovingObjectsScenario(2, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 7.f, 9.f));
 	result.push_back(CreateFrontalCrashScenario(3, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 4.f, 8));
 	result.push_back(CreateExplosionScenario(4, Core::FRAMES_NUM, Core::MAX_NUMBER_OBJECTS, 1.f));
@@ -89,6 +89,12 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateSingleMovingObjectScen
 	defs[0].m_rotationAngleStep = 0.00f + Core::Utils::RandomRange(0.00, 2.00).x / 50.f;
 	//defs[0].m_translationStep = -glm::normalize(defs[0].m_initialPosition) * 2.f * glm::distance(movingObjectPosition, glm::vec3(0)) / (float)(numberOfFrames);
 	defs[0].m_initialScale = glm::vec3(5);
+
+// 	defs[1].m_initialPosition = -movingObjectPosition;
+// 	defs[1].m_rotationStep = Core::Utils::RandomRange(0.000, 1.000);
+// 	defs[1].m_rotationAngleStep = 0.00f + Core::Utils::RandomRange(0.00, 2.00).x / 50.f;
+// 	//defs[0].m_translationStep = -glm::normalize(defs[0].m_initialPosition) * 2.f * glm::distance(movingObjectPosition, glm::vec3(0)) / (float)(numberOfFrames);
+// 	defs[1].m_initialScale = glm::vec3(5);
 
 	return GenerateScenarioFromStats(defs, scenarioID, numberOfFrames);
 }

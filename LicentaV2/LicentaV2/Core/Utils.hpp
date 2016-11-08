@@ -114,6 +114,6 @@ namespace Core
 				min + (float)(std::rand()) / (float(RAND_MAX / (max - min))),
 				min + (float)(std::rand()) / (float(RAND_MAX / (max - min)))
 			);
-		}		
+		}
 	};
 }

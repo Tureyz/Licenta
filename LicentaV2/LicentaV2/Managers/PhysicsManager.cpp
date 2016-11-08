@@ -64,28 +64,29 @@ static void printVec(glm::vec3 input)
 
 void Managers::PhysicsManager::CollisionResponse()
 {
-
-	for (auto pair : *m_collisionPairs)
+	for (std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> pair : *m_collisionPairs)
 	{
 		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
 		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
 
-		glm::vec3 firstCenter = firstObj->GetPosition();
-		glm::vec3 secondCenter = secondObj->GetPosition();
+ 		glm::vec3 firstCenter = firstObj->GetPosition();
+ 		glm::vec3 secondCenter = secondObj->GetPosition();
+// 		if (glm::distance(firstCenter, secondCenter) < 0) {
+// 			std::wcout << "a";
+// 		}
+
+
 
 		float firstRadius = firstObj->GetSphereRadius();
 		float secondRadius = secondObj->GetSphereRadius();
-
 		if (glm::distance(firstCenter, secondCenter) > firstRadius + secondRadius)
 		{
 			continue;
 		}
-
 		glm::vec3 delta = firstCenter - secondCenter;
 		float d = glm::length(delta);
 
 		glm::vec3 mtd = delta * (((firstRadius + secondRadius) - d) / d);
-
 		float im1 = 1.0 / firstObj->GetMass();
 		float im2 = 1.0 / secondObj->GetMass();
 
@@ -95,20 +96,16 @@ void Managers::PhysicsManager::CollisionResponse()
 		// 		printVec(translationSecond);
 		firstObj->TranslateRelative(translationFirst);
 		secondObj->TranslateRelative(translationSecond);
+		glm::vec3 v = firstObj->GetTranslationStep() - secondObj->GetTranslationStep();
 
-		auto v = firstObj->GetTranslationStep() - secondObj->GetTranslationStep();
-
-		auto normalizedMtd = glm::length(mtd) < 0.0001 ? glm::vec3(0) : glm::normalize(mtd);
+		glm::vec3 normalizedMtd = glm::length(mtd) < 0.0001 ? glm::vec3(0) : glm::normalize(mtd);
 		float vn = glm::dot(v, normalizedMtd);
-
-		if (vn > 0.0f)
+		if (vn >= 0.0f)
 		{
 			continue;
 		}
 
-		float i = (-(1.0f + 10.5f) * vn) / (im1 + im2);
-		//std::wcout << L"i: " << i << L", vn: " << vn << L" -- ";
-		//printVec(mtd);
+		float i = (-(1.0f + 7.5f) * vn) / (im1 + im2);
 		glm::vec3 impulse = mtd * i;
 		firstObj->SetTranslationStep(firstObj->GetTranslationStep() + (impulse * im1));
 		secondObj->SetTranslationStep(secondObj->GetTranslationStep() - (impulse * im2));

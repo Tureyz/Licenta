@@ -1,3 +1,54 @@
-﻿  ScenarioGenerator.cpp
-d:\github repos\licenta\licentav2\licentav2\simulation\..\Rendering\IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+﻿  BoundingBox.cpp
+  Octree.cpp
+  SpatialGrid.cpp
+  SpatialGridOptimized.cpp
+  SpatialHashing.cpp
+  SphereToSphereTest.cpp
+  SweepAndPrune.cpp
+  InitGLUT.cpp
+d:\github repos\licenta\licentav2\licentav2\collision\..\Rendering\IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Collision\SpatialGrid.cpp)
+d:\github repos\licenta\licentav2\licentav2\collision\..\Rendering\IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Collision\SweepAndPrune.cpp)
+d:\github repos\licenta\licentav2\licentav2\collision\datastructures\../../Rendering/IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Collision\DataStructures\BoundingBox.cpp)
+d:\github repos\licenta\licentav2\licentav2\collision\..\Rendering\IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Collision\SpatialGridOptimized.cpp)
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Core\InitGLUT.cpp)
+d:\github repos\licenta\licentav2\licentav2\collision\..\Rendering\IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Collision\SphereToSphereTest.cpp)
+d:\github repos\licenta\licentav2\licentav2\rendering\models\../IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Collision\SpatialHashing.cpp)
+d:\github repos\licenta\licentav2\licentav2\collision\..\Rendering\IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Collision\Octree.cpp)
+Collision\SpatialGrid.cpp(33): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGrid.cpp(68): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+Collision\SpatialGridOptimized.cpp(33): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(70): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+Collision\SpatialGridOptimized.cpp(157): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(159): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(161): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Collision\SpatialGridOptimized.cpp(163): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+  ModelManager.cpp
+  PhysicsManager.cpp
+  SceneManager.cpp
+  SimulationManager.cpp
+  Cone.cpp
+  Cube.cpp
+  Cylinder.cpp
+  Model.cpp
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Managers\ModelManager.cpp)
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Managers\SimulationManager.cpp)
+d:\github repos\licenta\licentav2\licentav2\rendering\models\../IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Rendering\Models\Cone.cpp)
+Managers\ModelManager.cpp(297): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+Managers\ModelManager.cpp(303): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Managers\PhysicsManager.cpp)
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Managers\SceneManager.cpp)
+d:\github repos\licenta\licentav2\licentav2\rendering\models\../IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Rendering\Models\Cube.cpp)
+Managers\SimulationManager.cpp(535): warning C4244: 'initializing': conversion from 'std::size_t' to 'float', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\rendering\models\../IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Rendering\Models\Model.cpp)
+d:\github repos\licenta\licentav2\licentav2\rendering\models\../IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Rendering\Models\Cylinder.cpp)
+Managers\PhysicsManager.cpp(26): warning C4305: 'argument': truncation from 'double' to 'float'
+Managers\PhysicsManager.cpp(39): warning C4305: 'argument': truncation from 'double' to 'float'
+Managers\PhysicsManager.cpp(90): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+Managers\PhysicsManager.cpp(91): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Sphere.cpp
+  Tetrahedron.cpp
+  main.cpp
+d:\github repos\licenta\licentav2\licentav2\rendering\models\../IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Rendering\Models\Sphere.cpp)
+d:\github repos\licenta\licentav2\licentav2\rendering\models\../IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Rendering\Models\Tetrahedron.cpp)
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file main.cpp)
   LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe

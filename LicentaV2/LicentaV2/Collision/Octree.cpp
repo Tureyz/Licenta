@@ -66,10 +66,11 @@ void Collision::Octree::SetParams(int splitThreshold, int maximumDepth)
 
 void Collision::Octree::InsertIntoTree(Rendering::IPhysicsObject *object)
 {
-	__InsertIntoTree(m_root, object);
+	int a = 0;
+	__InsertIntoTree(m_root, object, a);
 }
 
-void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rendering::IPhysicsObject *object)
+void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rendering::IPhysicsObject *object, int &depth)
 {
 	int childIndex = 0;
 
@@ -85,7 +86,7 @@ void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rende
 	centerOffset.z = childIndex & (1 << 2) ? newHalfWidth : -newHalfWidth;
 	glm::vec3 newCenter = node->m_center + centerOffset;
 		
-	if (CompletelyInside(object, newCenter, newHalfWidth))
+	if (CompletelyInside(object, newCenter, newHalfWidth) && depth < m_maximumDepth)
 	{
 		if (node->m_children[childIndex] == NULL)
 		{
@@ -96,7 +97,7 @@ void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rende
 			node->m_children[childIndex] = toBeAdded;
 		}
 
-		__InsertIntoTree(node->m_children[childIndex], object);
+		__InsertIntoTree(node->m_children[childIndex], object, ++depth);
 	}
 	else
 	{
