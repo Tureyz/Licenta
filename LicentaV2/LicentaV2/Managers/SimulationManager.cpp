@@ -300,7 +300,7 @@ void Managers::SimulationManager::InitCollisionMethods()
 // 	m_collisionMethods[Core::METHOD_BVH]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
 // 	m_collisionMethods[Core::METHOD_BVH]->SetIndices(&m_modelManager->m_cubeIndices);
 // 
-	m_collisionMethods[Core::METHOD_OCTREE] = new Collision::Octree(m_allObjects, glm::vec3(-50, -50, -50)/2.f, glm::vec3(50, 50, 50)/2.f);
+	m_collisionMethods[Core::METHOD_OCTREE] = new Collision::Octree(m_allObjects, glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50));
 	m_collisionMethods[Core::METHOD_OCTREE]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
 	m_collisionMethods[Core::METHOD_OCTREE]->SetIndices(&m_modelManager->m_lineCubeIndices);
 	((Collision::Octree *)m_collisionMethods[Core::METHOD_OCTREE])->SetParams(5, 50);

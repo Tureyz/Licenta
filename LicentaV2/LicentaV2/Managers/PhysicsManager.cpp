@@ -7,27 +7,49 @@ Managers::PhysicsManager::PhysicsManager(std::vector<Rendering::IPhysicsObject*>
 	m_linearVelDecay = 0.994f;
 	m_angularVelDecay = 0.994f;
 	m_gravityCenter = glm::vec3(0);
-	m_gravityVel = 0.0001f;
+	m_gravityVel = 0.005f;
 	m_gravityToggle = true;
+	m_realGravity = true;
 }
 
 void Managers::PhysicsManager::FixedUpdate()
 {
-	for (auto model : *m_objectList)
+	if (m_gravityToggle)
 	{
-		model->SetRotationAngleStep(model->GetRotationAngleStep() * m_angularVelDecay);
-
-		if (m_gravityToggle)
+		if (m_realGravity)
 		{
-			//glm::vec3 gravitationalPull = model->GetMass() * (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition())));
-			glm::vec3 gravitationalPull = model->GetMass() * m_gravityVel * (m_gravityCenter - model->GetPosition());
-			model->SetTranslationStep(model->GetTranslationStep() + gravitationalPull);
+			for (auto firstObj : *m_objectList)
+			{
+				glm::vec3 totalGravitationalPull(0);
+				for (auto secondObj : *m_objectList)
+				{
+					auto dist = std::fmaxf(0.01, glm::distance(firstObj->GetPosition(), secondObj->GetPosition()));
+					totalGravitationalPull += (secondObj->GetPosition() - firstObj->GetPosition()) * ((secondObj->GetMass())/ (dist * dist));
+				}
+
+				firstObj->SetTranslationStep(firstObj->GetTranslationStep() + (0.0001f * totalGravitationalPull));
+			}
 		}
 		else
+		{
+			for (auto obj : *m_objectList)
+			{
+				obj->SetRotationAngleStep(obj->GetRotationAngleStep() * m_angularVelDecay);
+				//glm::vec3 gravitationalPull = model->GetMass() * (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition())));
+				auto distanceToCenter = std::fmaxf(0.1, glm::distance(obj->GetPosition(), m_gravityCenter));
+				glm::vec3 gravitationalPull = obj->GetMass() * m_gravityVel * (m_gravityCenter - obj->GetPosition()) / (distanceToCenter * distanceToCenter);
+				obj->SetTranslationStep(obj->GetTranslationStep() + gravitationalPull);
+			}
+		}
+	}
+	else
+	{
+		for (auto model : *m_objectList)
 		{
 			model->SetTranslationStep(model->GetTranslationStep() * m_linearVelDecay);
 		}
 	}
+
 }
 
 void Managers::PhysicsManager::Update()
@@ -44,7 +66,7 @@ void Managers::PhysicsManager::CollisionResponse()
 {
 
 	for (auto pair : *m_collisionPairs)
-	{		
+	{
 		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
 		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
 
@@ -65,19 +87,19 @@ void Managers::PhysicsManager::CollisionResponse()
 		glm::vec3 mtd = delta * (((firstRadius + secondRadius) - d) / d);
 
 		float im1 = 1.0 / firstObj->GetMass();
-		float im2 = 1.0 / secondObj->GetMass();		
+		float im2 = 1.0 / secondObj->GetMass();
 
 		glm::vec3 translationFirst = (mtd * (im1 / (im1 + im2)));
 		glm::vec3 translationSecond = -(mtd * (im2 / (im1 + im2)));
-// 		printVec(translationFirst);
-// 		printVec(translationSecond);
+		// 		printVec(translationFirst);
+		// 		printVec(translationSecond);
 		firstObj->TranslateRelative(translationFirst);
 		secondObj->TranslateRelative(translationSecond);
 
 		auto v = firstObj->GetTranslationStep() - secondObj->GetTranslationStep();
 
 		auto normalizedMtd = glm::length(mtd) < 0.0001 ? glm::vec3(0) : glm::normalize(mtd);
-		float vn = glm::dot(v, normalizedMtd);		
+		float vn = glm::dot(v, normalizedMtd);
 
 		if (vn > 0.0f)
 		{

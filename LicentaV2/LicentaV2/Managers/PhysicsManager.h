@@ -22,8 +22,9 @@ namespace Managers
 		glm::vec3 m_gravityCenter;
 		float m_gravityVel;
 		bool m_gravityToggle;
-		
+		bool m_realGravity;
 		float m_linearVelDecay;
 		float m_angularVelDecay;
+
 	};
 }

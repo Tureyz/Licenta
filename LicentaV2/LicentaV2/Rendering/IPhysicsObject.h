@@ -5,6 +5,7 @@
 #include "../Dependencies/freeglut/freeglut.h"
 #include "VertexFormat.h"
 
+#define VOLUME_CONSTANT 4.18879020479
 
 namespace Rendering
 {
@@ -249,8 +250,7 @@ namespace Rendering
 		}
 
 		m_sphereRadius = max;
-		SetMass(m_sphereRadius);
-
+		SetMass(m_sphereRadius * m_sphereRadius * m_sphereRadius * VOLUME_CONSTANT);
 	}
 
 	inline bool IPhysicsObject::SphereTest(Rendering::IPhysicsObject *other)

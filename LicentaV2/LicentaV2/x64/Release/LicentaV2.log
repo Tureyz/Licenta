@@ -1,5 +1,3 @@
-﻿  BVH.cpp
-  Octree.cpp
-  SimulationManager.cpp
-Managers\SimulationManager.cpp(535): warning C4244: 'initializing': conversion from 'std::size_t' to 'float', possible loss of data
+﻿  ScenarioGenerator.cpp
+d:\github repos\licenta\licentav2\licentav2\simulation\..\Rendering\IPhysicsObject.h(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe
