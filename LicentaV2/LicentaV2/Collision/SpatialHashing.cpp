@@ -160,7 +160,8 @@ std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObj
 			{
 				auto secondObj = (*it2);
 				m_lastFrameTests++;
-				if (secondObj != firstObj && ((Rendering::Models::Model *)firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *)secondObj)->GetBoundingBox()))
+				//if (secondObj != firstObj && ((Rendering::Models::Model *)firstObj)->GetBoundingBox()->Collides(((Rendering::Models::Model *)secondObj)->GetBoundingBox()))
+				if (secondObj != firstObj && firstObj->SphereTest(secondObj))
 				{
 					result.insert(std::make_pair(firstObj, secondObj));
 				}

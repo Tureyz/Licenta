@@ -98,6 +98,7 @@ namespace Rendering
 		void SetSphereRadius(float val) { m_sphereRadius = val; }
 
 		virtual bool SphereTest(Rendering::IPhysicsObject *other) final;
+
 	protected:
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
 		std::vector<VertexFormat> m_transformedVertices;

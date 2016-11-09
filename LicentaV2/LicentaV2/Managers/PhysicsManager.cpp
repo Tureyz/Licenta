@@ -64,52 +64,92 @@ static void printVec(glm::vec3 input)
 
 void Managers::PhysicsManager::CollisionResponse()
 {
+// 	for (std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> pair : *m_collisionPairs)
+// 	{
+// 		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
+// 		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
+// 
+//  		glm::vec3 firstCenter = firstObj->GetPosition();
+//  		glm::vec3 secondCenter = secondObj->GetPosition();
+// // 		if (glm::distance(firstCenter, secondCenter) < 0) {
+// // 			std::wcout << "a";
+// // 		}
+// 
+// 
+// 
+// 		float firstRadius = firstObj->GetSphereRadius();
+// 		float secondRadius = secondObj->GetSphereRadius();
+// 		if (glm::distance(firstCenter, secondCenter) > firstRadius + secondRadius)
+// 		{
+// 			continue;
+// 		}
+// 		glm::vec3 delta = firstCenter - secondCenter;
+// 		float d = glm::length(delta);
+// 
+// 		glm::vec3 mtd = delta * (((firstRadius + secondRadius) - d) / d);
+// 		float im1 = 1.0 / firstObj->GetMass();
+// 		float im2 = 1.0 / secondObj->GetMass();
+// 
+// 		glm::vec3 translationFirst = (mtd * (im1 / (im1 + im2)));
+// 		glm::vec3 translationSecond = -(mtd * (im2 / (im1 + im2)));
+// 		// 		printVec(translationFirst);
+// 		// 		printVec(translationSecond);
+// 		firstObj->TranslateRelative(translationFirst);
+// 		secondObj->TranslateRelative(translationSecond);
+// 		glm::vec3 v = firstObj->GetTranslationStep() - secondObj->GetTranslationStep();
+// 
+// 		glm::vec3 normalizedMtd = glm::length(mtd) < 0.0001 ? glm::vec3(0) : glm::normalize(mtd);
+// 		float vn = glm::dot(v, mtd);
+// 		if (vn >= 0.0f)
+// 		{
+// 			continue;
+// 		}
+// 
+// 		float i = (-(1.0f + 7.5f) * vn) / (im1 + im2);
+// 		glm::vec3 impulse = mtd * i;
+// 		firstObj->SetTranslationStep(firstObj->GetTranslationStep() + (impulse * im1));
+// 		secondObj->SetTranslationStep(secondObj->GetTranslationStep() - (impulse * im2));
+// 
+// 	}
+
 	for (std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> pair : *m_collisionPairs)
 	{
 		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
 		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
 
- 		glm::vec3 firstCenter = firstObj->GetPosition();
- 		glm::vec3 secondCenter = secondObj->GetPosition();
-// 		if (glm::distance(firstCenter, secondCenter) < 0) {
-// 			std::wcout << "a";
-// 		}
+		glm::vec3 firstCenter = firstObj->GetPosition();
+		glm::vec3 secondCenter = secondObj->GetPosition();
 
+		float firstMass = firstObj->GetMass();
+		float secondMass = secondObj->GetMass();
 
-
-		float firstRadius = firstObj->GetSphereRadius();
-		float secondRadius = secondObj->GetSphereRadius();
-		if (glm::distance(firstCenter, secondCenter) > firstRadius + secondRadius)
-		{
-			continue;
-		}
 		glm::vec3 delta = firstCenter - secondCenter;
-		float d = glm::length(delta);
 
-		glm::vec3 mtd = delta * (((firstRadius + secondRadius) - d) / d);
-		float im1 = 1.0 / firstObj->GetMass();
-		float im2 = 1.0 / secondObj->GetMass();
+		float restitution = 0.8f;		
+		float massSum = firstMass + secondMass;
 
-		glm::vec3 translationFirst = (mtd * (im1 / (im1 + im2)));
-		glm::vec3 translationSecond = -(mtd * (im2 / (im1 + im2)));
-		// 		printVec(translationFirst);
-		// 		printVec(translationSecond);
-		firstObj->TranslateRelative(translationFirst);
-		secondObj->TranslateRelative(translationSecond);
-		glm::vec3 v = firstObj->GetTranslationStep() - secondObj->GetTranslationStep();
+		glm::vec3 n = glm::normalize(delta);
 
-		glm::vec3 normalizedMtd = glm::length(mtd) < 0.0001 ? glm::vec3(0) : glm::normalize(mtd);
-		float vn = glm::dot(v, normalizedMtd);
-		if (vn >= 0.0f)
-		{
-			continue;
-		}
+		float a1 = glm::dot(firstObj->GetTranslationStep(), n);
+		float a2 = glm::dot(secondObj->GetTranslationStep(), n);
 
-		float i = (-(1.0f + 7.5f) * vn) / (im1 + im2);
-		glm::vec3 impulse = mtd * i;
-		firstObj->SetTranslationStep(firstObj->GetTranslationStep() + (impulse * im1));
-		secondObj->SetTranslationStep(secondObj->GetTranslationStep() - (impulse * im2));
+		float p = (2.0 * (a1 - a2)) / massSum;
 
+		// Compute their impulse
+
+		glm::vec3 firstImpulse = firstObj->GetTranslationStep() - p * secondObj->GetMass() * n;
+		glm::vec3 secondImpulse = secondObj->GetTranslationStep() + p * firstObj->GetMass() * n;
+		float ua = glm::length(firstObj->GetTranslationStep());
+		float ub = glm::length(secondObj->GetTranslationStep());
+
+		float va = glm::length(firstObj->GetTranslationStep() - p * secondObj->GetMass() * n);
+		float vb = glm::length(secondObj->GetTranslationStep() + p * firstObj->GetMass() * n);
+
+		float massVel = firstMass * ua + secondMass * ub;
+		float velDif = ub - ua;
+
+		firstObj->SetTranslationStep(glm::normalize(firstImpulse) * ((massVel + secondMass * restitution * velDif) / massSum));
+		secondObj->SetTranslationStep(glm::normalize(secondImpulse) * ((massVel + firstMass * restitution * -velDif) / massSum));
 	}
 
 }
