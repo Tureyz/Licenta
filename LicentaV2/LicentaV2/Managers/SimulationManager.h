@@ -101,7 +101,7 @@ namespace Managers
 		Managers::BenchmarkResultManager m_resultManager;
 		std::wstring  m_lastActiveMethodName;
 
-		const std::wstring  m_defaultMethodName = Core::METHOD_NONE;
+		const std::wstring  m_defaultMethodName = Core::METHOD_OCTREE;
 
 		std::chrono::time_point<std::chrono::steady_clock> m_benchmarkStartTime;
 
