@@ -1,1 +1,5 @@
-﻿  LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe
+﻿  InitGLUT.cpp
+  main.cpp
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(254): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file Core\InitGLUT.cpp)
+d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(254): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data (compiling source file main.cpp)
+  LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe
