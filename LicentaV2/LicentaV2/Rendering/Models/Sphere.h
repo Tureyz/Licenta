@@ -14,6 +14,7 @@ namespace Rendering
 			~Sphere();
 
 			virtual void Create() override final;			
+			virtual void Create(const glm::mat4 &mvp) override final;
 		};
 	}
 }

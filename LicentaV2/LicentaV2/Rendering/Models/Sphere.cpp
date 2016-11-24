@@ -23,3 +23,16 @@ void Rendering::Models::Sphere::Create()
 	//GetBoundingBox()->SetProgram(m_program);
 	GetBoundingBox()->Create();
 }
+
+void Rendering::Models::Sphere::Create(const glm::mat4 &mvp)
+{
+	this->m_vao = GetModelManager()->m_sphereVao;
+	this->m_vbos.push_back(GetModelManager()->m_sphereVbo);
+	this->m_vbos.push_back(GetModelManager()->m_sphereIbo);
+	this->SetIndices(GetModelManager()->m_sphereIndices);
+	this->m_initialVertices = GetModelManager()->m_sphereVerts;
+	this->m_transformedVertices = GetModelManager()->m_sphereVerts;
+	UpdateVertices(mvp);
+	//GetBoundingBox()->SetProgram(m_program);
+	GetBoundingBox()->Create();
+}

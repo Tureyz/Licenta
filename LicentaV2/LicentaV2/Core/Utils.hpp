@@ -20,9 +20,9 @@ namespace Core
 	const std::wstring  PER_SCENARIO_PLOTS_FOLDER(PLOTS_FOLDER + L"PerScenario/");
 
 	const size_t SCENARIO_CLASSES = 5;
-	const size_t MAX_NUMBER_OBJECTS = 600;
+	const size_t MAX_NUMBER_OBJECTS = 200;
 	const size_t FRAMES_NUM = 300;
-	const size_t OBJECT_INCREMENT = 300;
+	const size_t OBJECT_INCREMENT = 100;
 	const bool REPLAY_SCENARIO = false;
 
 	const std::wstring  STRUCTURE_TIME(L"Time Spent - Structure Update");
@@ -86,13 +86,23 @@ namespace Core
 			return names;
 		}
 
+		static float RandomRange(float min, float max)
+		{
+			return min + (float)(std::rand()) / (float(RAND_MAX / (max - min)));
+		}
+
+		static float RandomAround(const float center, const float radius)
+		{
+			return RandomRange(center - radius, center + radius);
+		}
+
 		static glm::vec3 RandomVec3Around(const glm::vec3 &position, const float radius)
 		{
 			return glm::vec3
 			(
-				position.x - radius + (float)(std::rand()) / (float(RAND_MAX / (2 * radius))),
-				position.y - radius + (float)(std::rand()) / (float(RAND_MAX / (2 * radius))),
-				position.z - radius + (float)(std::rand()) / (float(RAND_MAX / (2 * radius)))
+				RandomAround(position.x, radius),
+				RandomAround(position.y, radius),
+				RandomAround(position.z, radius)
 			);
 		}
 
@@ -106,14 +116,9 @@ namespace Core
 			);
 		}
 
-		static glm::vec3 RandomRange(float min, float max)
+		static glm::vec3 RandomRangeVec(float min, float max)
 		{
-			return glm::vec3
-			(
-				min + (float)(std::rand()) / (float(RAND_MAX / (max - min))),
-				min + (float)(std::rand()) / (float(RAND_MAX / (max - min))),
-				min + (float)(std::rand()) / (float(RAND_MAX / (max - min)))
-			);
+			return glm::vec3(RandomRange(min, max),	RandomRange(min, max), RandomRange(min, max));
 		}
 	};
 }

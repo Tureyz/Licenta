@@ -23,6 +23,8 @@ namespace Simulation
 		glm::vec3 m_scaleStep;
 		glm::vec3 m_rotationStep;
 		float m_rotationAngleStep;
+
+		float m_density;
 	};
 
 	class Scenario

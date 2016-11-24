@@ -24,6 +24,7 @@ void Simulation::Scenario::LoadFromObjects(std::vector<Rendering::IPhysicsObject
 		objDesc.m_rotationStep = obj->GetRotationStep();
 		objDesc.m_scaleStep = obj->GetScaleStep();
 		objDesc.m_translationStep = obj->GetTranslationStep();
+		objDesc.m_density = obj->GetDensity();
 
 		m_objectDescriptions.push_back(objDesc);
 	}

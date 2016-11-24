@@ -17,6 +17,7 @@ namespace Rendering
 			virtual ~Model();
 
 			virtual void Create() override;
+			virtual void Create(const glm::mat4 &mvp);
 			virtual void Draw() override;
 			virtual void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override final;
 			virtual void DrawBB(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override final;

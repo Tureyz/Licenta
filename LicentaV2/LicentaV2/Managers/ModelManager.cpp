@@ -46,7 +46,7 @@ void Managers::ModelManager::Update()
 {
 	for (auto model : m_objectList)
 	{
-		model->Update();
+		model->Update();		
 	}
 }
 

@@ -18,6 +18,7 @@ namespace Rendering
 		virtual ~IPhysicsObject() = 0;
 
 		virtual void Create() = 0;
+		virtual void Create(const glm::mat4 &mvp) = 0;
 		virtual void Draw() = 0;
 		virtual void Draw(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) = 0;
 		virtual void DrawBB(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) = 0;
@@ -99,6 +100,10 @@ namespace Rendering
 
 		virtual bool SphereTest(Rendering::IPhysicsObject *other) final;
 
+		bool GetBroken() const { return m_isBroken; }
+		void SetBroken(bool val) { m_isBroken = val; }
+		float GetDensity() const { return m_density; }
+		void SetDensity(float val) { m_density = val; }
 	protected:
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
 		std::vector<VertexFormat> m_transformedVertices;
@@ -132,6 +137,9 @@ namespace Rendering
 
 		float m_mass;
 		float m_sphereRadius;
+		float m_density;
+
+		bool m_isBroken;
 
 	};
 
@@ -157,6 +165,7 @@ namespace Rendering
 			RotateRelative(GetRotationStep(), m_rotationAngleStep /** m_modelManager->GetDt()*/);
 		if (GetTranslationStep() != glm::vec3(0.f))
 			TranslateRelative(GetTranslationStep() /** m_modelManager->GetDt()*/);
+		
 	}
 
 	inline GLuint IPhysicsObject::GetVao() const
@@ -251,7 +260,7 @@ namespace Rendering
 		}
 
 		m_sphereRadius = max;
-		SetMass(m_sphereRadius * m_sphereRadius * m_sphereRadius * VOLUME_CONSTANT);
+		SetMass(m_sphereRadius * m_sphereRadius * m_sphereRadius * VOLUME_CONSTANT * m_density);
 	}
 
 	inline bool IPhysicsObject::SphereTest(Rendering::IPhysicsObject *other)

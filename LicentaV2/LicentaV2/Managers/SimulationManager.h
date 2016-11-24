@@ -49,6 +49,8 @@ namespace Managers
 		void FreeCollisionMethods();
 		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> *GetCurrentCollisionPairsPtr() { return &m_currentCollisionPairs; }
 		void SetCurrentCollisionPairs(std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> &val) { m_currentCollisionPairs = val; }
+
+		void BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce);
 	private:
 
 		void ResetCollisions();
@@ -62,6 +64,7 @@ namespace Managers
 
 		void DisplayHelp();
 
+		void CreateWorldBounds();
 		std::wstring  PercentFinished();
 		ModelManager *m_modelManager;
 		std::unordered_map<std::wstring , Collision::ICollisionMethod *> m_collisionMethods;
@@ -108,6 +111,14 @@ namespace Managers
 		std::wstring  m_benchmarkTimeInfo;
 
 		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> m_currentCollisionPairs;
+
+		size_t m_firstAvailableID;
+
+		std::vector<Simulation::ObjectDescription> m_addQueue;
+		std::vector<Rendering::IPhysicsObject*> m_removeQueue;
+
+		std::pair<glm::vec3, glm::vec3> m_worldBounds;
+		std::vector<std::pair<float, glm::vec3>> m_worldNormals;
 		
 	};
 }

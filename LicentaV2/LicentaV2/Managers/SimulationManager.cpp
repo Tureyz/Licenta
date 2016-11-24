@@ -10,7 +10,11 @@
 #include "../Collision/SeparatingAxisTheorem.h"
 #include "../Collision/SphereToSphereTest.h"
 
+#include "../Dependencies/glm/gtx/rotate_vector.hpp"
+
 #include <algorithm>
+
+#define PI 3.14159
 
 Managers::SimulationManager::SimulationManager(ModelManager *modelManager)
 {
@@ -24,6 +28,7 @@ Managers::SimulationManager::SimulationManager(ModelManager *modelManager)
 	m_maxSimulationFrame = 0;
 	m_lastActiveMethodName = m_defaultMethodName;
 	m_simulationDebug = false;
+	m_firstAvailableID = 0;
 }
 
 Managers::SimulationManager::~SimulationManager()
@@ -86,6 +91,26 @@ void Managers::SimulationManager::FixedUpdate()
 
 void Managers::SimulationManager::Update()
 {
+	for (auto obj : m_removeQueue)
+	{
+		m_modelManager->DeleteModel(obj->GetID());
+		ObjectRemoved(obj);
+	}
+
+	m_removeQueue.clear();
+
+	for (auto desc : m_addQueue)
+	{
+		IPhysicsObject *obj = SpawnObjectAt(desc.m_objectType, desc.m_ID, desc.m_initialPosition, desc.m_initialRotation, desc.m_initialRotationAngle, desc.m_initialScale);
+		obj->SetTranslationStep(desc.m_translationStep);
+		obj->SetScaleStep(desc.m_scaleStep);
+		obj->SetRotationStep(desc.m_rotationStep);
+		obj->SetRotationAngleStep(desc.m_rotationAngleStep);
+		
+		ObjectAdded(obj);
+	}
+
+	m_addQueue.clear();
 }
 
 void Managers::SimulationManager::Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
@@ -181,7 +206,7 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 		m_currentScenarioIndex.first--;
 		if (m_currentScenarioIndex.first <= -1)
 		{
-			m_currentScenarioIndex.first = (int) (m_scenarios.size() - 1);
+			m_currentScenarioIndex.first = (int)(m_scenarios.size() - 1);
 		}
 		m_currentScenarioIndex.second = 0;
 		LoadScenario(m_scenarios[m_currentScenarioIndex.first][m_currentScenarioIndex.second]);
@@ -292,43 +317,48 @@ void Managers::SimulationManager::ImportAllAvailableScenarios()
 	}
 }
 
+void Managers::SimulationManager::CreateWorldBounds()
+{
+	m_worldBounds = std::make_pair(glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50));	
+}
+
 void Managers::SimulationManager::InitCollisionMethods()
 {
 	m_collisionMethods[Core::METHOD_NONE] = new Collision::DummyMethod(m_allObjects);
 
-// 	m_collisionMethods[Core::METHOD_BVH] = new Collision::BVH(m_allObjects);
-// 	m_collisionMethods[Core::METHOD_BVH]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-// 	m_collisionMethods[Core::METHOD_BVH]->SetIndices(&m_modelManager->m_cubeIndices);
-// 
+	// 	m_collisionMethods[Core::METHOD_BVH] = new Collision::BVH(m_allObjects);
+	// 	m_collisionMethods[Core::METHOD_BVH]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	// 	m_collisionMethods[Core::METHOD_BVH]->SetIndices(&m_modelManager->m_cubeIndices);
+	// 
 	m_collisionMethods[Core::METHOD_OCTREE] = new Collision::Octree(m_allObjects, glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50));
 	m_collisionMethods[Core::METHOD_OCTREE]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
 	m_collisionMethods[Core::METHOD_OCTREE]->SetIndices(&m_modelManager->m_lineCubeIndices);
 	((Collision::Octree *)m_collisionMethods[Core::METHOD_OCTREE])->SetParams(5, 10);
-// 
-// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID] = new Collision::SpatialGrid(m_allObjects, 10);
-// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetIndices(&m_modelManager->m_lineCubeIndices);
-// 	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID])->SetParams(glm::vec3(-20, -20, -20)/2.f, glm::vec3(20, 20, 20)/2.f, 4);
-// 
-// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED] = new Collision::SpatialGrid(m_allObjects, 10);
-// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetIndices(&m_modelManager->m_lineCubeIndices);
-// 	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
-// 
-// 	m_collisionMethods[Core::METHOD_SAP] = new Collision::SweepAndPrune(m_allObjects);
-// 	m_collisionMethods[Core::METHOD_SAP]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-// 	m_collisionMethods[Core::METHOD_SAP]->SetIndices(&m_modelManager->m_cubeIndices);
-// 
-// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING] = new Collision::SpatialHashing(m_allObjects);
-// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
-// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetIndices(&m_modelManager->m_cubeIndices);
-// 	((Collision::SpatialHashing *)m_collisionMethods[Core::METHOD_SPATIAL_HASHING])->SetCellSize(5);
+	// 
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID] = new Collision::SpatialGrid(m_allObjects, 10);
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID]->SetIndices(&m_modelManager->m_lineCubeIndices);
+	// 	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID])->SetParams(glm::vec3(-20, -20, -20)/2.f, glm::vec3(20, 20, 20)/2.f, 4);
+	// 
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED] = new Collision::SpatialGrid(m_allObjects, 10);
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED]->SetIndices(&m_modelManager->m_lineCubeIndices);
+	// 	((Collision::SpatialGrid *)m_collisionMethods[Core::METHOD_SPATIAL_GRID_OPTIMIZED])->SetParams(glm::vec3(-20, -20, -20), glm::vec3(20, 20, 20), 10);
+	// 
+	// 	m_collisionMethods[Core::METHOD_SAP] = new Collision::SweepAndPrune(m_allObjects);
+	// 	m_collisionMethods[Core::METHOD_SAP]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	// 	m_collisionMethods[Core::METHOD_SAP]->SetIndices(&m_modelManager->m_cubeIndices);
+	// 
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING] = new Collision::SpatialHashing(m_allObjects);
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+	// 	m_collisionMethods[Core::METHOD_SPATIAL_HASHING]->SetIndices(&m_modelManager->m_cubeIndices);
+	// 	((Collision::SpatialHashing *)m_collisionMethods[Core::METHOD_SPATIAL_HASHING])->SetCellSize(5);
 
 
-	//m_collisionMethods[Core::METHOD_S2S] = new Collision::SphereToSphereTest(m_allObjects);
+		//m_collisionMethods[Core::METHOD_S2S] = new Collision::SphereToSphereTest(m_allObjects);
 
-	// 	m_collisionMethods["Separating Axis Theorem"] = new Collision::SeparatingAxisTheorem(m_allObjects);
-	// 	m_collisionMethods["Separating Axis Theorem"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
+		// 	m_collisionMethods["Separating Axis Theorem"] = new Collision::SeparatingAxisTheorem(m_allObjects);
+		// 	m_collisionMethods["Separating Axis Theorem"]->SetDrawBuffers(m_modelManager->m_cubeVao, m_modelManager->m_cubeVbo, m_modelManager->m_cubeIbo);
 
 	m_activeMethod = m_collisionMethods.find(m_defaultMethodName);
 	//(*m_activeMethod).second->SetShowDebug(true);
@@ -340,6 +370,42 @@ void Managers::SimulationManager::FreeCollisionMethods()
 	{
 		delete(method.second);
 	}
+}
+
+void Managers::SimulationManager::BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce)
+{
+	if (obj->GetObjectType() != 1)
+		return;
+
+	//std::wcout << L"BREAK " << glm::length(impactForce) << " " << obj->GetSphereRadius() << " " << obj->GetMass() << std::endl;
+	float parentRadius = obj->GetSphereRadius();
+	float childRadius = parentRadius / 2.2f;
+
+	glm::vec3 parentScale = obj->GetScale();
+	glm::vec3 childScale = parentScale / 2.2f;
+
+	glm::vec3 parentPos = obj->GetPosition();
+
+	float offset = childRadius;
+
+	std::vector<glm::vec3> relativeSpawnPositions = { glm::vec3(-1, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, -1), glm::vec3(0, 0, 1) };
+
+	glm::vec3 rotationAxis = glm::normalize(glm::vec3(std::rand() % 360, std::rand() % 360, std::rand() % 360));
+	float rotationAngles = std::rand() % 360;
+	for (auto relVec : relativeSpawnPositions)
+	{
+		auto asd = glm::rotate(relVec, rotationAngles, rotationAxis);
+
+		glm::vec3 childPos = parentPos + asd * offset;
+		auto def = Simulation::ScenarioGenerator::CreateDef(Simulation::OBJ_SPHERE, m_firstAvailableID++, childPos, Core::Utils::Random01(), (float)(std::rand() % 360), childScale);
+		def.m_translationStep = (length(impactForce) / 1.1f) * glm::normalize(childPos - parentPos);
+		def.m_density = obj->GetMass() / ((8 * PI) * childRadius * childRadius * childRadius);
+		m_addQueue.push_back(def);
+	}
+	
+	
+	obj->SetBroken(true);
+	m_removeQueue.push_back(obj);
 }
 
 void Managers::SimulationManager::ResetCollisions()
@@ -377,7 +443,7 @@ void Managers::SimulationManager::LoadScenario(Simulation::Scenario *scenario)
 	m_modelManager->SetBoundingBoxesVisibile(m_objectBBs);
 
 	if (m_simulationDebug)
-	{		
+	{
 		std::wcout << "Loaded Scenario: " << m_activeScenario->m_name << " - " << m_activeScenario->GetObjectDescriptions().size() << " objects" << std::endl;
 	}
 }
@@ -438,7 +504,7 @@ std::wstring  HumanReadableTime(size_t seconds)
 	size_t minutes = seconds / 60;
 	size_t hours = minutes / 60;
 
-	return std::wstring (std::to_wstring(hours) + L" hours, " + std::to_wstring(minutes % 60) + L" minutes, " + std::to_wstring(seconds % 60) + L" seconds");
+	return std::wstring(std::to_wstring(hours) + L" hours, " + std::to_wstring(minutes % 60) + L" minutes, " + std::to_wstring(seconds % 60) + L" seconds");
 }
 
 void Managers::SimulationManager::CurrentScenarioEnded()
@@ -536,7 +602,7 @@ std::wstring  Managers::SimulationManager::PercentFinished()
 
 	float percent = (progress / total) * 100;
 
-	return std::wstring ((percent < 10 ? L" " : L"") + std::to_wstring((int)percent) + L"%");
+	return std::wstring((percent < 10 ? L" " : L"") + std::to_wstring((int)percent) + L"%");
 }
 
 void Managers::SimulationManager::SpawnManyAround(const glm::vec3 & position, const float radius, const int numberOfObjects, Simulation::PhysicsObjectType typeOfObjects)
@@ -546,7 +612,7 @@ void Managers::SimulationManager::SpawnManyAround(const glm::vec3 & position, co
 		for (int i = 0; i < numberOfObjects; ++i)
 		{
 			glm::vec3 pos = Core::Utils::RandomVec3Around(position, radius);
-			SpawnObjectAt((Simulation::PhysicsObjectType)(rand() % Simulation::PhysicsObjectType::OBJ_NUM_TOTAL), m_objectIDCounter++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), Core::Utils::RandomRange(0.5f, 1.f));
+			SpawnObjectAt((Simulation::PhysicsObjectType)(rand() % Simulation::PhysicsObjectType::OBJ_NUM_TOTAL), m_objectIDCounter++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), Core::Utils::RandomRangeVec(0.5f, 1.f));
 		}
 	}
 	else
@@ -554,7 +620,7 @@ void Managers::SimulationManager::SpawnManyAround(const glm::vec3 & position, co
 		for (int i = 0; i < numberOfObjects; ++i)
 		{
 			glm::vec3 pos = Core::Utils::RandomVec3Around(position, radius);
-			SpawnObjectAt(typeOfObjects, m_objectIDCounter++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), Core::Utils::RandomRange(0.5f, 1.f));
+			SpawnObjectAt(typeOfObjects, m_objectIDCounter++, pos, Core::Utils::Random01(), (float)(std::rand() % 360), Core::Utils::RandomRangeVec(0.5f, 1.f));
 		}
 	}
 }
@@ -568,7 +634,10 @@ void Managers::SimulationManager::SpawnObjectsFromScenario(const Simulation::Sce
 		obj->SetScaleStep(desc.m_scaleStep);
 		obj->SetRotationStep(desc.m_rotationStep);
 		obj->SetRotationAngleStep(desc.m_rotationAngleStep);
+		m_firstAvailableID = desc.m_ID > m_firstAvailableID ? desc.m_ID : m_firstAvailableID;
 	}
+
+	m_firstAvailableID++;
 }
 
 Rendering::IPhysicsObject* Managers::SimulationManager::SpawnObjectAt(const Simulation::PhysicsObjectType objectType, size_t ID, const glm::vec3 &position, const glm::vec3 &rotation, const float rotationAngle, const glm::vec3 &scale)
@@ -601,6 +670,8 @@ Rendering::IPhysicsObject* Managers::SimulationManager::SpawnObjectAt(const Simu
 	newObj->RotateAbsolute(rotation, rotationAngle);
 	newObj->TranslateAbsolute(position);
 	ObjectAdded(newObj);
+	ObjectMoved(newObj);
+	newObj->ObjectMoved();
 
 	m_modelManager->RegisterObject(ID, newObj);
 

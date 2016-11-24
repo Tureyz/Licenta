@@ -5,6 +5,8 @@
 
 Rendering::Models::Model::Model(const glm::vec4 & color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager)
 {
+	m_density = 7.f;
+	m_isBroken = false;
 	m_translationMatrix = glm::mat4(1.0f);
 	m_rotationMatrix = glm::mat4(1.0f);
 	m_scaleMatrix = glm::mat4(1.0f);
@@ -28,6 +30,8 @@ Rendering::Models::Model::Model(const glm::vec4 & color, Managers::ModelManager 
 
 Rendering::Models::Model::Model(const Model &other)
 {
+	m_density = 7.f;
+	m_isBroken = false;
 	m_translationMatrix = other.m_translationMatrix;
 	m_rotationMatrix = other.m_rotationMatrix;
 	m_scaleMatrix = other.m_scaleMatrix;
@@ -78,6 +82,11 @@ Rendering::Models::Model::~Model()
 }
 
 void Rendering::Models::Model::Create()
+{
+
+}
+
+void Rendering::Models::Model::Create(const glm::mat4 &mvp)
 {
 
 }
