@@ -120,6 +120,9 @@
     <ClCompile Include="Collision\SphereToSphereTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\glm\common.hpp">
@@ -308,10 +311,15 @@
     <ClInclude Include="Collision\SphereToSphereTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\TextRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
     <None Include="Shaders\VertexShader.glsl" />
+    <None Include="Shaders\TextFragmentShader.glsl" />
+    <None Include="Shaders\TextVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\glm\CMakeLists.txt" />

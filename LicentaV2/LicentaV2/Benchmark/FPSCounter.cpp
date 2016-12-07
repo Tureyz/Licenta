@@ -28,5 +28,5 @@ void Benchmark::FPSCounter::FixedUpdate()
 void Benchmark::FPSCounter::Draw()
 {
 	// Doesn't work, used a cout ^^^^
-	Core::Utils::printToScreen(glm::vec2(0, 0), std::to_wstring(m_fps));
+	Core::Utils::printToScreen(glm::vec2(500, 500), std::to_wstring(m_fps));
 }

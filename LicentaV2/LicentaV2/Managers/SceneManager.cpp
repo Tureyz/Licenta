@@ -8,9 +8,10 @@ Managers::SceneManager::SceneManager()
 	glEnable(GL_DEPTH_TEST);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	m_textRenderer = new TextRenderer();
 
 	m_shaderManager = new ShaderManager();
-	m_shaderManager->CreateProgram(L"Shaders\\VertexShader.glsl", L"Shaders\\FragmentShader.glsl");
+	m_shaderManager->CreatePrograms();
 
 	m_viewMatrix = glm::mat4(
 		1.0f, 0.0f, 0.0f, 0.0f,
@@ -26,6 +27,9 @@ Managers::SceneManager::SceneManager()
 	m_modelManager->Init();
 	m_simulationManager->Init();
 	m_deltaTime.UpdateTick();
+	//m_textRenderer->SetProgram(Managers::ShaderManager::GetTextShader());
+	//m_textRenderer->Init();
+
 }
 
 Managers::SceneManager::~SceneManager()
@@ -63,12 +67,25 @@ void Managers::SceneManager::notifyDisplayFrame()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(Core::BACKGROUND_COLOR.r, Core::BACKGROUND_COLOR.g, Core::BACKGROUND_COLOR.b, Core::BACKGROUND_COLOR.a);
 
+
+
+	glUseProgram(Managers::ShaderManager::GetSceneShader());
 	m_FPSCounter.Draw();
-	glUseProgram(Managers::ShaderManager::GetShader());
 	m_modelManager->Draw(m_projectionMatrix, m_camera->GetViewMatrix());
 
 	m_simulationManager->Draw();
 	m_simulationManager->Draw(m_projectionMatrix, m_camera->GetViewMatrix());
+
+
+// 	/* Enable blending, necessary for our alpha texture */
+// 	m_textRenderer->PutText("TEST", glm::vec2(200, 200));
+// 	glUseProgram(Managers::ShaderManager::GetTextShader());
+// 	glEnable(GL_BLEND);
+// 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+// 	m_textRenderer->Draw(m_width, m_height);
+// 	glDisable(GL_BLEND);	
+
+
 }
 
 void Managers::SceneManager::notifyEndFrame()
@@ -91,6 +108,7 @@ void Managers::SceneManager::KeyboardDownCallback(unsigned char key, int x, int 
 {
 	m_camera->KeyPressed(key);
 	m_simulationManager->KeyPressed(key);
+	m_physicsManager->KeyPressed(key);
 }
 
 void Managers::SceneManager::KeyboardUpCallback(unsigned char key, int x, int y)

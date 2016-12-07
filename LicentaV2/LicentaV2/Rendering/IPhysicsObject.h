@@ -93,6 +93,7 @@ namespace Rendering
 		void SetIndices(std::vector<unsigned int> val) { m_indices = val; }
 
 		float GetMass() const { return m_mass; }
+		float GetInverseMass() const { return m_inverseMass; }
 		void SetMass(float val) { m_mass = val; }
 
 		float GetSphereRadius() const { return m_sphereRadius; }
@@ -104,6 +105,8 @@ namespace Rendering
 		void SetBroken(bool val) { m_isBroken = val; }
 		float GetDensity() const { return m_density; }
 		void SetDensity(float val) { m_density = val; }
+		glm::mat3 GetInverseInertiaTensor() const { return m_inverseInertiaTensor; }
+		void SetInverseInertiaTensor(glm::mat3 val) { m_inverseInertiaTensor = val; }
 	protected:
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
 		std::vector<VertexFormat> m_transformedVertices;
@@ -136,8 +139,11 @@ namespace Rendering
 		std::vector<GLuint> m_vbos;
 
 		float m_mass;
+		float m_inverseMass;
 		float m_sphereRadius;
 		float m_density;
+
+		glm::mat3 m_inverseInertiaTensor;
 
 		bool m_isBroken;
 
@@ -261,6 +267,8 @@ namespace Rendering
 
 		m_sphereRadius = max;
 		SetMass(m_sphereRadius * m_sphereRadius * m_sphereRadius * VOLUME_CONSTANT * m_density);
+		m_inverseMass = 1.f / m_mass;
+		m_inverseInertiaTensor = glm::mat3(1) * (1.f / (0.4f * m_mass * m_sphereRadius * m_sphereRadius));
 	}
 
 	inline bool IPhysicsObject::SphereTest(Rendering::IPhysicsObject *other)

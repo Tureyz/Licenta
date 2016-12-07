@@ -2,7 +2,8 @@
 
 using namespace Managers;
 
-GLuint ShaderManager::shaderProgram;
+GLuint ShaderManager::m_sceneShaderProgram;
+GLuint ShaderManager::m_textShaderProgram;
 
 ShaderManager::ShaderManager(void)
 {
@@ -10,7 +11,8 @@ ShaderManager::ShaderManager(void)
 
 ShaderManager::~ShaderManager(void)
 {
-	glDeleteProgram(shaderProgram);
+	glDeleteProgram(m_sceneShaderProgram);
+	glDeleteProgram(m_textShaderProgram);
 }
 
 std::wstring  ShaderManager::ReadShader(const std::wstring & filename)
@@ -25,6 +27,17 @@ std::wstring  ShaderManager::ReadShader(const std::wstring & filename)
 	}
 
 	return std::wstring ((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
+}
+
+void Managers::ShaderManager::CreatePrograms()
+{
+	m_sceneShaderProgram = CreateProgram(L"Shaders\\VertexShader.glsl", L"Shaders\\FragmentShader.glsl");
+	m_textShaderProgram = CreateProgram(L"Shaders\\TextVertexShader.glsl", L"Shaders\\TextFragmentShader.glsl");
+}
+
+const GLuint Managers::ShaderManager::GetTextShader()
+{
+	return m_sceneShaderProgram;
 }
 
 GLuint Managers::ShaderManager::CreateShader(GLenum shaderType, const std::wstring & source)
@@ -47,7 +60,7 @@ GLuint Managers::ShaderManager::CreateShader(GLenum shaderType, const std::wstri
 	return shader;
 }
 
-void ShaderManager::CreateProgram(const std::wstring & vertexShaderFilename, const std::wstring & fragmentShaderFilename)
+int ShaderManager::CreateProgram(const std::wstring & vertexShaderFilename, const std::wstring & fragmentShaderFilename)
 {
 	std::wstring  vertexShaderCode = ReadShader(vertexShaderFilename);
 	std::wstring  fragmentShaderCode = ReadShader(fragmentShaderFilename);
@@ -66,13 +79,13 @@ void ShaderManager::CreateProgram(const std::wstring & vertexShaderFilename, con
 	if (ret == GL_FALSE)
 	{		
 		std::wcout << "SHADER LINK ERROR" << std::endl;
-		return;
+		return - 1;
 	}
 
-	shaderProgram = program;
+	return program;
 }
 
-const GLuint ShaderManager::GetShader()
+const GLuint ShaderManager::GetSceneShader()
 {
-	return shaderProgram;
+	return m_sceneShaderProgram;
 }

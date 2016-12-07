@@ -6,8 +6,8 @@
 namespace Core {
 	namespace Init {
 		const std::wstring  windowName = L"Hurezeanu App";
-		const glm::vec2 defaultWindowSize(1024, 768);
-		const glm::vec2 defaultWindowPos(500, 200);
+		const glm::vec2 defaultWindowSize(1600, 900);
+		const glm::vec2 defaultWindowPos(0, 0);
 		const int openGLMajorVersion = 4;
 		const int openGLMinorVersion = 5;
 			

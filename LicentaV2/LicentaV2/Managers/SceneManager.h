@@ -4,6 +4,7 @@
 #include "ModelManager.h"
 #include "SimulationManager.h"
 #include "PhysicsManager.h"
+#include "../Rendering/TextRenderer.h"
 
 #include "../Core/DeltaTime.h"
 #include "../Rendering/Camera.h"
@@ -34,10 +35,13 @@ namespace Managers
 		int m_width;
 		int m_height;
 		Rendering::Camera *m_camera;
+		Rendering::TextRenderer *m_textRenderer;
+
 		Managers::ShaderManager *m_shaderManager;
 		Managers::ModelManager *m_modelManager;
 		Managers::SimulationManager *m_simulationManager;
 		Managers::PhysicsManager *m_physicsManager;
+
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_viewMatrix;
 		Benchmark::FPSCounter m_FPSCounter;

@@ -25,9 +25,10 @@ void Rendering::ShapeRenderer::Draw(const glm::mat4 mvp, const GLuint vao, const
 {
 	glUniform1i(2, collisionState);
 	glUniformMatrix4fv(3, 1, false, &mvp[0][0]);
-	glBindVertexArray(vao);
+	glBindVertexArray(vao);	
 
 	glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, &indices[0]);
+	glBindVertexArray(0);
 }
 
 void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 mvp, const GLuint vao, const std::vector<GLuint> indices, const int collisionState)
@@ -37,4 +38,5 @@ void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 mvp, const GLuint v
 	glBindVertexArray(vao);
 
 	glDrawElements(GL_LINE_LOOP, (GLsizei)indices.size(), GL_UNSIGNED_INT, &indices[0]);	
+	glBindVertexArray(0);
 }

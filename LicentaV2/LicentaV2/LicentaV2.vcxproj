@@ -84,10 +84,11 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalIncludeDirectories>D:\Github repos\Licenta\LicentaV2\LicentaV2\Dependencies\freetype-2.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>Dependencies\freetype-2.7\objs\vc2010\x64;Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype27d.lib;opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrtd.lib;msvcmrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -114,12 +115,13 @@
       <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <AdditionalIncludeDirectories>Dependencies\freetype-2.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Github repos\Licenta\LicentaV2\LicentaV2\Dependencies\freetype-2.7\objs\vc2010\x64;Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype27.lib;opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrt.lib;msvcmrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
@@ -161,6 +163,7 @@
     <ClCompile Include="Rendering\Models\Sphere.cpp" />
     <ClCompile Include="Rendering\Models\Tetrahedron.cpp" />
     <ClCompile Include="Rendering\ShapeRenderer.cpp" />
+    <ClCompile Include="Rendering\TextRenderer.cpp" />
     <ClCompile Include="Simulation\Scenario.cpp" />
     <ClCompile Include="Simulation\ScenarioGenerator.cpp" />
   </ItemGroup>
@@ -199,6 +202,7 @@
     <ClInclude Include="Rendering\Models\Sphere.h" />
     <ClInclude Include="Rendering\Models\Tetrahedron.h" />
     <ClInclude Include="Rendering\ShapeRenderer.h" />
+    <ClInclude Include="Rendering\TextRenderer.h" />
     <ClInclude Include="Rendering\VertexFormat.h" />
     <ClInclude Include="Dependencies\glm\common.hpp" />
     <ClInclude Include="Dependencies\glm\exponential.hpp" />
@@ -230,6 +234,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
+    <None Include="Shaders\TextFragmentShader.glsl" />
+    <None Include="Shaders\TextVertexShader.glsl" />
     <None Include="Shaders\VertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>

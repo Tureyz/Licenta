@@ -392,14 +392,19 @@ void Managers::SimulationManager::BreakObject(Rendering::IPhysicsObject *obj, gl
 
 	glm::vec3 rotationAxis = glm::normalize(glm::vec3(std::rand() % 360, std::rand() % 360, std::rand() % 360));
 	float rotationAngles = std::rand() % 360;
+
+	float childDensity = obj->GetMass() / ((8 * PI) * childRadius * childRadius * childRadius);
+
 	for (auto relVec : relativeSpawnPositions)
 	{
-		auto asd = glm::rotate(relVec, rotationAngles, rotationAxis);
+		auto asd = glm::normalize(glm::rotate(relVec, rotationAngles, rotationAxis));
 
 		glm::vec3 childPos = parentPos + asd * offset;
 		auto def = Simulation::ScenarioGenerator::CreateDef(Simulation::OBJ_SPHERE, m_firstAvailableID++, childPos, Core::Utils::Random01(), (float)(std::rand() % 360), childScale);
-		def.m_translationStep = (length(impactForce) / 1.1f) * glm::normalize(childPos - parentPos);
-		def.m_density = obj->GetMass() / ((8 * PI) * childRadius * childRadius * childRadius);
+		def.m_translationStep = glm::length(impactForce) * glm::normalize(childPos - parentPos);
+		def.m_rotationStep = obj->GetRotationStep();
+		def.m_rotationAngleStep = glm::length(obj->GetRotationStep());
+		def.m_density = childDensity;
 		m_addQueue.push_back(def);
 	}
 	

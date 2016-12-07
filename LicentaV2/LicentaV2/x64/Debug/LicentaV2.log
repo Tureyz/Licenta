@@ -1,7 +1,6 @@
-﻿  PhysicsManager.cpp
-d:\github repos\licenta\licentav2\licentav2\rendering\iphysicsobject.h(258): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(26): warning C4305: 'argument': truncation from 'double' to 'float'
-d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(39): warning C4305: 'argument': truncation from 'double' to 'float'
-d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.cpp(88): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+﻿  SceneManager.cpp
+d:\github repos\licenta\licentav2\licentav2\rendering\iphysicsobject.h(269): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\core\utils.hpp(68): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
+d:\github repos\licenta\licentav2\licentav2\managers\physicsmanager.h(60): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
   LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe
   LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Debug\LicentaV2.pdb (Full PDB)

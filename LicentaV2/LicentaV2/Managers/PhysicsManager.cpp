@@ -1,18 +1,30 @@
 #include "PhysicsManager.h"
 #include "../Rendering/Models/Sphere.h"
+#include <algorithm>
 
 Managers::PhysicsManager::PhysicsManager(std::vector<Rendering::IPhysicsObject*> *objectList)
 {
 	m_objectList = objectList;
-	m_linearVelDecay = 0.994f;
-	m_angularVelDecay = 0.994f;
-	m_gravityCenter = glm::vec3(0);
+
+	m_defaultFrics = 0.4f;
+	m_defaultGravMultiplier = 500000;
+	m_defaultRestitution = 0.5f;
+
+	m_frics = m_defaultFrics;
+	m_gravityMultiplier = m_defaultGravMultiplier;
+	m_restitution = m_defaultRestitution;
+
 	m_worldBounds = std::make_pair(glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50));
-	m_gravityVel = 0.00005f;
+	m_gravityCenter = glm::vec3(0); // only active if realGravity is false
+
+	m_linearVelDecay = 0.994f;
+	m_angularVelDecay = 0.997f;
+
+	m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+
 	m_gravityToggle = true;
 	m_realGravity = true;
 	m_worldBoundToggle = true;
-
 }
 
 void Managers::PhysicsManager::FixedUpdate()
@@ -26,12 +38,19 @@ void Managers::PhysicsManager::FixedUpdate()
 				glm::vec3 totalGravitationalPull(0);
 				for (auto secondObj : *m_objectList)
 				{
-					auto dist = std::fmaxf(0.01, glm::distance(firstObj->GetPosition(), secondObj->GetPosition()));
-					totalGravitationalPull += (secondObj->GetPosition() - firstObj->GetPosition()) * ((secondObj->GetMass())/ (dist * dist));
+					if (firstObj == secondObj)
+						continue;
+
+					//auto dist = std::fmaxf(0.01, glm::distance(firstObj->GetPosition(), secondObj->GetPosition()));
+					glm::vec3 r12 = secondObj->GetPosition() - firstObj->GetPosition();
+					float len = glm::length(r12);
+					float dstSq = len * len;
+					totalGravitationalPull += ((secondObj->GetMass()) / dstSq) * r12;
 				}
 
-				firstObj->SetTranslationStep(firstObj->GetTranslationStep() + (m_gravityVel * totalGravitationalPull));
-				firstObj->SetRotationAngleStep(firstObj->GetRotationAngleStep() * m_angularVelDecay);
+				firstObj->SetTranslationStep((firstObj->GetTranslationStep() + (m_gravityVel * totalGravitationalPull)) * m_linearVelDecay);
+				firstObj->SetRotationStep(firstObj->GetRotationStep() * m_angularVelDecay);
+				firstObj->SetRotationAngleStep(glm::length(firstObj->GetRotationStep()));
 			}
 		}
 		else
@@ -68,7 +87,7 @@ void Managers::PhysicsManager::Update()
 		auto objTr = obj->GetTranslationStep() * 0.99f;
 
 		if (objPos.x < m_worldBounds.first.x + objRad)
-		{
+		{			
 			obj->SetTranslationStep(glm::reflect(objTr, glm::vec3(1, 0, 0)));
 		}
 		else if (objPos.x > m_worldBounds.second.x - objRad)
@@ -103,182 +122,194 @@ void Managers::PhysicsManager::CollisionResponse()
 {
 	for (std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> pair : *m_collisionPairs)
 	{
-		float restitution = 0.75f;
-
 		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
 		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
 
-		glm::vec3 firstCenter = firstObj->GetPosition();
-		glm::vec3 secondCenter = secondObj->GetPosition();
-
-		float firstRadius = firstObj->GetSphereRadius();
-		float secondRadius = secondObj->GetSphereRadius();
-
-		// Push objects apart so they only touch
-
-
-		float push = (firstRadius + secondRadius - glm::distance(firstCenter, secondCenter)) / 2.f;
-
-		glm::vec3 contactNormal = glm::normalize(secondCenter - firstCenter);
-
-		firstObj->TranslateRelative(-contactNormal * push);
-		secondObj->TranslateRelative(contactNormal * push);
-
-		// Recalculate centers
-		firstCenter = firstObj->GetPosition();
-		secondCenter = secondObj->GetPosition();
-
-		float firstMass = firstObj->GetMass();
-		float secondMass = secondObj->GetMass();
-
-		float im1 = 1.f / firstMass;
-		float im2 = 1.f / secondMass;
-
-		glm::mat3 invFirstTensor = glm::mat3(1) * (1.f / (0.4f * firstMass * firstRadius * firstRadius));
-		glm::mat3 invSecondTensor = glm::mat3(1) * (1.f / (0.4f * secondMass * secondRadius * secondRadius));		
-
-		contactNormal = glm::normalize(secondCenter - firstCenter);
-		glm::vec3 contactPoint = firstCenter + contactNormal * firstObj->GetSphereRadius();
-
-		glm::vec3 v1 = firstObj->GetTranslationStep();
-		glm::vec3 v2 = secondObj->GetTranslationStep();
-
-		glm::vec3 om1 = firstObj->GetRotationStep();
-		glm::vec3 om2 = secondObj->GetRotationStep();
-
-		glm::vec3 r1 = contactPoint - firstCenter;
-		glm::vec3 r2 = contactPoint - secondCenter;
-
-		glm::vec3 vp1 = v1 + glm::cross(om1, r1);
-		glm::vec3 vp2 = v2 + glm::cross(om2, r2);
-
-		glm::vec3 vr = vp2 - vp1;
-
-		glm::vec3 fac1 = glm::cross(invFirstTensor * glm::cross(r1, contactNormal), r1);
-		glm::vec3 fac2 = glm::cross(invSecondTensor * glm::cross(r2, contactNormal), r2);
-
-		float upperSide = glm::dot(-(1 + restitution) * vr, contactNormal);
-		float lowerSide = im1 + im2 + glm::dot(fac1 + fac2, contactNormal);
-
-		float jr = upperSide / lowerSide;
+		PushObjectsApart(firstObj, secondObj);
 		
-		glm::vec3 jrVec = contactNormal * jr;
+		auto res = ComputeReactionVels(firstObj, secondObj);
 
-		glm::vec3 finalV1 = v1 - jrVec * im1;
-		glm::vec3 finalV2 = v2 + jrVec * im2;
+		glm::vec3 finalV1 = res.first.first;
+		glm::vec3 finalOm1 = res.first.second;
 
-		glm::vec3 finalOm1 = om1 - jr * invFirstTensor * glm::cross(r1, contactNormal);
-		glm::vec3 finalOm2 = om2 + jr * invSecondTensor * glm::cross(r2, contactNormal);
+		glm::vec3 finalV2 = res.second.first;
+		glm::vec3 finalOm2 = res.second.second;
 
-		firstObj->SetRotationStep(finalOm1);
-		secondObj->SetRotationStep(finalOm2);
+		ApplyAngularVel(firstObj, finalOm1);
+		ApplyAngularVel(secondObj, finalOm2);
 
-		firstObj->SetRotationAngleStep(glm::length(finalOm1) / 10);
-		secondObj->SetRotationAngleStep(glm::length(finalOm2) / 10);
-
-
-		if (!firstObj->GetBroken())
-		{
-			if (WillBreak(firstObj, secondObj, finalV1))
-			{
-				firstObj->GetSimulationManager()->BreakObject(firstObj, finalV1);
-			}
-			else
-			{
-				firstObj->SetTranslationStep(finalV1);
-			}
-		}
-
-		if (!secondObj->GetBroken())
-		{
-			if (WillBreak(secondObj, firstObj, finalV2))
-			{
-				secondObj->GetSimulationManager()->BreakObject(secondObj, finalV2);
-			}
-			else
-			{
-				secondObj->SetTranslationStep(finalV2);
-			}
-		}
+		ApplyLinearVel(firstObj, secondObj, finalV1);
+		ApplyLinearVel(secondObj, firstObj, finalV2);		
 	}
 
-// 	for (std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> pair : *m_collisionPairs)
-// 	{
-// 		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
-// 		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
-// 
-// 		glm::vec3 firstCenter = firstObj->GetPosition();
-// 		glm::vec3 secondCenter = secondObj->GetPosition();
-// 
-// 		float firstMass = firstObj->GetMass();
-// 		float secondMass = secondObj->GetMass();
-// 
-// 		glm::vec3 delta = firstCenter - secondCenter;
-// 
-// 		float restitution = 0.8f;		
-// 		float massSum = firstMass + secondMass;
-// 
-// 		glm::vec3 n = glm::normalize(delta);
-// 
-// 		float a1 = glm::dot(firstObj->GetTranslationStep(), n);
-// 		float a2 = glm::dot(secondObj->GetTranslationStep(), n);
-// 
-// 		float p = (2.0 * (a1 - a2)) / massSum;
-// 
-// 		// Compute their impulse
-// 
-// 		glm::vec3 firstImpulse = firstObj->GetTranslationStep() - p * secondObj->GetMass() * n;
-// 		glm::vec3 secondImpulse = secondObj->GetTranslationStep() + p * firstObj->GetMass() * n;
-// 		float ua = glm::length(firstObj->GetTranslationStep());
-// 		float ub = glm::length(secondObj->GetTranslationStep());
-// 
-// 		float va = glm::length(firstObj->GetTranslationStep() - p * secondObj->GetMass() * n);
-// 		float vb = glm::length(secondObj->GetTranslationStep() + p * firstObj->GetMass() * n);
-// 
-// 		float massVel = firstMass * ua + secondMass * ub;
-// 		float velDif = ub - ua;
-// 
-// 		glm::vec3 finalFirstImpulse = glm::normalize(firstImpulse) * ((massVel + secondMass * restitution * velDif) / massSum);
-// 		glm::vec3 finalSecondImpulse = glm::normalize(secondImpulse) * ((massVel + firstMass * restitution * -velDif) / massSum);
-//  
-// 		if (firstObj->GetSphereRadius() > 4 && secondObj->GetSphereRadius() > 4)
-// 			std::wcout << secondMass / firstMass << L" " << glm::length(firstImpulse) * firstObj->GetDensity() / 2 << std::endl;
-// 	
-// 
-// 		//std::wcout << glm::length(firstImpulse) * secondMass / firstMass << L", " << firstObj->GetSphereRadius() << L" " << glm::length(secondImpulse) * firstMass / secondMass << L", " << secondObj->GetSphereRadius() << std::endl;
-// 		if (!firstObj->GetBroken())
-// 		{
-// 			if (WillBreak(firstObj, secondObj, firstImpulse))
-// 			{
-// 				firstObj->GetSimulationManager()->BreakObject(firstObj, finalFirstImpulse);
-// 			}
-// 			else
-// 			{
-// 				firstObj->SetTranslationStep(finalFirstImpulse);
-// 			}
-// 		}
-// 
-// 		if (!secondObj->GetBroken())
-// 		{
-// 			if (WillBreak(secondObj, firstObj, secondImpulse))
-// 			{
-// 				secondObj->GetSimulationManager()->BreakObject(secondObj, finalSecondImpulse);
-// 			}
-// 			else
-// 			{
-// 				secondObj->SetTranslationStep(finalSecondImpulse);
-// 			}
-// 		}
-// 	}
+}
+
+void Managers::PhysicsManager::KeyPressed(unsigned char key)
+{
+	
+	switch (key)
+	{
+	case '1':
+		m_gravityMultiplier = glm::clamp(glm::vec3(m_gravityMultiplier - 50000), glm::vec3(1), glm::vec3(10000000)).x;
+		m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+		std::wcout << L"Gravity multiplier is now " << m_gravityMultiplier << std::endl;
+		break;
+	case '2':
+		m_gravityMultiplier = glm::clamp(glm::vec3(m_gravityMultiplier + (m_gravityMultiplier == 1 ? 49999 : 50000)), glm::vec3(1), glm::vec3(10000000)).x;;
+		m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+		std::wcout << L"Gravity multiplier is now " << m_gravityMultiplier << std::endl;
+		break;
+	case '3':
+		m_frics = glm::clamp(glm::vec3(m_frics - 0.025), glm::vec3(0), glm::vec3(1)).x;
+		std::wcout << L"Friction coefficient is now " << m_frics << L" (0 = no friction, 1 = grip)" << std::endl;
+		break;
+	case '4':
+		m_frics = glm::clamp(glm::vec3(m_frics + 0.025), glm::vec3(0), glm::vec3(1)).x;
+		std::wcout << L"Friction coefficient is now " << m_frics << L" (0 = no friction, 1 = grip)" << std::endl;
+		break;
+	case '5':
+		m_restitution = glm::clamp(glm::vec3(m_restitution - 0.025), glm::vec3(0), glm::vec3(1)).x;
+		std::wcout << L"Restitution coefficient is now " << m_restitution << L" (0 = plastic, 1 = elastic)" << std::endl;
+		break;
+	case '6':
+		m_restitution = glm::clamp(glm::vec3(m_restitution + 0.025), glm::vec3(0), glm::vec3(1)).x;
+		std::wcout << L"Restitution coefficient is now " << m_restitution << L" (0 = plastic, 1 = elastic)" << std::endl;
+		break;
+	case '`':
+		std::wcout << L"Physics params have been reset to default" << std::endl;
+		m_restitution = m_defaultRestitution;
+		m_frics = m_defaultFrics;
+		m_gravityMultiplier = m_defaultGravMultiplier;
+		m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+		break;
+	}
+}
+
+void Managers::PhysicsManager::KeyReleased(unsigned char key)
+{
 
 }
 
 bool Managers::PhysicsManager::WillBreak(Rendering::IPhysicsObject * obj, Rendering::IPhysicsObject * other, glm::vec3 force)
 {	
-	//std::wcout << other->GetMass() / obj->GetMass() << L" " << glm::length(force) * obj->GetDensity() << std::endl;
+	float breakCoefficient = glm::length(force) * other->GetMass();
+	float resistCoefficient = obj->GetSphereRadius() * obj->GetMass() / 5;
 
-	float breakCoefficient = other->GetMass() / obj->GetMass();
-	float resistCoefficient = glm::length(force) * obj->GetDensity() / 2.1;
+//  	if (obj->GetSphereRadius() > 4.f)
+//  		std::wcout << breakCoefficient << L" " << resistCoefficient << std::endl;
 
 	return (breakCoefficient > resistCoefficient) && obj->GetSphereRadius() > 1;
+}
+
+void Managers::PhysicsManager::PushObjectsApart(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj)
+{
+	glm::vec3 firstCenter = firstObj->GetPosition();
+	glm::vec3 secondCenter = secondObj->GetPosition();
+
+	float firstRadius = firstObj->GetSphereRadius();
+	float secondRadius = secondObj->GetSphereRadius();
+
+
+	float firstMass = firstObj->GetMass();
+	float secondMass = secondObj->GetMass();	
+
+	float push = (firstRadius + secondRadius - glm::distance(firstCenter, secondCenter));
+
+	float massSum = firstMass + secondMass;
+	float firstPushFac = secondMass / massSum;
+	float secondPushFac = firstMass / massSum;
+
+	glm::vec3 n = glm::normalize(secondCenter - firstCenter);
+
+	firstObj->TranslateRelative(-n * push * firstPushFac);
+	secondObj->TranslateRelative(n * push * secondPushFac);
+}
+
+std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> Managers::PhysicsManager::ComputeReactionVels(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj)
+{
+	glm::vec3 firstCenter = firstObj->GetPosition();
+	glm::vec3 secondCenter = secondObj->GetPosition();
+
+	float firstRadius = firstObj->GetSphereRadius();
+	float secondRadius = secondObj->GetSphereRadius();
+
+	float m1 = firstObj->GetMass();
+	float m2 = secondObj->GetMass();
+
+	float im1 = firstObj->GetInverseMass();
+	float im2 = secondObj->GetInverseMass();
+
+	glm::mat3 invFirstTensor = firstObj->GetInverseInertiaTensor();
+	glm::mat3 invSecondTensor = secondObj->GetInverseInertiaTensor();
+
+	glm::vec3 n = glm::normalize(secondCenter - firstCenter);
+
+	glm::vec3 contactPoint = firstCenter + n * firstObj->GetSphereRadius();
+
+	glm::vec3 v1 = firstObj->GetTranslationStep();
+	glm::vec3 v2 = secondObj->GetTranslationStep();
+
+	glm::vec3 om1 = firstObj->GetRotationStep();
+	glm::vec3 om2 = secondObj->GetRotationStep();
+
+	glm::vec3 r1 = contactPoint - firstCenter;
+	glm::vec3 r2 = contactPoint - secondCenter;
+
+	glm::vec3 vp1 = v1 + glm::cross(om1, r1);
+	glm::vec3 vp2 = v2 + glm::cross(om2, r2);
+
+	glm::vec3 vr = vp2 - vp1;
+
+
+	glm::vec3 fac1Resp = glm::cross(invFirstTensor * glm::cross(r1, n), r1);
+	glm::vec3 fac2Resp = glm::cross(invSecondTensor * glm::cross(r2, n), r2);
+
+	float upperSideResp = glm::dot(-(1 + m_restitution) * vr, n);
+	float lowerSideResp = im1 + im2 + glm::dot(fac1Resp + fac2Resp, n);
+
+	float jr = upperSideResp / lowerSideResp;
+	glm::vec3 jrVec = n * jr;
+
+	glm::vec3 t = glm::normalize(glm::cross(glm::cross(n, vr), n));
+
+	glm::vec3 fac1Fric = invFirstTensor * glm::cross(glm::cross(r1, t), r1);
+	glm::vec3 fac2Fric = invSecondTensor * glm::cross(glm::cross(r2, t), r2);
+
+	float upperSideFric = glm::dot(-(1 + m_frics) * vr, t);
+	float lowerSideFric = im1 + im2 + glm::dot(fac1Fric + fac2Fric, t);
+
+	float jf = upperSideFric / lowerSideFric;
+
+	glm::vec3 jfVec2 = t * jf * m_frics;
+
+	glm::vec3 finalV1 = v1 + (-jrVec + jfVec2) * im1;
+	glm::vec3 finalV2 = v2 +  (jrVec + jfVec2) * im2;
+
+	glm::vec3 finalOm1 = om1 + glm::cross(r1, -jrVec + jfVec2) * invFirstTensor;
+	glm::vec3 finalOm2 = om2 + glm::cross(r2,  jrVec + jfVec2) * invSecondTensor;
+
+	
+	return std::make_pair(std::make_pair(finalV1, finalOm1), std::make_pair(finalV2, finalOm2));
+}
+
+void Managers::PhysicsManager::ApplyAngularVel(Rendering::Models::Sphere *obj, glm::vec3 axis)
+{
+	obj->SetRotationStep(axis);
+	obj->SetRotationAngleStep(glm::length(axis));
+}
+
+void Managers::PhysicsManager::ApplyLinearVel(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj, glm::vec3 force)
+{
+	if (!firstObj->GetBroken())
+	{
+		if (WillBreak(firstObj, secondObj, force))
+		{
+			//std::wcout << L"B";
+			firstObj->GetSimulationManager()->BreakObject(firstObj, force);
+		}
+		else
+		{
+			firstObj->SetTranslationStep(force);
+		}
+	}
 }

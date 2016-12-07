@@ -20,9 +20,9 @@ namespace Core
 	const std::wstring  PER_SCENARIO_PLOTS_FOLDER(PLOTS_FOLDER + L"PerScenario/");
 
 	const size_t SCENARIO_CLASSES = 5;
-	const size_t MAX_NUMBER_OBJECTS = 200;
 	const size_t FRAMES_NUM = 300;
-	const size_t OBJECT_INCREMENT = 100;
+	const size_t OBJECT_INCREMENT = 50;
+	const size_t MAX_NUMBER_OBJECTS = OBJECT_INCREMENT * 2;
 	const bool REPLAY_SCENARIO = false;
 
 	const std::wstring  STRUCTURE_TIME(L"Time Spent - Structure Update");
@@ -54,6 +54,20 @@ namespace Core
 			//glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char*) str.c_str());
 			//std::wcout << str << std::endl;
 			//glEnable(GL_TEXTURE_2D);
+
+
+			std::string asd(str.begin(), str.end());
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			glLoadIdentity();
+			gluOrtho2D(0, 1600, 900, 0);
+			glRasterPos2i(pos.x, pos.y);
+			glutBitmapString(GLUT_BITMAP_9_BY_15, (const unsigned char*) asd.c_str());
+			glPopMatrix();
 		}
 
 		static wchar_t *convertCharArrayToLPCWSTR(const char* charArray)
@@ -119,6 +133,11 @@ namespace Core
 		static glm::vec3 RandomRangeVec(float min, float max)
 		{
 			return glm::vec3(RandomRange(min, max),	RandomRange(min, max), RandomRange(min, max));
+		}
+
+		static float scaleValue(const float val, std::pair<float, float> oldRange, std::pair<float, float> newRange)
+		{
+			return ((newRange.second - newRange.first) * (val - oldRange.first) / (oldRange.second - oldRange.first)) + newRange.first;
 		}
 	};
 }
