@@ -106,7 +106,7 @@ void Managers::SimulationManager::Update()
 		obj->SetScaleStep(desc.m_scaleStep);
 		obj->SetRotationStep(desc.m_rotationStep);
 		obj->SetRotationAngleStep(desc.m_rotationAngleStep);
-		
+
 		ObjectAdded(obj);
 	}
 
@@ -189,7 +189,8 @@ void Managers::SimulationManager::KeyPressed(unsigned char key)
 
 		break;
 	case 'b':
-		BenchmarkAllScenarios();
+		DebugBreakAll();
+		//BenchmarkAllScenarios();
 		break;
 	case 'x':
 		CleanupCurrentScenario();
@@ -319,7 +320,7 @@ void Managers::SimulationManager::ImportAllAvailableScenarios()
 
 void Managers::SimulationManager::CreateWorldBounds()
 {
-	m_worldBounds = std::make_pair(glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50));	
+	m_worldBounds = std::make_pair(glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50));
 }
 
 void Managers::SimulationManager::InitCollisionMethods()
@@ -379,10 +380,10 @@ void Managers::SimulationManager::BreakObject(Rendering::IPhysicsObject *obj, gl
 
 	//std::wcout << L"BREAK " << glm::length(impactForce) << " " << obj->GetSphereRadius() << " " << obj->GetMass() << std::endl;
 	float parentRadius = obj->GetSphereRadius();
-	float childRadius = parentRadius / 2.2f;
+	float childRadius = parentRadius * m_childSphereCoef;
 
 	glm::vec3 parentScale = obj->GetScale();
-	glm::vec3 childScale = parentScale / 2.2f;
+	glm::vec3 childScale = parentScale * m_childSphereCoef;
 
 	glm::vec3 parentPos = obj->GetPosition();
 
@@ -407,10 +408,18 @@ void Managers::SimulationManager::BreakObject(Rendering::IPhysicsObject *obj, gl
 		def.m_density = childDensity;
 		m_addQueue.push_back(def);
 	}
-	
-	
+
+
 	obj->SetBroken(true);
 	m_removeQueue.push_back(obj);
+}
+
+void Managers::SimulationManager::DebugBreakAll()
+{
+	for (auto obj : *m_allObjects)
+	{
+		BreakObject(obj, glm::normalize(obj->GetPosition()) * 0.005f);
+	}
 }
 
 void Managers::SimulationManager::ResetCollisions()

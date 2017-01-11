@@ -1,6 +1,1 @@
-﻿  SceneManager.cpp
-d:\github repos\licenta\licentav2\licentav2\managers\../Rendering/IPhysicsObject.h(269): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-d:\github repos\licenta\licentav2\licentav2\collision\..\Core\Utils.hpp(68): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
-d:\github repos\licenta\licentav2\licentav2\managers\PhysicsManager.h(60): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe
+﻿  LicentaV2.vcxproj -> D:\Github repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe

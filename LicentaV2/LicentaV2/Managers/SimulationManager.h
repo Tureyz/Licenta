@@ -51,6 +51,8 @@ namespace Managers
 		void SetCurrentCollisionPairs(std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> &val) { m_currentCollisionPairs = val; }
 
 		void BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce);
+
+		void DebugBreakAll();
 	private:
 
 		void ResetCollisions();
@@ -119,6 +121,8 @@ namespace Managers
 
 		std::pair<glm::vec3, glm::vec3> m_worldBounds;
 		std::vector<std::pair<float, glm::vec3>> m_worldNormals;
+
+		const float m_childSphereCoef = 0.40421356237f;
 		
 	};
 }

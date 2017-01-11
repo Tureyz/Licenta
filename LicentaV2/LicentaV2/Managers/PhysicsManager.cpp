@@ -8,6 +8,7 @@ Managers::PhysicsManager::PhysicsManager(std::vector<Rendering::IPhysicsObject*>
 
 	m_defaultFrics = 0.4f;
 	m_defaultGravMultiplier = 500000;
+	m_gravStep = 500000;
 	m_defaultRestitution = 0.5f;
 
 	m_frics = m_defaultFrics;
@@ -17,10 +18,10 @@ Managers::PhysicsManager::PhysicsManager(std::vector<Rendering::IPhysicsObject*>
 	m_worldBounds = std::make_pair(glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50));
 	m_gravityCenter = glm::vec3(0); // only active if realGravity is false
 
-	m_linearVelDecay = 0.994f;
-	m_angularVelDecay = 0.997f;
+	m_linearVelDecay = 0.995f;
+	m_angularVelDecay = 0.998f;
 
-	m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+	m_gravityVel = m_gravityMultiplier * m_gravitationalConstant;
 
 	m_gravityToggle = true;
 	m_realGravity = true;
@@ -42,10 +43,14 @@ void Managers::PhysicsManager::FixedUpdate()
 						continue;
 
 					//auto dist = std::fmaxf(0.01, glm::distance(firstObj->GetPosition(), secondObj->GetPosition()));
+								
+
 					glm::vec3 r12 = secondObj->GetPosition() - firstObj->GetPosition();
+
 					float len = glm::length(r12);
 					float dstSq = len * len;
-					totalGravitationalPull += ((secondObj->GetMass()) / dstSq) * r12;
+
+					totalGravitationalPull += ((secondObj->GetMass()) / dstSq) * glm::normalize(r12);
 				}
 
 				firstObj->SetTranslationStep((firstObj->GetTranslationStep() + (m_gravityVel * totalGravitationalPull)) * m_linearVelDecay);
@@ -150,13 +155,13 @@ void Managers::PhysicsManager::KeyPressed(unsigned char key)
 	switch (key)
 	{
 	case '1':
-		m_gravityMultiplier = glm::clamp(glm::vec3(m_gravityMultiplier - 50000), glm::vec3(1), glm::vec3(10000000)).x;
-		m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+		m_gravityMultiplier = glm::clamp(glm::vec3(m_gravityMultiplier - m_gravStep), glm::vec3(1), glm::vec3(10000000)).x;
+		m_gravityVel = m_gravityMultiplier * m_gravitationalConstant;
 		std::wcout << L"Gravity multiplier is now " << m_gravityMultiplier << std::endl;
 		break;
 	case '2':
-		m_gravityMultiplier = glm::clamp(glm::vec3(m_gravityMultiplier + (m_gravityMultiplier == 1 ? 49999 : 50000)), glm::vec3(1), glm::vec3(10000000)).x;;
-		m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+		m_gravityMultiplier = glm::clamp(glm::vec3(m_gravityMultiplier + (m_gravityMultiplier == 1 ? m_gravStep - 1 : m_gravStep)), glm::vec3(1), glm::vec3(10000000)).x;;
+		m_gravityVel = m_gravityMultiplier * m_gravitationalConstant;
 		std::wcout << L"Gravity multiplier is now " << m_gravityMultiplier << std::endl;
 		break;
 	case '3':
@@ -180,7 +185,7 @@ void Managers::PhysicsManager::KeyPressed(unsigned char key)
 		m_restitution = m_defaultRestitution;
 		m_frics = m_defaultFrics;
 		m_gravityMultiplier = m_defaultGravMultiplier;
-		m_gravityVel = m_gravityMultiplier * gravitationalConstant;
+		m_gravityVel = m_gravityMultiplier * m_gravitationalConstant;
 		break;
 	}
 }
@@ -272,21 +277,21 @@ std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> Mana
 
 	glm::vec3 t = glm::normalize(glm::cross(glm::cross(n, vr), n));
 
-	glm::vec3 fac1Fric = invFirstTensor * glm::cross(glm::cross(r1, t), r1);
-	glm::vec3 fac2Fric = invSecondTensor * glm::cross(glm::cross(r2, t), r2);
+	glm::vec3 fac1Fric = glm::cross(invFirstTensor * glm::cross(r1, t), r1);
+	glm::vec3 fac2Fric = glm::cross(invSecondTensor * glm::cross(r2, t), r2);
 
 	float upperSideFric = glm::dot(-(1 + m_frics) * vr, t);
 	float lowerSideFric = im1 + im2 + glm::dot(fac1Fric + fac2Fric, t);
 
-	float jf = upperSideFric / lowerSideFric;
+	//float jf = upperSideFric / lowerSideFric;
 
-	glm::vec3 jfVec2 = t * jf * m_frics;
+	glm::vec3 jfVec = t * jr * m_frics;
 
-	glm::vec3 finalV1 = v1 + (-jrVec + jfVec2) * im1;
-	glm::vec3 finalV2 = v2 +  (jrVec + jfVec2) * im2;
+	glm::vec3 finalV1 = v1 + (-jrVec + jfVec) * im1;
+	glm::vec3 finalV2 = v2 +  (jrVec + jfVec) * im2;
 
-	glm::vec3 finalOm1 = om1 + glm::cross(r1, -jrVec + jfVec2) * invFirstTensor;
-	glm::vec3 finalOm2 = om2 + glm::cross(r2,  jrVec + jfVec2) * invSecondTensor;
+	glm::vec3 finalOm1 = om1 + glm::cross(r1, -jrVec - jfVec) * invFirstTensor;
+	glm::vec3 finalOm2 = om2 + glm::cross(r2,  jrVec + jfVec) * invSecondTensor;
 
 	
 	return std::make_pair(std::make_pair(finalV1, finalOm1), std::make_pair(finalV2, finalOm2));
