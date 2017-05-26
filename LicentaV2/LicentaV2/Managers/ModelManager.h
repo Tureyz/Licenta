@@ -16,7 +16,7 @@ namespace Managers
 		void FixedUpdate();
 		void Update();
 		void DeleteAllModels();
-		void DeleteModel(unsigned long id);
+		void DeleteModel(std::size_t id);
 		const Rendering::IPhysicsObject* GetModel(unsigned long id) const;
 
 		void RegisterObject(size_t id, Rendering::IPhysicsObject *gameObject);
@@ -36,13 +36,25 @@ namespace Managers
 
 		float GetDt() const { return m_dt; }
 		void SetDt(float val) { m_dt = val; }
+
+		Rendering::VisualBody CreateBasicVisualBody(enum Simulation::PhysicsObjectType type);
+		Rendering::VisualBody CreateMeshVisualBody(const int rows, const int cols);
+		
+		void CreateMeshBufferObjects(const int rows, const int cols, GLuint &vao, GLuint &vbo, GLuint &ibo, std::vector<Rendering::VertexFormat> &verts, std::vector<GLuint> &indices);
+		void CreateCubeBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
+		void CreateTetrahedronBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
+		void CreateConeBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
+		void CreateCylinderBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
+		void CreateSphereBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
 	private:
-		void CreateBufferObjects();
+		void CreateProps();
 		void CreateCubeProps();
 		void CreateTetrahedronProps();
 		void CreateConeProps();
 		void CreateCylinderProps();
 		void CreateSphereProps();
+		std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> CreateMeshProps(int rows, int cols);
+
 
 		std::vector<Rendering::IPhysicsObject*> m_objectList;
 

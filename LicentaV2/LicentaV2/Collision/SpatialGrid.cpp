@@ -30,7 +30,7 @@ void Collision::SpatialGrid::_Update()
 		std::vector<glm::vec3> cellIndexes = FindCells(currentObj);
 		for (int i = 0; i < cellIndexes.size(); ++i)
 		{
-			m_grid[cellIndexes[i].x][cellIndexes[i].y][cellIndexes[i].z].push_back(currentObj);
+			m_grid[static_cast<std::size_t>(cellIndexes[i].x)][static_cast<std::size_t>(cellIndexes[i].y)][static_cast<std::size_t>(cellIndexes[i].z)].push_back(currentObj);
 		}
 		m_memoryUsed += sizeof(Rendering::IPhysicsObject*) * cellIndexes.size();
 	}
@@ -65,7 +65,7 @@ void Collision::SpatialGrid::DrawDebug(const glm::mat4& projectionMatrix, const 
 				glm::mat4 modelMatrix = glm::translate(glm::mat4(1), trans) * glm::scale(glm::mat4(1), m_cellSize);
 				glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
 				
-				glLineWidth(m_grid[i][j][k].size() ? 3 : 1);
+				glLineWidth(static_cast<GLfloat>(m_grid[i][j][k].size() ? 3 : 1));
 				Rendering::ShapeRenderer::DrawWithLines(MVPMatrix, m_vao, *m_indices, m_grid[i][j][k].size() ? COLLISIONMETHOD : 0);				
 				glLineWidth(1);
 			}
@@ -84,18 +84,18 @@ void Collision::SpatialGrid::SetParams(glm::vec3 worldMin, glm::vec3 worldMax, i
 
 std::vector<glm::vec3> Collision::SpatialGrid::FindCells(IPhysicsObject *obj)
 {
-	Collision::DataStructures::BoundingBox *objBB = ((Models::Model *)obj)->GetBoundingBox();
+	Collision::DataStructures::BoundingBox objBB = ((Models::Model *)obj)->GetBoundingBox();
 
 	std::vector<glm::vec3> result;
 
 	glm::vec3 aux = -m_worldMin;
-	int gridMinX = (int)glm::floor((objBB->m_minX + aux.x) / m_cellSize.x);
-	int gridMinY = (int)glm::floor((objBB->m_minY + aux.y) / m_cellSize.y);
-	int gridMinZ = (int)glm::floor((objBB->m_minZ + aux.z) / m_cellSize.z);
-
-	int gridMaxX = (int)glm::floor((objBB->m_maxX + aux.x) / m_cellSize.x);
-	int gridMaxY = (int)glm::floor((objBB->m_maxY + aux.y) / m_cellSize.y);
-	int gridMaxZ = (int)glm::floor((objBB->m_maxZ + aux.z) / m_cellSize.z);
+	int gridMinX = (int)glm::floor((objBB.m_minX + aux.x) / m_cellSize.x);
+	int gridMinY = (int)glm::floor((objBB.m_minY + aux.y) / m_cellSize.y);
+	int gridMinZ = (int)glm::floor((objBB.m_minZ + aux.z) / m_cellSize.z);
+										 
+	int gridMaxX = (int)glm::floor((objBB.m_maxX + aux.x) / m_cellSize.x);
+	int gridMaxY = (int)glm::floor((objBB.m_maxY + aux.y) / m_cellSize.y);
+	int gridMaxZ = (int)glm::floor((objBB.m_maxZ + aux.z) / m_cellSize.z);
 
 	for (int i = gridMinX; i <= gridMaxX; ++i)
 	{
@@ -141,7 +141,7 @@ std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::Spa
 				std::pair<IPhysicsObject *, IPhysicsObject *> firstPair(obj, secondObj);
 
 				m_lastFrameTests++;
-				if (((Models::Model *)obj)->GetBoundingBox()->Collides(((Models::Model *)secondObj)->GetBoundingBox()))
+				if (((Models::Model *)obj)->GetBoundingBox().Collides(((Models::Model *)secondObj)->GetBoundingBox()))
 				{
 					result.insert(firstPair);
 				}

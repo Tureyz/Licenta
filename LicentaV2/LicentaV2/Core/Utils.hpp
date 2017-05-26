@@ -11,6 +11,9 @@
 namespace Core
 {
 	const glm::vec4 DEFAULT_OBJECT_COLOR(0.2f, 0.2f, 0.2f, 1.f);
+	const glm::vec4 COLLIDING_OBJECT_COLOR(1.f, 0.f, 0.f, 1.f);
+	const glm::vec4 SELF_COLLIDING_OBJECT_COLOR(0.f, 0.5f, 0.f, 1.f);
+	const glm::vec4 BOUNDING_VOLUME_COLOR(0.f, 0.f, 1.f, 1.f);
 	//const glm::vec4 BACKGROUND_COLOR(0.2f, 0.2f, 0.2f, 1.0f);
 	const glm::vec4 BACKGROUND_COLOR(0.8f, 0.8f, 0.8f, 1.f);
 	const std::wstring  BENCHMARK_FOLDER(L"BenchmarkResults/");
@@ -56,18 +59,18 @@ namespace Core
 			//glEnable(GL_TEXTURE_2D);
 
 
-			std::string asd(str.begin(), str.end());
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadIdentity();
-			gluOrtho2D(0, 1600, 900, 0);
-			glRasterPos2i(pos.x, pos.y);
-			glutBitmapString(GLUT_BITMAP_9_BY_15, (const unsigned char*) asd.c_str());
-			glPopMatrix();
+// 			std::string asd(str.begin(), str.end());
+// 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// 			glMatrixMode(GL_PROJECTION);
+// 			glLoadIdentity();
+// 
+// 			glMatrixMode(GL_PROJECTION);
+// 			glPushMatrix();
+// 			glLoadIdentity();
+// 			gluOrtho2D(0, 1600, 900, 0);
+// 			glRasterPos2i(pos.x, pos.y);
+// 			glutBitmapString(GLUT_BITMAP_9_BY_15, (const unsigned char*) asd.c_str());
+// 			glPopMatrix();
 		}
 
 		static wchar_t *convertCharArrayToLPCWSTR(const char* charArray)
@@ -102,7 +105,7 @@ namespace Core
 
 		static float RandomRange(float min, float max)
 		{
-			return min + (float)(std::rand()) / (float(RAND_MAX / (max - min)));
+			return max - min == 0 ? min : min + (float)(std::rand()) / (float(RAND_MAX / (max - min)));
 		}
 
 		static float RandomAround(const float center, const float radius)

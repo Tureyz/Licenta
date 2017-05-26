@@ -41,8 +41,8 @@ std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObj
 				auto firstCenter = firstSphere->GetPosition();
 				auto secondCenter = secondSphere->GetPosition();
 
-				auto firstRadius = glm::distance(firstCenter, firstSphere->GetVertices()[0].m_position);
-				auto secondRadius = glm::distance(secondCenter, secondSphere->GetVertices()[0].m_position);
+				auto firstRadius = glm::distance(firstCenter, firstSphere->GetVisualBody().m_verts[0].m_position);
+				auto secondRadius = glm::distance(secondCenter, secondSphere->GetVisualBody().m_verts[0].m_position);
 
 				if (glm::distance(firstCenter, secondCenter) < firstRadius + secondRadius)
 				{

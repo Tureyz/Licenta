@@ -3,13 +3,22 @@
 #include <iostream>
 #include "../Dependencies/glew/glew.h"
 #include "../Dependencies/freeglut/freeglut.h"
-#include "VertexFormat.h"
 
-#define VOLUME_CONSTANT 4.18879020479
+#include "../Collision/DataStructures/CollisionData.h"
+#include "../Collision/DataStructures/BoundingBox.h"
+
+
+#define VOLUME_CONSTANT 4.18879020479f
+
+namespace Simulation
+{
+	enum PhysicsObjectType { OBJ_CUBE = 0, OBJ_SPHERE = 1, OBJ_TETRAHEDRON = 2, OBJ_CYLINDER = 3, OBJ_CONE = 4, OBJ_MESH = 5, OBJ_LINE_CUBE = 6, OBJ_RANDOM, OBJ_NUM_TOTAL = 7 };
+}
+
 
 namespace Rendering
 {
-	enum CollisionState { DEFAULT = 0, COLLIDING = 1, ACTIVE = 2, BOUNDINGBOX = 3, COLLISIONMETHOD = 4};
+	
 	class IPhysicsObject
 	{
 	public:
@@ -21,13 +30,9 @@ namespace Rendering
 		virtual void Create(const glm::mat4 &mvp) = 0;
 		virtual void Draw() = 0;
 		virtual void Draw(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) = 0;
-		virtual void DrawBB(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) = 0;
 		virtual void FixedUpdate() final;
 		virtual void Update() final;
 		virtual void Destroy() = 0;
-
-		virtual GLuint GetVao() const final;
-		virtual const std::vector<GLuint>& GetVbos() const final;
 
 		virtual void TranslateAbsolute(const glm::vec3 &pos) final;
 		virtual void RotateAbsolute(const glm::vec3 &axis, const float angles) final;
@@ -37,7 +42,7 @@ namespace Rendering
 		virtual void RotateRelative(const glm::vec3 &axis, const float angles) final;
 		virtual void ScaleRelative(const glm::vec3 &scales) final;
 
-		virtual void UpdateVertices(glm::mat4 mvp) final;
+		virtual void UpdateVertices(glm::mat4 modelMat) final;
 		virtual void ObjectMoved() = 0;
 
 		bool operator==(const IPhysicsObject &other) { return GetID() == other.GetID(); }
@@ -45,9 +50,6 @@ namespace Rendering
 		// GETTERS-SETTERS
 		size_t GetID() const { return m_ID; }
 		void SetID(size_t val) { m_ID = val; }
-
-		glm::vec4 GetColor() const { return m_color; }
-		void SetColor(glm::vec4 val) { m_color = val; }
 
 		glm::vec3 GetPosition() const { return m_position; }
 		void SetPosition(glm::vec3 val) { m_position = val; }
@@ -64,16 +66,6 @@ namespace Rendering
 		Rendering::CollisionState GetCollisionState() const { return m_collisionState; }
 		void SetCollisionState(Rendering::CollisionState val) { m_collisionState = val; }
 
-		std::vector<VertexFormat> GetVertices() { return m_transformedVertices; }
-		std::vector<VertexFormat>* GetVerticesPtr() { return &m_transformedVertices; }
-		void SetVertices(std::vector<VertexFormat> val) { m_transformedVertices = val; }
-
-		glm::vec3 GetMinCoords() const { return m_minCoords; }
-		void SetMinCoords(glm::vec3 val) { m_minCoords = val; }
-
-		glm::vec3 GetMaxCoords() const { return m_maxCoords; }
-		void SetMaxCoords(glm::vec3 val) { m_maxCoords = val; }
-
 		glm::vec3 GetTranslationStep() const { return m_translationStep; }
 		void SetTranslationStep(glm::vec3 val) { m_translationStep = val; }
 
@@ -85,12 +77,6 @@ namespace Rendering
 
 		float GetRotationAngleStep() const { return m_rotationAngleStep; }
 		void SetRotationAngleStep(float val) { m_rotationAngleStep = val; }
-
-		int GetObjectType() const { return m_objectType; }
-		void SetObjectType(int val) { m_objectType = val; }
-
-		std::vector<unsigned int> GetIndices() const { return m_indices; }
-		void SetIndices(std::vector<unsigned int> val) { m_indices = val; }
 
 		float GetMass() const { return m_mass; }
 		float GetInverseMass() const { return m_inverseMass; }
@@ -107,36 +93,38 @@ namespace Rendering
 		void SetDensity(float val) { m_density = val; }
 		glm::mat3 GetInverseInertiaTensor() const { return m_inverseInertiaTensor; }
 		void SetInverseInertiaTensor(glm::mat3 val) { m_inverseInertiaTensor = val; }
+		Simulation::PhysicsObjectType GetObjectType() const { return m_objectType; }
+		void SetObjectType(Simulation::PhysicsObjectType val) { m_objectType = val; }
+		Rendering::VisualBody GetVisualBody() const { return m_visualBody; }
+		void SetVisualBody(Rendering::VisualBody val) { m_visualBody = val; }
+		Collision::DataStructures::BoundingBox GetBoundingBox() const { return m_boundingBox; }
+		void SetBoundingBox(Collision::DataStructures::BoundingBox val) { m_boundingBox = val; }
+		Collision::DataStructures::CollisionData * GetCollisionData() const { return m_collisionData; }
+		void SetCollisionData(Collision::DataStructures::CollisionData * val) { m_collisionData = val; }
+		// 		Collision::DataStructures::CollisionData * GetCollisionData() const { return m_collisionData; }
+// 		void SetCollisionData(Collision::DataStructures::CollisionData * val) { m_collisionData = val; }
 	protected:
+
 		glm::mat4 m_translationMatrix, m_rotationMatrix, m_scaleMatrix, m_MVPMatrix;
-		std::vector<VertexFormat> m_transformedVertices;
-		std::vector<VertexFormat> m_initialVertices;
-		std::vector<unsigned int> m_indices;
 		glm::mat4 m_modelMatrix;
-		glm::vec4 m_color;
+
 		CollisionState m_collisionState;
+
 		size_t m_ID;
+
 		glm::vec3 m_position;
 		glm::vec3 m_rotation;
 		float m_rotationAngle;
 		glm::vec3 m_scale;
-		size_t m_verticesSize;
 
 		glm::vec3 m_translationStep;
 		glm::vec3 m_scaleStep;
 		glm::vec3 m_rotationStep;
 		float m_rotationAngleStep;
 
-		glm::vec3 m_minCoords;
-		glm::vec3 m_maxCoords;
-
 		bool m_matrixChanged;
 
-		int m_objectType;
-
-		GLuint m_vao;
-
-		std::vector<GLuint> m_vbos;
+		Simulation::PhysicsObjectType m_objectType;
 
 		float m_mass;
 		float m_inverseMass;
@@ -147,21 +135,36 @@ namespace Rendering
 
 		bool m_isBroken;
 
+		Collision::DataStructures::BoundingBox m_boundingBox;
+
+		//MASTER
+		Collision::DataStructures::CollisionData *m_collisionData;
+
+		Rendering::VisualBody m_visualBody;
+
 	};
 
 	inline IPhysicsObject::~IPhysicsObject() {}
 
 	inline void IPhysicsObject::FixedUpdate()
 	{
-
+		if (GetCollisionData())
+		{
+			GetCollisionData()->FixedUpdate();
+			if (GetCollisionData()->m_changedSinceLastUpdate)
+			{
+			}
+		}
 	}
 
 	inline void IPhysicsObject::Update()
 	{
+
 		if (m_matrixChanged)
 		{
 			ObjectMoved();
 			m_matrixChanged = false;
+
 		}
 
 
@@ -171,17 +174,16 @@ namespace Rendering
 			RotateRelative(GetRotationStep(), m_rotationAngleStep /** m_modelManager->GetDt()*/);
 		if (GetTranslationStep() != glm::vec3(0.f))
 			TranslateRelative(GetTranslationStep() /** m_modelManager->GetDt()*/);
+
+
+		if (GetCollisionData())
+		{
+			GetCollisionData()->Update();
+ 			if (GetCollisionData()->m_changedSinceLastUpdate)
+ 			{
+ 			}
+		}
 		
-	}
-
-	inline GLuint IPhysicsObject::GetVao() const
-	{
-		return m_vao;
-	}
-
-	inline const std::vector<GLuint>& IPhysicsObject::GetVbos() const
-	{
-		return m_vbos;
 	}
 
 	inline void IPhysicsObject::TranslateAbsolute(const glm::vec3 &pos)
@@ -228,47 +230,54 @@ namespace Rendering
 		m_matrixChanged = true;
 	}
 
-	inline void IPhysicsObject::UpdateVertices(glm::mat4 mvp)
+	inline void IPhysicsObject::UpdateVertices(glm::mat4 modelMat)
 	{
-		glm::vec4 asd = mvp * glm::vec4(m_initialVertices[0].m_position, 1);
-		m_transformedVertices[0].m_position = glm::vec3(asd.x, asd.y, asd.z);
-		m_minCoords = m_maxCoords = m_transformedVertices[0].m_position;
-		
 
-		float max = 0.0f;
-		for (int i = 1; i < m_initialVertices.size(); ++i)
-		{
-			asd = mvp * glm::vec4(m_initialVertices[i].m_position, 1);
-			//std::wcout << "BEFORE: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
+		auto bounds = m_visualBody.UpdateVerts(modelMat);
+		m_boundingBox.UpdateValues(bounds.first, bounds.second);			
 
-			m_transformedVertices[i].m_position = glm::vec3(asd.x, asd.y, asd.z);
-			if (asd.x < m_minCoords.x)
-				m_minCoords.x = asd.x;
-			if (asd.y < m_minCoords.y)
-				m_minCoords.y = asd.y;
-			if (asd.z < m_minCoords.z)
-				m_minCoords.z = asd.z;
 
-			if (asd.x > m_maxCoords.x)
-				m_maxCoords.x = asd.x;
-			if (asd.y > m_maxCoords.y)
-				m_maxCoords.y = asd.y;
-			if (asd.z > m_maxCoords.z)
-				m_maxCoords.z = asd.z;
-
-			auto crtDist = glm::distance(m_position, m_transformedVertices[i].m_position);
-
-			if (crtDist > max)
-			{
-				max = crtDist;
-			}
-			//std::wcout << "AFTER: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
-		}
-
-		m_sphereRadius = max;
-		SetMass(m_sphereRadius * m_sphereRadius * m_sphereRadius * VOLUME_CONSTANT * m_density);
-		m_inverseMass = 1.f / m_mass;
-		m_inverseInertiaTensor = glm::mat3(1) * (1.f / (0.4f * m_mass * m_sphereRadius * m_sphereRadius));
+// 		glm::vec4 asd = mvp * glm::vec4(m_initialVertices[0].m_position, 1);
+// 		m_transformedVertices[0].m_position = glm::vec3(asd.x, asd.y, asd.z);
+// 		m_minCoords = m_maxCoords = m_transformedVertices[0].m_position;
+// 		
+// 
+// 		float max = 0.0f;
+// 		for (int i = 1; i < m_initialVertices.size(); ++i)
+// 		{
+// 			asd = mvp * glm::vec4(m_initialVertices[i].m_position, 1);
+// 			//std::wcout << "BEFORE: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
+// 
+// 			m_transformedVertices[i].m_position = glm::vec3(asd.x, asd.y, asd.z);
+// 			if (asd.x < m_minCoords.x)
+// 				m_minCoords.x = asd.x;
+// 			if (asd.y < m_minCoords.y)
+// 				m_minCoords.y = asd.y;
+// 			if (asd.z < m_minCoords.z)
+// 				m_minCoords.z = asd.z;
+// 
+// 			if (asd.x > m_maxCoords.x)
+// 				m_maxCoords.x = asd.x;
+// 			if (asd.y > m_maxCoords.y)
+// 				m_maxCoords.y = asd.y;
+// 			if (asd.z > m_maxCoords.z)
+// 				m_maxCoords.z = asd.z;
+// 
+// 			auto crtDist = glm::distance(m_position, m_transformedVertices[i].m_position);
+// 
+// 			if (crtDist > max)
+// 			{
+// 				max = crtDist;
+// 			}
+// 			//std::wcout << "AFTER: " << m_vertices[i].m_position.x << " " << m_vertices[i].m_position.y << " " << m_vertices[i].m_position.z << std::endl;
+// 		}
+// 
+// 		
+// 
+// 		m_sphereRadius = max;
+// 		SetMass(m_sphereRadius * m_sphereRadius * m_sphereRadius * VOLUME_CONSTANT * m_density);
+// 		m_inverseMass = 1.f / m_mass;
+// 		m_inverseInertiaTensor = glm::mat3(1) * (1.f / (0.4f * m_mass * m_sphereRadius * m_sphereRadius));
 	}
 
 	inline bool IPhysicsObject::SphereTest(Rendering::IPhysicsObject *other)
@@ -276,4 +285,23 @@ namespace Rendering
 		return glm::distance(this->GetPosition(), other->GetPosition()) < this->GetSphereRadius() + other->GetSphereRadius();
 	}
 
+}
+
+namespace std
+{
+	template <> struct hash<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
+	{
+		inline size_t operator()(const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &v) const {
+			std::hash<size_t> hasher;
+			return hasher(v.first->GetID()) ^ hasher(v.second->GetID());
+		}
+	};
+
+	template <> struct equal_to<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
+	{
+		inline bool operator()(const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &l, const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &r) const
+		{
+			return ((l.first->GetID() == r.first->GetID()) && (r.second->GetID() == l.second->GetID())) || ((l.first->GetID() == r.second->GetID()) && (l.second->GetID() == r.first->GetID()));
+		}
+	};
 }

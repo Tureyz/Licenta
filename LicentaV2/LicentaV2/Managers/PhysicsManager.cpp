@@ -64,7 +64,7 @@ void Managers::PhysicsManager::FixedUpdate()
 			{
 				obj->SetRotationAngleStep(obj->GetRotationAngleStep() * m_angularVelDecay);
 				//glm::vec3 gravitationalPull = model->GetMass() * (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition())));
-				auto distanceToCenter = std::fmaxf(0.1, glm::distance(obj->GetPosition(), m_gravityCenter));
+				auto distanceToCenter = std::fmaxf(0.1f, glm::distance(obj->GetPosition(), m_gravityCenter));
 				glm::vec3 gravitationalPull = obj->GetMass() * m_gravityVel * (m_gravityCenter - obj->GetPosition()) / (distanceToCenter * distanceToCenter);
 				obj->SetTranslationStep(obj->GetTranslationStep() + gravitationalPull);
 			}
@@ -165,19 +165,19 @@ void Managers::PhysicsManager::KeyPressed(unsigned char key)
 		std::wcout << L"Gravity multiplier is now " << m_gravityMultiplier << std::endl;
 		break;
 	case '3':
-		m_frics = glm::clamp(glm::vec3(m_frics - 0.025), glm::vec3(0), glm::vec3(1)).x;
+		m_frics = glm::clamp(glm::vec3(m_frics - 0.025f), glm::vec3(0), glm::vec3(1)).x;
 		std::wcout << L"Friction coefficient is now " << m_frics << L" (0 = no friction, 1 = grip)" << std::endl;
 		break;
 	case '4':
-		m_frics = glm::clamp(glm::vec3(m_frics + 0.025), glm::vec3(0), glm::vec3(1)).x;
+		m_frics = glm::clamp(glm::vec3(m_frics + 0.025f), glm::vec3(0), glm::vec3(1)).x;
 		std::wcout << L"Friction coefficient is now " << m_frics << L" (0 = no friction, 1 = grip)" << std::endl;
 		break;
 	case '5':
-		m_restitution = glm::clamp(glm::vec3(m_restitution - 0.025), glm::vec3(0), glm::vec3(1)).x;
+		m_restitution = glm::clamp(glm::vec3(m_restitution - 0.025f), glm::vec3(0), glm::vec3(1)).x;
 		std::wcout << L"Restitution coefficient is now " << m_restitution << L" (0 = plastic, 1 = elastic)" << std::endl;
 		break;
 	case '6':
-		m_restitution = glm::clamp(glm::vec3(m_restitution + 0.025), glm::vec3(0), glm::vec3(1)).x;
+		m_restitution = glm::clamp(glm::vec3(m_restitution + 0.025f), glm::vec3(0), glm::vec3(1)).x;
 		std::wcout << L"Restitution coefficient is now " << m_restitution << L" (0 = plastic, 1 = elastic)" << std::endl;
 		break;
 	case '`':

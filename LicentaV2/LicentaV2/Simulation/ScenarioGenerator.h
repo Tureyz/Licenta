@@ -19,7 +19,6 @@ namespace Simulation
 		static Simulation::Scenario CreateFrontalCrashScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius, float clusterDistance);
 		static Simulation::Scenario CreateExplosionScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float radius);
 		static Simulation::Scenario CreateScreenshotScenario(int scenarioID, int numberOfFrames, int numberOfObjects, float distance);
-
 		static Simulation::Scenario GenerateScenarioFromStats(std::vector<ObjectDescription> &descriptions, size_t ID, size_t numberOfFrames);
 	};
 }

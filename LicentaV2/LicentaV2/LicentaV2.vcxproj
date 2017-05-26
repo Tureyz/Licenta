@@ -80,7 +80,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -88,7 +88,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>Dependencies\freetype-2.7\objs\vc2010\x64;Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype27d.lib;opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrtd.lib;msvcmrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrtd.lib;msvcmrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -115,13 +115,13 @@
       <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Dependencies\freetype-2.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>D:\Github repos\Licenta\LicentaV2\LicentaV2\Dependencies\freetype-2.7\objs\vc2010\x64;Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype27.lib;opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrt.lib;msvcmrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrt.lib;msvcmrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
@@ -134,12 +134,27 @@
   <ItemGroup>
     <ClCompile Include="Benchmark\FPSCounter.cpp" />
     <ClCompile Include="Benchmark\Plotter.cpp" />
-    <ClCompile Include="Collision\BVH.cpp" />
-    <ClCompile Include="Collision\DataStructures\BVHTree.cpp" />
-    <ClCompile Include="Collision\DataStructures\OctreeNode.cpp" />
+    <ClCompile Include="Collision\BVH.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Collision\DataStructures\BVHTree.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Collision\DataStructures\CollisionData.cpp" />
+    <ClCompile Include="Collision\DataStructures\CollisionTriangle.cpp" />
+    <ClCompile Include="Collision\DataStructures\OctreeNode.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Collision\DummyMethod.cpp" />
-    <ClCompile Include="Collision\Octree.cpp" />
-    <ClCompile Include="Collision\SeparatingAxisTheorem.cpp" />
+    <ClCompile Include="Collision\NarrowBVH.cpp" />
+    <ClCompile Include="Collision\Octree.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Collision\SeparatingAxisTheorem.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Collision\SpatialGrid.cpp" />
     <ClCompile Include="Collision\SpatialGridOptimized.cpp" />
     <ClCompile Include="Collision\SpatialHashing.cpp" />
@@ -149,35 +164,55 @@
     <ClCompile Include="Core\InitGLUT.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Managers\BenchmarkResultManager.cpp" />
+    <ClCompile Include="Managers\MastersSimulationManager.cpp" />
     <ClCompile Include="Managers\ModelManager.cpp" />
     <ClCompile Include="Managers\PhysicsManager.cpp" />
     <ClCompile Include="Managers\SceneManager.cpp" />
     <ClCompile Include="Managers\ShaderManager.cpp" />
-    <ClCompile Include="Managers\SimulationManager.cpp" />
+    <ClCompile Include="Managers\BachelorSimulationManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Collision\DataStructures\BoundingBox.cpp" />
     <ClCompile Include="Rendering\Models\Cone.cpp" />
     <ClCompile Include="Rendering\Models\Cube.cpp" />
     <ClCompile Include="Rendering\Models\Cylinder.cpp" />
+    <ClCompile Include="Rendering\Models\MeshObject.cpp" />
     <ClCompile Include="Rendering\Models\Model.cpp" />
     <ClCompile Include="Rendering\Models\Sphere.cpp" />
     <ClCompile Include="Rendering\Models\Tetrahedron.cpp" />
     <ClCompile Include="Rendering\ShapeRenderer.cpp" />
-    <ClCompile Include="Rendering\TextRenderer.cpp" />
+    <ClCompile Include="Rendering\VisualBody.cpp" />
     <ClCompile Include="Simulation\Scenario.cpp" />
     <ClCompile Include="Simulation\ScenarioGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Benchmark\FPSCounter.h" />
     <ClInclude Include="Benchmark\Plotter.h" />
-    <ClInclude Include="Collision\BVH.h" />
-    <ClInclude Include="Collision\DataStructures\BVHTree.h" />
+    <ClInclude Include="Collision\BVH.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Collision\DataStructures\BVHTree.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Collision\DataStructures\CollisionData.h" />
+    <ClInclude Include="Collision\DataStructures\CollisionTriangle.h" />
     <ClInclude Include="Collision\DataStructures\LinkedList.hpp" />
-    <ClInclude Include="Collision\DataStructures\OctreeNode.h" />
+    <ClInclude Include="Collision\DataStructures\OctreeNode.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Collision\DummyMethod.h" />
     <ClInclude Include="Collision\INarrowPhaseMethod.h" />
-    <ClInclude Include="Collision\Octree.h" />
-    <ClInclude Include="Collision\SeparatingAxisTheorem.h" />
+    <ClInclude Include="Collision\NarrowBVH.h" />
+    <ClInclude Include="Collision\Octree.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Collision\SeparatingAxisTheorem.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Collision\SpatialGrid.h" />
     <ClInclude Include="Collision\ICollisionMethod.h" />
     <ClInclude Include="Collision\SpatialGridOptimized.h" />
@@ -189,20 +224,25 @@
     <ClInclude Include="Core\Init\InitListener.h" />
     <ClInclude Include="Core\Utils.hpp" />
     <ClInclude Include="Managers\BenchmarkResultManager.h" />
+    <ClInclude Include="Managers\MastersSimulationManager.h" />
     <ClInclude Include="Managers\ModelManager.h" />
     <ClInclude Include="Managers\PhysicsManager.h" />
-    <ClInclude Include="Managers\SimulationManager.h" />
+    <ClInclude Include="Managers\BachelorSimulationManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Managers\ISimulationManager.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\IPhysicsObject.h" />
     <ClInclude Include="Collision\DataStructures\BoundingBox.h" />
     <ClInclude Include="Rendering\Models\Cone.h" />
     <ClInclude Include="Rendering\Models\Cube.h" />
     <ClInclude Include="Rendering\Models\Cylinder.h" />
+    <ClInclude Include="Rendering\Models\MeshObject.h" />
     <ClInclude Include="Rendering\Models\Model.h" />
     <ClInclude Include="Rendering\Models\Sphere.h" />
     <ClInclude Include="Rendering\Models\Tetrahedron.h" />
     <ClInclude Include="Rendering\ShapeRenderer.h" />
-    <ClInclude Include="Rendering\TextRenderer.h" />
     <ClInclude Include="Rendering\VertexFormat.h" />
     <ClInclude Include="Dependencies\glm\common.hpp" />
     <ClInclude Include="Dependencies\glm\exponential.hpp" />
@@ -229,6 +269,7 @@
     <ClInclude Include="Dependencies\glm\vector_relational.hpp" />
     <ClInclude Include="Managers\SceneManager.h" />
     <ClInclude Include="Managers\ShaderManager.h" />
+    <ClInclude Include="Rendering\VisualBody.h" />
     <ClInclude Include="Simulation\Scenario.h" />
     <ClInclude Include="Simulation\ScenarioGenerator.h" />
   </ItemGroup>

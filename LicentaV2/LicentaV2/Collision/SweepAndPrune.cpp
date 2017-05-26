@@ -83,7 +83,7 @@ void Collision::SweepAndPrune::InsertionSort(std::vector<Projection *> &list)
 void Collision::SweepAndPrune::ObjectMoved(Rendering::IPhysicsObject *object)
 {
 	ObjectProjectionPointers *ptrs = (ObjectProjectionPointers *)object->m_auxCollisionData;
-	Collision::DataStructures::BoundingBox *bb = ((Rendering::Models::Model *)object)->GetBoundingBox();
+	Collision::DataStructures::BoundingBox bb = ((Rendering::Models::Model *)object)->GetBoundingBox();
 
 	if (!ptrs)
 	{
@@ -91,29 +91,29 @@ void Collision::SweepAndPrune::ObjectMoved(Rendering::IPhysicsObject *object)
 		m_memoryUsed += sizeof(ObjectProjectionPointers);
 	}
 
-	ptrs->m_xBegin->m_coord = bb->m_minX;
-	ptrs->m_yBegin->m_coord = bb->m_minY;
-	ptrs->m_zBegin->m_coord = bb->m_minZ;
+	ptrs->m_xBegin->m_coord = bb.m_minX;
+	ptrs->m_yBegin->m_coord = bb.m_minY;
+	ptrs->m_zBegin->m_coord = bb.m_minZ;
 
-	ptrs->m_xEnd->m_coord = bb->m_maxX;
-	ptrs->m_yEnd->m_coord = bb->m_maxY;
-	ptrs->m_zEnd->m_coord = bb->m_maxZ;
+	ptrs->m_xEnd->m_coord = bb.m_maxX;
+	ptrs->m_yEnd->m_coord = bb.m_maxY;
+	ptrs->m_zEnd->m_coord = bb.m_maxZ;
 
 }
 
 void Collision::SweepAndPrune::ObjectAdded(Rendering::IPhysicsObject *object)
 {
 	Rendering::Models::Model *castedObj = (Rendering::Models::Model *) object;
-	Collision::DataStructures::BoundingBox *bb = castedObj->GetBoundingBox();
+	Collision::DataStructures::BoundingBox bb = castedObj->GetBoundingBox();
 
-	Projection *xProjBegin = new Projection(bb->m_minX, true, object);
-	Projection *xProjEnd = new Projection(bb->m_maxX, false, object);
+	Projection *xProjBegin = new Projection(bb.m_minX, true, object);
+	Projection *xProjEnd = new Projection(bb.m_maxX, false, object);
 
-	Projection *yProjBegin = new Projection(bb->m_minY, true, object);
-	Projection *yProjEnd = new Projection(bb->m_maxY, false, object);
+	Projection *yProjBegin = new Projection(bb.m_minY, true, object);
+	Projection *yProjEnd = new Projection(bb.m_maxY, false, object);
 
-	Projection *zProjBegin = new Projection(bb->m_minZ, true, object);
-	Projection *zProjEnd = new Projection(bb->m_maxZ, false, object);
+	Projection *zProjBegin = new Projection(bb.m_minZ, true, object);
+	Projection *zProjEnd = new Projection(bb.m_maxZ, false, object);
 
 
 	m_xList.push_back(xProjBegin);

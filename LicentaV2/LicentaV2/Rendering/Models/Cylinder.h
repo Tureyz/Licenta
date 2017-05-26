@@ -8,10 +8,8 @@ namespace Rendering
 		class Cylinder : public Model
 		{
 		public:
-			Cylinder(const glm::vec4 &color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager);
+			Cylinder(Managers::ModelManager *modelManager, Managers::ISimulationManager *simulationManager);
 			~Cylinder();
-
-			virtual void Create() override final;
 		};
 	}
 }

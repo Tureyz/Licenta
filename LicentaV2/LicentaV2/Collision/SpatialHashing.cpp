@@ -39,16 +39,16 @@ void Collision::SpatialHashing::DrawDebug(const glm::mat4& projectionMatrix, con
 void Collision::SpatialHashing::InsertObject(Rendering::IPhysicsObject *obj)
 {
 	Rendering::Models::Model *castedObj = ((Rendering::Models::Model *)obj);
-	Collision::DataStructures::BoundingBox *bb = castedObj->GetBoundingBox();
+	Collision::DataStructures::BoundingBox bb = castedObj->GetBoundingBox();
 
-	InsertPoint(glm::vec3(bb->m_minX, bb->m_minY, bb->m_minZ), obj);
-	InsertPoint(glm::vec3(bb->m_minX, bb->m_maxY, bb->m_minZ), obj);
-	InsertPoint(glm::vec3(bb->m_minX, bb->m_minY, bb->m_maxZ), obj);
-	InsertPoint(glm::vec3(bb->m_minX, bb->m_maxY, bb->m_maxZ), obj);
-	InsertPoint(glm::vec3(bb->m_maxX, bb->m_minY, bb->m_minZ), obj);
-	InsertPoint(glm::vec3(bb->m_maxX, bb->m_maxY, bb->m_minZ), obj);
-	InsertPoint(glm::vec3(bb->m_maxX, bb->m_minY, bb->m_maxZ), obj);
-	InsertPoint(glm::vec3(bb->m_maxX, bb->m_maxY, bb->m_maxZ), obj);
+	InsertPoint(glm::vec3(bb.m_minX, bb.m_minY, bb.m_minZ), obj);
+	InsertPoint(glm::vec3(bb.m_minX, bb.m_maxY, bb.m_minZ), obj);
+	InsertPoint(glm::vec3(bb.m_minX, bb.m_minY, bb.m_maxZ), obj);
+	InsertPoint(glm::vec3(bb.m_minX, bb.m_maxY, bb.m_maxZ), obj);
+	InsertPoint(glm::vec3(bb.m_maxX, bb.m_minY, bb.m_minZ), obj);
+	InsertPoint(glm::vec3(bb.m_maxX, bb.m_maxY, bb.m_minZ), obj);
+	InsertPoint(glm::vec3(bb.m_maxX, bb.m_minY, bb.m_maxZ), obj);
+	InsertPoint(glm::vec3(bb.m_maxX, bb.m_maxY, bb.m_maxZ), obj);
 }
 
 void Collision::SpatialHashing::InsertPoint(glm::vec3 point, Rendering::IPhysicsObject *obj)

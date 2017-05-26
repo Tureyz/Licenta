@@ -1,33 +1,20 @@
 #pragma once
 #include <vector>
-#include "..\Rendering\IPhysicsObject.h"
 #include <chrono>
 #include <unordered_map>
 #include <unordered_set>
+
 #include "..\Core\Utils.hpp"
+#include "..\Rendering\IPhysicsObject.h"
+#include "..\Managers\ModelManager.h"
+
 
 
 using namespace Rendering;
 
-class Rendering::IPhysicsObject;
 
 namespace std
 {
-	template <> struct hash<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
-	{
-		inline size_t operator()(const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &v) const {
-			std::hash<size_t> hasher;
-			return hasher(v.first->GetID()) ^ hasher(v.second->GetID());
-		}
-	};
-
-	template <> struct equal_to<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>>
-	{
-		inline bool operator()(const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &l, const std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> &r) const
-		{
-			return ((l.first->GetID() == r.first->GetID()) && (r.second->GetID() == l.second->GetID())) || ((l.first->GetID() == r.second->GetID()) && (l.second->GetID() == r.first->GetID()));
-		}
-	};
 
 	template <> struct hash<glm::vec3>
 	{
@@ -57,12 +44,15 @@ namespace Collision
 
 		void SetDrawBuffers(GLuint vao, GLuint vbo, GLuint ibo) { m_vao = vao; m_vbo = vbo; m_ibo = ibo; }
 		void SetIndices(std::vector<GLuint> *indices) { m_indices = indices; }
+		void SetVerts(std::vector<Rendering::VertexFormat> *verts) { m_verts = verts; }
 		bool GetShowDebug() const { return m_showDebug; }
 		void SetShowDebug(bool val) { m_showDebug = val; }
 
 		std::unordered_map<std::wstring , float> GetLastFrameCriteria() const { return m_lastFrameCriteria; }
 		void SetLastFrameCriteria(std::unordered_map<std::wstring , float> val) { m_lastFrameCriteria = val; }
 
+		Managers::ModelManager * GetModelManager() const { return m_modelManager; }
+		void SetModelManager(Managers::ModelManager * val) { m_modelManager = val; }
 	protected:
 
 		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() = 0;
@@ -72,10 +62,13 @@ namespace Collision
 		bool m_showDebug;
 		GLuint m_vao, m_vbo, m_ibo;
 		std::vector<GLuint> *m_indices;
+		std::vector<Rendering::VertexFormat> *m_verts;
 		std::unordered_map<std::wstring , float> m_lastFrameCriteria;
 
 		size_t m_lastFrameTests;
 		size_t m_memoryUsed;
+
+		Managers::ModelManager *m_modelManager;
 	private:
 
 	};

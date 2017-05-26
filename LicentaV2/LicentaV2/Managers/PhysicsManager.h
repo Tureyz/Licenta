@@ -57,7 +57,7 @@ namespace Managers
 		float m_defaultGravMultiplier;
 		float m_defaultRestitution;
 
-		const float m_gravitationalConstant = 6.674f * std::pow(10, -11);
+		const float m_gravitationalConstant = 6.674f * static_cast<float>(std::pow(10, -11));
 		float m_gravStep;
 	};
 }

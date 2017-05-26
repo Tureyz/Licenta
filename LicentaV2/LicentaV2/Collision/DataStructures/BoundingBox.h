@@ -1,39 +1,35 @@
 #pragma once
-#include "../../Rendering/IPhysicsObject.h"
+#include "../../Rendering/VisualBody.h"
 
 namespace Collision	
 {
-	namespace DataStructures {
+	namespace DataStructures
+	{
 
 		class BoundingBox
 		{
 		public:
-			BoundingBox(Rendering::IPhysicsObject *parentObject);
-			BoundingBox(Rendering::IPhysicsObject **parentObjects, size_t numObjects);
 			BoundingBox();
 			~BoundingBox();
 
-			void Create();
+			void CreateVisualBody(Rendering::VisualBody &visualBody);
+
 			virtual void Update();
-			virtual void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
-			void Destroy();
-			void UpdateValues();
-			bool GetVisible() const { return m_isVisible; }
-			void SetVisible(bool val) { m_isVisible = val; }
-			void SetProgram(GLuint shaderName);
-			bool Collides(const BoundingBox * other);
+
+			void UpdateValues(glm::vec3 minCoords, glm::vec3 maxCoords);
+			void UpdateValues(std::vector<std::pair<glm::vec3, glm::vec3>> objectBounds);
+
+			bool Collides(const BoundingBox &other);
+
 			GLfloat m_minX, m_maxX, m_minY, m_maxY, m_minZ, m_maxZ;
 
+			Rendering::VisualBody m_visualBody;
+
+			bool GetVisible() const { return m_isVisible; }
+			void SetVisible(bool val) { m_isVisible = val; }
 		private:
 			bool m_isVisible;
-			Rendering::IPhysicsObject * m_parentObject;
-			Rendering::IPhysicsObject ** m_parentObjects;
-			size_t m_numObjects;
-			glm::vec4 m_color;
-			GLuint m_vao;
-			GLuint m_program;
-			std::vector<GLuint> m_vbos;
-			std::vector<unsigned int> m_indices;
+			void UpdateVisualVerts();
 		};
 	}
 }

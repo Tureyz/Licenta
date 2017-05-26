@@ -1,6 +1,7 @@
 #pragma once
-#include "../../Dependencies/glm/glm.hpp"
 #include <vector>
+
+#include "../../Dependencies/glm/glm.hpp"
 #include "../../Rendering/IPhysicsObject.h"
 
 namespace Collision

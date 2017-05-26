@@ -8,9 +8,8 @@ namespace Rendering
 		class Cone : public Model
 		{
 		public:
-			Cone(const glm::vec4 &color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager);
+			Cone(Managers::ModelManager *modelManager, Managers::ISimulationManager *simulationManager);
 			~Cone();
-			virtual void Create() override final;
 		};
 	}
 }

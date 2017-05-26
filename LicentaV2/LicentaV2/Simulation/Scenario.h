@@ -7,7 +7,7 @@
 
 namespace Simulation
 {
-	enum PhysicsObjectType { OBJ_CUBE = 0, OBJ_SPHERE = 1, OBJ_TETRAHEDRON = 2, OBJ_CYLINDER = 3, OBJ_CONE = 4, OBJ_RANDOM , OBJ_NUM_TOTAL = 5};
+	
 
 	struct ObjectDescription
 	{

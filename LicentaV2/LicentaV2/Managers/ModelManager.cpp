@@ -63,7 +63,7 @@ void Managers::ModelManager::DeleteAllModels()
 	}
 }
 
-void Managers::ModelManager::DeleteModel(unsigned long id)
+void Managers::ModelManager::DeleteModel(std::size_t id)
 {
 	Rendering::IPhysicsObject *model = NULL;
 	for (auto it = m_objectList.begin(); it != m_objectList.end(); ++it)
@@ -113,32 +113,25 @@ void Managers::ModelManager::SetBoundingBoxesVisibile(bool value)
 {
 	for (auto obj : m_objectList)
 	{
-		((Rendering::Models::Model *) obj)->SetBoundingBoxVisible(value);
+		obj->GetBoundingBox().SetVisible(value);
 	}
 }
 
 void Managers::ModelManager::Init()
 {
-	CreateBufferObjects();
+	CreateProps();
 }
 
-void Managers::ModelManager::CreateBufferObjects()
+void Managers::ModelManager::CreateProps()
 {
-	CreateCubeProps();
-	Rendering::ShapeRenderer::CreateBufferObjects(m_cubeVao, m_cubeVbo, m_cubeIbo, m_cubeVerts, m_cubeIndices);
-
-	CreateTetrahedronProps();
-	Rendering::ShapeRenderer::CreateBufferObjects(m_tetraVao, m_tetraVbo, m_tetraIbo, m_tetraVerts, m_tetraIndices);
-
 	CreateSphereProps();
-	Rendering::ShapeRenderer::CreateBufferObjects(m_sphereVao, m_sphereVbo, m_sphereIbo, m_sphereVerts, m_sphereIndices);
-
+	CreateCubeProps();	
+	CreateTetrahedronProps();
 	CreateCylinderProps();
-	Rendering::ShapeRenderer::CreateBufferObjects(m_cylinderVao, m_cylinderVbo, m_cylinderIbo, m_cylinderVerts, m_cylinderIndices);
-
 	CreateConeProps();
-	Rendering::ShapeRenderer::CreateBufferObjects(m_coneVao, m_coneVbo, m_coneIbo, m_coneVerts, m_coneIndices);
 }
+
+
 
 void Managers::ModelManager::CreateCubeProps()
 {
@@ -294,13 +287,13 @@ void Managers::ModelManager::CreateCylinderProps()
 
 		for (int j = 0; j < lats; ++j)
 		{
-			m_cylinderVerts[i * lats + j] = Rendering::VertexFormat(glm::vec3(glm::cos(glm::radians(deg)), height, glm::sin(glm::radians(deg))), Core::DEFAULT_OBJECT_COLOR);
+			m_cylinderVerts[i * static_cast<uint64_t>(lats) + j] = Rendering::VertexFormat(glm::vec3(glm::cos(glm::radians(deg)), height, glm::sin(glm::radians(deg))), Core::DEFAULT_OBJECT_COLOR);
 			deg += 360.f / (lats - 1);
 		}
 		deg = 0;
 	}
 
-	m_cylinderIndices.resize(6 * (longs - 1) * lats);
+	m_cylinderIndices.resize(6 * (static_cast<uint64_t>(longs) - 1) * static_cast<uint64_t>(lats));
 	int off = 0;
 
 	for (int i = 0; i < longs - 1; ++i)
@@ -353,4 +346,120 @@ void Managers::ModelManager::CreateSphereProps()
 			m_sphereIndices.push_back((unsigned int)(r * lats + s));
 		}
 	}
+}
+
+std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> Managers::ModelManager::CreateMeshProps(int rows, int cols)
+{
+	std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> result;
+
+	std::vector<Rendering::VertexFormat> verts;
+	std::vector<GLuint> indices;
+
+	float wStep = 1.0f / cols;
+	float hStep = 1.0f / rows;
+
+	for (int i = 0; i < rows - 1; ++i)
+	{
+		for (int j = 0; j < cols - 1; ++j)
+		{
+			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * i, -0.5 + wStep * j, 0), Core::DEFAULT_OBJECT_COLOR));
+			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * i, -0.5 + wStep * (j + 1), 0), Core::DEFAULT_OBJECT_COLOR));
+			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * (i + 1), -0.5 + wStep * j, 0), Core::DEFAULT_OBJECT_COLOR));
+			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * (i + 1), -0.5 + wStep * (j + 1), 0), Core::DEFAULT_OBJECT_COLOR));
+
+			unsigned int lastIdx = static_cast<unsigned int>(verts.size() - 1);
+
+			indices.push_back(lastIdx - 3);
+			indices.push_back(lastIdx - 2);
+			indices.push_back(lastIdx - 1);
+
+			indices.push_back(lastIdx - 2);
+			indices.push_back(lastIdx - 1);
+			indices.push_back(lastIdx - 0);
+		}
+	}
+
+	return std::make_pair(verts, indices);
+}
+
+Rendering::VisualBody Managers::ModelManager::CreateBasicVisualBody(enum Simulation::PhysicsObjectType type)
+{
+	GLuint vao, vbo, ibo;
+
+	switch (type)
+	{
+	case Simulation::OBJ_CUBE:
+		CreateCubeBufferObjects(vao, vbo, ibo);
+		return Rendering::VisualBody(m_cubeVerts, m_cubeIndices, vao, vbo, ibo);
+	case Simulation::OBJ_SPHERE:
+		CreateSphereBufferObjects(vao, vbo, ibo);
+		return Rendering::VisualBody(m_sphereVerts, m_sphereIndices, vao, vbo, ibo);
+	case Simulation::OBJ_TETRAHEDRON:
+		CreateTetrahedronBufferObjects(vao, vbo, ibo);
+		return Rendering::VisualBody(m_tetraVerts, m_tetraIndices, vao, vbo, ibo);
+	case Simulation::OBJ_CYLINDER:
+		CreateCylinderBufferObjects(vao, vbo, ibo);
+		return Rendering::VisualBody(m_cylinderVerts, m_cylinderIndices, vao, vbo, ibo);
+	case Simulation::OBJ_CONE:
+		CreateConeBufferObjects(vao, vbo, ibo);
+		return Rendering::VisualBody(m_coneVerts, m_coneIndices, vao, vbo, ibo);
+	case Simulation::OBJ_LINE_CUBE:
+		CreateCubeBufferObjects(vao, vbo, ibo);
+		return Rendering::VisualBody(m_cubeVerts, m_lineCubeIndices, vao, vbo, ibo);
+	default:
+		std::cout << "Ai grijeeeee" << std::endl;
+		return Rendering::VisualBody();
+	}
+}
+
+Rendering::VisualBody Managers::ModelManager::CreateMeshVisualBody(const int rows, const int cols)
+{
+	GLuint vao, vbo, ibo;
+	auto props = CreateMeshProps(rows, cols);
+	
+
+	CreateMeshBufferObjects(rows, cols, vao, vbo, ibo, props.first, props.second);
+
+	Rendering::VisualBody result(vao, vbo, ibo);
+	result.m_verts = props.first;
+	result.m_transformedVerts = props.first;
+	result.m_indices = props.second;
+
+	return result;
+}
+
+void Managers::ModelManager::CreateMeshBufferObjects(const int rows, const int cols, GLuint &vao, GLuint &vbo, GLuint &ibo, std::vector<Rendering::VertexFormat> &verts, std::vector<GLuint> &indices)
+{
+
+	auto props = CreateMeshProps(rows, cols);
+
+	verts = props.first;
+	indices = props.second;
+
+	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, verts, indices);
+}
+
+void Managers::ModelManager::CreateCubeBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo)
+{
+	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, m_cubeVerts, m_cubeIndices);
+}
+
+void Managers::ModelManager::CreateTetrahedronBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo)
+{
+	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, m_tetraVerts, m_tetraIndices);
+}
+
+void Managers::ModelManager::CreateConeBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo)
+{
+	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, m_coneVerts, m_coneIndices);
+}
+
+void Managers::ModelManager::CreateCylinderBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo)
+{
+	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, m_cylinderVerts, m_cylinderIndices);
+}
+
+void Managers::ModelManager::CreateSphereBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo)
+{
+	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, m_sphereVerts, m_sphereIndices);
 }

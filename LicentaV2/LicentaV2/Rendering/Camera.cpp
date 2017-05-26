@@ -11,7 +11,7 @@ Rendering::Camera::Camera()
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, -1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
-	m_eyeVector = glm::vec3(0.f, 0.f, -20.f);
+	m_eyeVector = glm::vec3(0.f, 0.f, -5.f);
 	m_keyPitch = m_keyRoll = m_keyYaw = 0.f;
 	m_cameraQuat = glm::quat(0.f, 0.f, 0.f, 0.f);
 	m_isMousePressed = false;
@@ -109,7 +109,7 @@ void Rendering::Camera::MousePressed(int button, int state, int x, int y)
 
 void Rendering::Camera::Update()
 {
-	float distancePerStep = 2;
+	float distancePerStep = 0.25f;
 	
 	float dx = (m_leftPressed ? -distancePerStep : 0) + (m_rightPressed ? distancePerStep : 0);
 	float dz = (m_forwardPressed ? -distancePerStep : 0) + (m_backwardPressed ? distancePerStep : 0);

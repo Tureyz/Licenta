@@ -10,9 +10,8 @@ namespace Rendering
 		class Tetrahedron : public Model
 		{
 		public:
-			Tetrahedron(const glm::vec4 &color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager);
+			Tetrahedron(Managers::ModelManager *modelManager, Managers::ISimulationManager *simulationManager);
 			~Tetrahedron();
-			virtual void Create() override final;
 		};
 	}
 }

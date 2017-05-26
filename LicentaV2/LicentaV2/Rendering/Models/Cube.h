@@ -10,9 +10,8 @@ namespace Rendering
 		class Cube : public Model
 		{
 		public:
-			Cube(const glm::vec4 &color, Managers::ModelManager *modelManager, Managers::SimulationManager *simulationManager);
+			Cube(Managers::ModelManager *modelManager, Managers::ISimulationManager *simulationManager);
 			~Cube();
-			virtual void Create() override final;
 		};
 	}
 }

@@ -8,7 +8,7 @@ Managers::SceneManager::SceneManager()
 	glEnable(GL_DEPTH_TEST);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	m_textRenderer = new TextRenderer();
+	//m_textRenderer = new TextRenderer();
 
 	m_shaderManager = new ShaderManager();
 	m_shaderManager->CreatePrograms();
@@ -21,8 +21,10 @@ Managers::SceneManager::SceneManager()
 	//m_viewMatrix = glm::mat4(1.f);
 	m_modelManager = new ModelManager();
 	m_camera = new Rendering::Camera();
-	m_simulationManager = new SimulationManager(m_modelManager);
-	m_physicsManager = new PhysicsManager(m_modelManager->GetModelListPtr());
+	//m_simulationManager = new BachelorSimulationManager(m_modelManager);
+	m_simulationManager = new MastersSimulationManager(m_modelManager);
+
+	//m_physicsManager = new PhysicsManager(m_modelManager->GetModelListPtr());
 
 	m_modelManager->Init();
 	m_simulationManager->Init();
@@ -37,7 +39,7 @@ Managers::SceneManager::~SceneManager()
 	delete m_shaderManager;
 	delete m_modelManager;
 	delete m_simulationManager;
-	delete m_physicsManager;
+	//delete m_physicsManager;
 }
 
 void Managers::SceneManager::notifyBeginFrame()
@@ -50,14 +52,14 @@ void Managers::SceneManager::notifyBeginFrame()
 	m_modelManager->FixedUpdate();
 	m_simulationManager->FixedUpdate();
 	m_FPSCounter.FixedUpdate();
-	m_physicsManager->FixedUpdate();
-	m_physicsManager->SetCollisionPairs(m_simulationManager->GetCurrentCollisionPairsPtr());
-	m_physicsManager->CollisionResponse();
+// 	m_physicsManager->FixedUpdate();
+// 	m_physicsManager->SetCollisionPairs(m_simulationManager->GetCurrentCollisionPairsPtr());
+// 	m_physicsManager->CollisionResponse();
 
 
 	m_modelManager->Update();
 	m_simulationManager->Update();
-	m_physicsManager->Update();
+	//m_physicsManager->Update();
 	m_FPSCounter.Update();
 	m_camera->Update();
 }
@@ -108,7 +110,7 @@ void Managers::SceneManager::KeyboardDownCallback(unsigned char key, int x, int 
 {
 	m_camera->KeyPressed(key);
 	m_simulationManager->KeyPressed(key);
-	m_physicsManager->KeyPressed(key);
+	//m_physicsManager->KeyPressed(key);
 }
 
 void Managers::SceneManager::KeyboardUpCallback(unsigned char key, int x, int y)

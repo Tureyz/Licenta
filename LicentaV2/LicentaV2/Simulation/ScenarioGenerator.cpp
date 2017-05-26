@@ -86,7 +86,7 @@ Simulation::Scenario Simulation::ScenarioGenerator::CreateSingleMovingObjectScen
 
 	defs[0].m_initialPosition = movingObjectPosition;
 	defs[0].m_initialScale = glm::vec3(5);
-	defs[0].m_rotationStep = Core::Utils::RandomRangeVec(0.000, 1.100);
+	defs[0].m_rotationStep = Core::Utils::RandomRangeVec(0.000f, 1.100f);
 	defs[0].m_rotationAngleStep = glm::length(defs[0].m_rotationStep);
 
 	defs[1].m_initialPosition = -movingObjectPosition;

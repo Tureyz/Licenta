@@ -119,8 +119,8 @@ bool Collision::Octree::CompletelyInside(Rendering::IPhysicsObject *object, glm:
 // 	if (object->GetMaxCoords().z > nodeDimMax.z) return false;
 // 	if (object->GetMinCoords().z < nodeDimMin.z) return false;
 
-	return !(object->GetMaxCoords().x > nodeDimMax.x || object->GetMinCoords().x < nodeDimMin.x || object->GetMaxCoords().y > nodeDimMax.y ||
-		object->GetMinCoords().y < nodeDimMin.y || object->GetMaxCoords().z > nodeDimMax.z || object->GetMinCoords().z < nodeDimMin.z);
+	return !(object->GetBoundingBox().m_maxX > nodeDimMax.x || object->GetBoundingBox().m_minX < nodeDimMin.x || object->GetBoundingBox().m_maxY > nodeDimMax.y ||
+		object->GetBoundingBox().m_minY < nodeDimMin.y || object->GetBoundingBox().m_maxZ > nodeDimMax.z || object->GetBoundingBox().m_minZ < nodeDimMin.z);
 	//return true;
 }
 
@@ -129,7 +129,7 @@ bool Collision::Octree::StraddleX(Rendering::IPhysicsObject *object, DataStructu
 	float nodeDimMax = node->m_center.x + node->m_halfW;
 	float nodeDimMin = node->m_center.x - node->m_halfW;
 
-	return object->GetMaxCoords().x > nodeDimMax || object->GetMinCoords().x < nodeDimMin;
+	return object->GetBoundingBox().m_maxX > nodeDimMax || object->GetBoundingBox().m_minX < nodeDimMin;
 }
 
 bool Collision::Octree::StraddleY(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node)
@@ -137,7 +137,7 @@ bool Collision::Octree::StraddleY(Rendering::IPhysicsObject *object, DataStructu
 	float nodeDimMax = node->m_center.y + node->m_halfW;
 	float nodeDimMin = node->m_center.y - node->m_halfW;
 
-	return object->GetMaxCoords().y > nodeDimMax || object->GetMinCoords().y < nodeDimMin;
+	return object->GetBoundingBox().m_maxY > nodeDimMax || object->GetBoundingBox().m_minY < nodeDimMin;
 }
 
 bool Collision::Octree::StraddleZ(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node)
@@ -145,7 +145,7 @@ bool Collision::Octree::StraddleZ(Rendering::IPhysicsObject *object, DataStructu
 	float nodeDimMax = node->m_center.z + node->m_halfW;
 	float nodeDimMin = node->m_center.z - node->m_halfW;
 
-	return object->GetMaxCoords().z > nodeDimMax|| object->GetMinCoords().z < nodeDimMin;
+	return object->GetBoundingBox().m_maxZ > nodeDimMax || object->GetBoundingBox().m_minZ < nodeDimMin;
 }
 
 void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
