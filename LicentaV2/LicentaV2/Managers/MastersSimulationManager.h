@@ -19,7 +19,7 @@ namespace Managers
 
 		virtual void Update() override;
 
-		virtual void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
+		virtual void Draw(const glm::mat4& viewProjection) override;
 
 		virtual void Draw() override;
 

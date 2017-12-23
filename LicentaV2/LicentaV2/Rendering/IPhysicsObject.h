@@ -6,6 +6,7 @@
 
 #include "../Collision/DataStructures/CollisionData.h"
 #include "../Collision/DataStructures/BoundingBox.h"
+#include "../Core/DeltaTime.h"
 
 
 #define VOLUME_CONSTANT 4.18879020479f
@@ -29,7 +30,7 @@ namespace Rendering
 		virtual void Create() = 0;
 		virtual void Create(const glm::mat4 &mvp) = 0;
 		virtual void Draw() = 0;
-		virtual void Draw(const glm::mat4& projection_matrix, const glm::mat4& view_matrix) = 0;
+		virtual void Draw(const glm::mat4& viewProjection) = 0;
 		virtual void FixedUpdate() final;
 		virtual void Update() final;
 		virtual void Destroy() = 0;
@@ -38,9 +39,9 @@ namespace Rendering
 		virtual void RotateAbsolute(const glm::vec3 &axis, const float angles) final;
 		virtual void ScaleAbsolute(const glm::vec3 &scales) final;
 
-		virtual void TranslateRelative(const glm::vec3 &pos) final;
-		virtual void RotateRelative(const glm::vec3 &axis, const float angles) final;
-		virtual void ScaleRelative(const glm::vec3 &scales) final;
+// 		virtual void TranslateRelative(const glm::vec3 &pos) final;
+// 		virtual void RotateRelative(const glm::vec3 &axis, const float angles) final;
+// 		virtual void ScaleRelative(const glm::vec3 &scales) final;
 
 		virtual void UpdateVertices(glm::mat4 modelMat) final;
 		virtual void ObjectMoved() = 0;
@@ -169,11 +170,11 @@ namespace Rendering
 
 
 		if (GetScaleStep() != glm::vec3(1.f))
-			ScaleRelative(GetScaleStep() /** m_modelManager->GetDt()*/);
+			ScaleAbsolute(GetScaleStep() * Core::DeltaTime::GetDt());
 		if (m_rotationAngleStep != 0.f)
-			RotateRelative(GetRotationStep(), m_rotationAngleStep /** m_modelManager->GetDt()*/);
+			RotateAbsolute(GetRotationStep(), m_rotationAngleStep * Core::DeltaTime::GetDt());
 		if (GetTranslationStep() != glm::vec3(0.f))
-			TranslateRelative(GetTranslationStep() /** m_modelManager->GetDt()*/);
+			TranslateAbsolute(GetTranslationStep() * Core::DeltaTime::GetDt());
 
 
 		if (GetCollisionData())
@@ -208,27 +209,27 @@ namespace Rendering
 		m_matrixChanged = true;
 	}
 
-	inline void IPhysicsObject::TranslateRelative(const glm::vec3 &pos)
-	{
-		m_translationMatrix = glm::translate(m_translationMatrix, pos);
-		SetPosition(GetPosition() + pos);
-		m_matrixChanged = true;
-	}
-
-	inline void IPhysicsObject::RotateRelative(const glm::vec3 &axis, const float angles)
-	{
-		m_rotationMatrix = glm::rotate(m_rotationMatrix, angles, axis);
-		SetRotation(GetRotation() + axis);
-		SetRotationAngle(GetRotationAngle() + angles);
-		m_matrixChanged = true;
-	}
-
-	inline void IPhysicsObject::ScaleRelative(const glm::vec3 &scales)
-	{
-		m_scaleMatrix = glm::scale(m_scaleMatrix, scales);
-		SetScale(GetScale() + scales);
-		m_matrixChanged = true;
-	}
+// 	inline void IPhysicsObject::TranslateRelative(const glm::vec3 &pos)
+// 	{
+// 		m_translationMatrix = glm::translate(m_translationMatrix, pos);
+// 		SetPosition(GetPosition() + pos);
+// 		m_matrixChanged = true;
+// 	}
+// 
+// 	inline void IPhysicsObject::RotateRelative(const glm::vec3 &axis, const float angles)
+// 	{
+// 		m_rotationMatrix = glm::rotate(m_rotationMatrix, angles, axis);
+// 		SetRotation(GetRotation() + axis);
+// 		SetRotationAngle(GetRotationAngle() + angles);
+// 		m_matrixChanged = true;
+// 	}
+// 
+// 	inline void IPhysicsObject::ScaleRelative(const glm::vec3 &scales)
+// 	{
+// 		m_scaleMatrix = glm::scale(m_scaleMatrix, scales);
+// 		SetScale(GetScale() + scales);
+// 		m_matrixChanged = true;
+// 	}
 
 	inline void IPhysicsObject::UpdateVertices(glm::mat4 modelMat)
 	{
@@ -304,4 +305,22 @@ namespace std
 			return ((l.first->GetID() == r.first->GetID()) && (r.second->GetID() == l.second->GetID())) || ((l.first->GetID() == r.second->GetID()) && (l.second->GetID() == r.first->GetID()));
 		}
 	};
+
+	template <> struct equal_to<std::pair<Rendering::VertexFormat *, Rendering::VertexFormat *>>
+	{
+		inline bool operator()(const std::pair<Rendering::VertexFormat *, Rendering::VertexFormat *> &l, const std::pair<Rendering::VertexFormat *, Rendering::VertexFormat *> &r) const
+		{
+			return ((l.first->m_position == r.first->m_position) && (r.second->m_position == l.second->m_position)) || ((l.first->m_position == r.second->m_position) && (l.second->m_position == r.first->m_position));
+		}
+	};
+
+	template <> struct hash<std::pair<Rendering::VertexFormat *, Rendering::VertexFormat *>>
+	{
+		inline size_t operator()(const std::pair<Rendering::VertexFormat *, Rendering::VertexFormat *> &v) const {
+			std::hash<glm::vec3> hasher;
+			return hasher(v.first->m_position) ^ hasher(v.second->m_position);
+		}
+	};
+
+	
 }

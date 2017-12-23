@@ -6,7 +6,7 @@ Collision::SphereToSphereTest::SphereToSphereTest(std::vector<Rendering::IPhysic
 	m_allObjects = allObjects;
 }
 
-void Collision::SphereToSphereTest::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::SphereToSphereTest::DrawDebug(const glm::mat4& viewProjection)
 {
 }
 
@@ -41,6 +41,7 @@ std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObj
 				auto firstCenter = firstSphere->GetPosition();
 				auto secondCenter = secondSphere->GetPosition();
 
+				//was initial verts
 				auto firstRadius = glm::distance(firstCenter, firstSphere->GetVisualBody().m_verts[0].m_position);
 				auto secondRadius = glm::distance(secondCenter, secondSphere->GetVisualBody().m_verts[0].m_position);
 

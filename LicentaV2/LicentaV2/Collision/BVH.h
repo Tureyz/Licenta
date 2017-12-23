@@ -9,7 +9,7 @@ namespace Collision
 	public:
 		BVH(std::vector<Rendering::IPhysicsObject *> *allObjects);
 
-		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
+		virtual void DrawDebug(const glm::mat4& viewProjection) override;
 
 		void CreateTree(DataStructures::BVHTree<Rendering::IPhysicsObject *> **node, Rendering::IPhysicsObject ** objects, size_t numObjects);
 
@@ -22,7 +22,7 @@ namespace Collision
 
 	private:
 
-		void DrawRecursive(DataStructures::BVHTree<Rendering::IPhysicsObject *> *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
+		void DrawRecursive(DataStructures::BVHTree<Rendering::IPhysicsObject *> *node, const glm::mat4& viewProjection);
 
 		bool ChildrenSelectionRule(DataStructures::BVHTree<Rendering::IPhysicsObject *> *left, DataStructures::BVHTree<Rendering::IPhysicsObject *> *right);
 

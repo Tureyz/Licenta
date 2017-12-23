@@ -1,5 +1,6 @@
 #pragma once
-#include "../Benchmark/FPSCounter.h"
+//#include "../Benchmark/FPSCounter.h"
+#include "..\Core\Utils.hpp"
 #include "ShaderManager.h"
 #include "ModelManager.h"
 #include "BachelorSimulationManager.h"
@@ -7,7 +8,7 @@
 #include "PhysicsManager.h"
 //#include "../Rendering/TextRenderer.h"
 
-#include "../Core/DeltaTime.h"
+//#include "../Core/DeltaTime.h"
 #include "../Rendering/Camera.h"
 
 namespace Managers
@@ -46,10 +47,15 @@ namespace Managers
 
 		glm::mat4 m_projectionMatrix;
 		glm::mat4 m_viewMatrix;
-		Benchmark::FPSCounter m_FPSCounter;
+		//Benchmark::FPSCounter m_FPSCounter;
 
-		Core::DeltaTime m_deltaTime;
-		int m_timeBase;
-		int m_time;
+// 		Core::DeltaTime m_deltaTime;
+// 		int m_timeBase;
+// 		int m_time;
+
+		float m_initTime;
+		float m_lastFixedTime; // last fixed update
+		float m_lastFrameTime;
+		float m_dt; // difference between this rendered frame and last fixed update
 	};
 }

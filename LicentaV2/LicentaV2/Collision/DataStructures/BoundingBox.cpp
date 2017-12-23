@@ -50,7 +50,7 @@ void Collision::DataStructures::BoundingBox::UpdateValues(glm::vec3 minCoords, g
 	m_maxY = maxCoords.y;
 	m_maxZ = maxCoords.z;
 
-	UpdateVisualVerts();
+//	UpdateVisualVerts();
 	
 
 // 	m_visualBody->m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 0

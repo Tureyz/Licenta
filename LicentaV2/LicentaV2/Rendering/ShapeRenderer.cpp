@@ -19,14 +19,17 @@ void Rendering::ShapeRenderer::CreateBufferObjects(GLuint &vao, GLuint &vbo, GLu
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_color)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_normal)));
+
 	glBindVertexArray(0);
 }
 
-void Rendering::ShapeRenderer::Draw(const glm::mat4 mvp, const Rendering::VisualBody &body)
+void Rendering::ShapeRenderer::Draw(const glm::mat4 viewProjection, const Rendering::VisualBody &body)
 {
 	//glUniform1i(2, collisionState);
  	//glUniform1i(2, 0);
- 	glUniformMatrix4fv(3, 1, false, &mvp[0][0]);
+ 	glUniformMatrix4fv(3, 1, false, &viewProjection[0][0]);
 
 
 // 	for (int i = 0; i < verts.size(); ++i)
@@ -47,15 +50,15 @@ void Rendering::ShapeRenderer::Draw(const glm::mat4 mvp, const Rendering::Visual
 	glBindVertexArray(0);
 }
 
-void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 mvp, const GLuint vao, const std::vector<GLuint> indices, const int collisionState)
+void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 viewProjection, const GLuint vao, const std::vector<GLuint> indices, const int collisionState)
 {
 
 }
 
-void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 mvp, const Rendering::VisualBody &body)
+void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 viewProjection, const Rendering::VisualBody &body)
 {	
 
-	glUniformMatrix4fv(3, 1, false, &mvp[0][0]);
+	glUniformMatrix4fv(3, 1, false, &viewProjection[0][0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, body.m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * body.m_verts.size(), &body.m_verts[0], GL_STATIC_DRAW);
@@ -66,7 +69,7 @@ void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 mvp, const Renderin
 	glBindVertexArray(0);	
 }
 
-void Rendering::ShapeRenderer::Draw(const glm::mat4 mvp, const GLuint vao, const std::vector<GLuint> indices, const int collisionState)
+void Rendering::ShapeRenderer::Draw(const glm::mat4 viewProjection, const GLuint vao, const std::vector<GLuint> indices, const int collisionState)
 {
 
 }

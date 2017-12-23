@@ -35,7 +35,7 @@ void Collision::SweepAndPrune::_Update()
 	InsertionSort();
 }
 
-void Collision::SweepAndPrune::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::SweepAndPrune::DrawDebug(const glm::mat4& viewProjection)
 {
 }
 

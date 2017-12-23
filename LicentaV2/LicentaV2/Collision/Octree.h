@@ -10,7 +10,7 @@ namespace Collision
 
 		Octree(std::vector<Rendering::IPhysicsObject *> *allObjects, glm::vec3 worldMin, glm::vec3 worldMax);
 		~Octree();
-		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
+		virtual void DrawDebug(const glm::mat4& viewProjection) override;
 		void SetParams(int splitThreshold, int maximumDepth);		
 
 	protected:
@@ -29,7 +29,7 @@ namespace Collision
 		bool StraddleY(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node);
 		bool StraddleZ(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node);
 
-		void DrawRecursive(DataStructures::OctreeNode *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
+		void DrawRecursive(DataStructures::OctreeNode *node, const glm::mat4& viewProjection);
 
 		void TestCollisionsRecursive(DataStructures::OctreeNode *node, std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &collisions);
 

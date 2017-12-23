@@ -12,7 +12,7 @@ namespace Collision
 		SpatialGridOptimized(std::vector<Rendering::IPhysicsObject *> *allObjects, int numberOfCells);
 
 
-		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
+		virtual void DrawDebug(const glm::mat4& viewProjection) override;
 
 		void SetParams(glm::vec3 worldMin, glm::vec3 worldMax, int numberOfCells);
 

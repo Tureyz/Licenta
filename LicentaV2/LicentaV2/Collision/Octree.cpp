@@ -38,13 +38,13 @@ void Collision::Octree::_Update()
 	}	
 }
 
-void Collision::Octree::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::Octree::DrawDebug(const glm::mat4& viewProjection)
 {
 	if (!GetShowDebug())
 		return;
 
 	glLineWidth(3);
-	DrawRecursive(m_root, projectionMatrix, viewMatrix);
+	DrawRecursive(m_root, viewProjection, viewMatrix);
 	glLineWidth(1);
 }
 
@@ -148,7 +148,7 @@ bool Collision::Octree::StraddleZ(Rendering::IPhysicsObject *object, DataStructu
 	return object->GetBoundingBox().m_maxZ > nodeDimMax || object->GetBoundingBox().m_minZ < nodeDimMin;
 }
 
-void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const glm::mat4& viewProjection)
 {
 	if (!node)
 		return;
@@ -156,7 +156,7 @@ void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const gl
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1), node->m_center) * glm::scale(glm::mat4(1), glm::vec3(node->m_halfW * 2));
 	glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-	Rendering::ShapeRenderer::DrawWithLines(MVPMatrix, m_vao, *m_indices, node->m_objects.empty() ? 0 : COLLISIONMETHOD);	
+	Rendering::ShapeRenderer::DrawWithLines(viewProjection, m_vao, *m_indices, node->m_objects.empty() ? 0 : COLLISIONMETHOD);
 
 	for (int i = 0; i < node->m_children.size(); ++i)
 	{

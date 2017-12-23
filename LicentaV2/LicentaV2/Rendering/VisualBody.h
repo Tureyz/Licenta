@@ -15,8 +15,8 @@ namespace Rendering
 		VisualBody();
 		std::pair<glm::vec3, glm::vec3> UpdateVerts(glm::mat4 &modelMat);
 		
+		//std::vector<VertexFormat> m_initialVerts;
 		std::vector<VertexFormat> m_verts;
-		std::vector<VertexFormat> m_transformedVerts;
 		std::vector<GLuint> m_indices;
 
 		GLuint m_vao, m_vbo, m_ibo;

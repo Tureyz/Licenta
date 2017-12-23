@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "../Dependencies/glm/gtx/rotate_vector.hpp"
 #include "../Dependencies/freeglut/freeglut_std.h"
+#include "../Core/DeltaTime.h"
 
 
 
@@ -11,7 +12,7 @@ Rendering::Camera::Camera()
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, -1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
-	m_eyeVector = glm::vec3(0.f, 0.f, -5.f);
+	SetEyeVector(glm::vec3(0.f, 0.f, -1.f));
 	m_keyPitch = m_keyRoll = m_keyYaw = 0.f;
 	m_cameraQuat = glm::quat(0.f, 0.f, 0.f, 0.f);
 	m_isMousePressed = false;
@@ -27,7 +28,7 @@ void Rendering::Camera::UpdateView()
 {
 	m_cameraQuat = glm::normalize(glm::quat(-glm::vec3(m_keyPitch, m_keyYaw, m_keyRoll)) * m_cameraQuat);
 	m_keyPitch = m_keyYaw = m_keyRoll = 0;
-	m_viewMatrix = glm::mat4_cast(m_cameraQuat) * glm::translate(glm::mat4(1.0f), -m_eyeVector);
+	m_viewMatrix = glm::mat4_cast(m_cameraQuat) * glm::translate(glm::mat4(1.0f), -GetEyeVector());
 }
 
 glm::mat4 Rendering::Camera::GetViewMatrix() const
@@ -102,17 +103,17 @@ void Rendering::Camera::MousePressed(int button, int state, int x, int y)
 	if (state == GLUT_DOWN)
 	{
 		m_isMousePressed = true;
-		m_mousePosition.x = (float) x;
-		m_mousePosition.y = (float) y;
+		m_mousePosition.x = (float)x;
+		m_mousePosition.y = (float)y;
 	}
 }
 
 void Rendering::Camera::Update()
 {
-	float distancePerStep = 0.25f;
-	
-	float dx = (m_leftPressed ? -distancePerStep : 0) + (m_rightPressed ? distancePerStep : 0);
-	float dz = (m_forwardPressed ? -distancePerStep : 0) + (m_backwardPressed ? distancePerStep : 0);
+	float distancePerStep = 0.025f;
+
+	float dx = ((m_leftPressed ? -distancePerStep : 0) + (m_rightPressed ? distancePerStep : 0));
+	float dz = ((m_forwardPressed ? -distancePerStep : 0) + (m_backwardPressed ? distancePerStep : 0));
 
 	glm::mat4 mat = GetViewMatrix();
 
@@ -120,7 +121,7 @@ void Rendering::Camera::Update()
 	glm::vec3 strafe(mat[0][0], mat[1][0], mat[2][0]);
 
 	const float speed = 0.12f;
-	m_eyeVector += (-dz * forward + dx * strafe) * speed;
+	SetEyeVector(GetEyeVector() + (-dz * forward + dx * strafe) * speed * Core::DeltaTime::GetDt());
 
 	UpdateView();
 }

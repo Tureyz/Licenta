@@ -87,7 +87,7 @@
       <AdditionalIncludeDirectories>D:\Github repos\Licenta\LicentaV2\LicentaV2\Dependencies\freetype-2.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>Dependencies\freetype-2.7\objs\vc2010\x64;Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrtd.lib;msvcmrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -132,19 +132,30 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Benchmark\FPSCounter.cpp" />
-    <ClCompile Include="Benchmark\Plotter.cpp" />
+    <ClCompile Include="Benchmark\FPSCounter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Benchmark\Plotter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Collision\BVH.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Collision\DataStructures\BVHTree.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Collision\DataStructures\ClothBehavior.cpp" />
+    <ClCompile Include="Collision\DataStructures\ClothNode.cpp" />
     <ClCompile Include="Collision\DataStructures\CollisionData.cpp" />
     <ClCompile Include="Collision\DataStructures\CollisionTriangle.cpp" />
+    <ClCompile Include="Collision\DataStructures\Constraint.cpp" />
+    <ClCompile Include="Collision\DataStructures\Edge.cpp" />
     <ClCompile Include="Collision\DataStructures\OctreeNode.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Collision\DataStructures\Plane.cpp" />
     <ClCompile Include="Collision\DummyMethod.cpp" />
     <ClCompile Include="Collision\NarrowBVH.cpp" />
     <ClCompile Include="Collision\Octree.cpp">
@@ -155,18 +166,31 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Collision\SpatialGrid.cpp" />
-    <ClCompile Include="Collision\SpatialGridOptimized.cpp" />
-    <ClCompile Include="Collision\SpatialHashing.cpp" />
-    <ClCompile Include="Collision\SphereToSphereTest.cpp" />
-    <ClCompile Include="Collision\SweepAndPrune.cpp" />
+    <ClCompile Include="Collision\SpatialGrid.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Collision\SpatialGridOptimized.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Collision\SpatialHashing.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Collision\SphereToSphereTest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Collision\SweepAndPrune.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Core\DeltaTime.cpp" />
     <ClCompile Include="Core\InitGLUT.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Managers\BenchmarkResultManager.cpp" />
     <ClCompile Include="Managers\MastersSimulationManager.cpp" />
     <ClCompile Include="Managers\ModelManager.cpp" />
-    <ClCompile Include="Managers\PhysicsManager.cpp" />
+    <ClCompile Include="Managers\PhysicsManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Managers\SceneManager.cpp" />
     <ClCompile Include="Managers\ShaderManager.cpp" />
     <ClCompile Include="Managers\BachelorSimulationManager.cpp">
@@ -188,20 +212,31 @@
     <ClCompile Include="Simulation\ScenarioGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Benchmark\FPSCounter.h" />
-    <ClInclude Include="Benchmark\Plotter.h" />
+    <ClInclude Include="Benchmark\FPSCounter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Benchmark\Plotter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Collision\BVH.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Collision\DataStructures\BVHTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Collision\DataStructures\ClothBehavior.h" />
+    <ClInclude Include="Collision\DataStructures\ClothNode.h" />
     <ClInclude Include="Collision\DataStructures\CollisionData.h" />
     <ClInclude Include="Collision\DataStructures\CollisionTriangle.h" />
+    <ClInclude Include="Collision\DataStructures\Constraint.h" />
+    <ClInclude Include="Collision\DataStructures\Edge.h" />
     <ClInclude Include="Collision\DataStructures\LinkedList.hpp" />
     <ClInclude Include="Collision\DataStructures\OctreeNode.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Collision\DataStructures\Plane.h" />
     <ClInclude Include="Collision\DummyMethod.h" />
     <ClInclude Include="Collision\INarrowPhaseMethod.h" />
     <ClInclude Include="Collision\NarrowBVH.h" />
@@ -213,12 +248,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Collision\SpatialGrid.h" />
+    <ClInclude Include="Collision\SpatialGrid.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Collision\ICollisionMethod.h" />
-    <ClInclude Include="Collision\SpatialGridOptimized.h" />
-    <ClInclude Include="Collision\SpatialHashing.h" />
-    <ClInclude Include="Collision\SphereToSphereTest.h" />
-    <ClInclude Include="Collision\SweepAndPrune.h" />
+    <ClInclude Include="Collision\SpatialGridOptimized.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Collision\SpatialHashing.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Collision\SphereToSphereTest.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Collision\SweepAndPrune.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Core\DeltaTime.h" />
     <ClInclude Include="Core\InitGLUT.h" />
     <ClInclude Include="Core\Init\InitListener.h" />
@@ -226,7 +271,10 @@
     <ClInclude Include="Managers\BenchmarkResultManager.h" />
     <ClInclude Include="Managers\MastersSimulationManager.h" />
     <ClInclude Include="Managers\ModelManager.h" />
-    <ClInclude Include="Managers\PhysicsManager.h" />
+    <ClInclude Include="Managers\PhysicsManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Managers\BachelorSimulationManager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

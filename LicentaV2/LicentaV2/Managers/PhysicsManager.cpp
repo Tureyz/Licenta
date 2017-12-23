@@ -226,8 +226,10 @@ void Managers::PhysicsManager::PushObjectsApart(Rendering::Models::Sphere *first
 
 	glm::vec3 n = glm::normalize(secondCenter - firstCenter);
 
-	firstObj->TranslateRelative(-n * push * firstPushFac);
-	secondObj->TranslateRelative(n * push * secondPushFac);
+
+	// was relative before
+	firstObj->TranslateAbsolute(-n * push * firstPushFac);
+	secondObj->TranslateAbsolute(n * push * secondPushFac);
 }
 
 std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> Managers::PhysicsManager::ComputeReactionVels(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj)

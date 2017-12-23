@@ -15,7 +15,7 @@ void Collision::DummyMethod::_Update()
 {
 }
 
-void Collision::DummyMethod::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::DummyMethod::DrawDebug(const glm::mat4& viewProjection)
 {
 }
 

@@ -1,9 +1,12 @@
 #include "SceneManager.h"
-#include "..\Core\Utils.hpp"
+#include "../Core/DeltaTime.h"
 
 Managers::SceneManager::SceneManager()
 {
-	m_time = m_timeBase = 0;
+	m_initTime = clock();
+	m_lastFixedTime = m_initTime;
+	m_lastFrameTime = m_initTime;
+	Core::DeltaTime::SetDt(0);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -28,7 +31,7 @@ Managers::SceneManager::SceneManager()
 
 	m_modelManager->Init();
 	m_simulationManager->Init();
-	m_deltaTime.UpdateTick();
+	
 	//m_textRenderer->SetProgram(Managers::ShaderManager::GetTextShader());
 	//m_textRenderer->Init();
 
@@ -44,24 +47,31 @@ Managers::SceneManager::~SceneManager()
 
 void Managers::SceneManager::notifyBeginFrame()
 {
-	m_time = glutGet(GLUT_ELAPSED_TIME);
+// 	m_time = glutGet(GLUT_ELAPSED_TIME);
+// 
+// 	m_timeBase = m_time;
+// 	m_deltaTime.UpdateTick();
 
-	m_timeBase = m_time;
-	m_deltaTime.UpdateTick();
+	float crtTime = clock();	
 
-	m_modelManager->FixedUpdate();
-	m_simulationManager->FixedUpdate();
-	m_FPSCounter.FixedUpdate();
+	if (crtTime - m_lastFixedTime >= Core::TIME_STEP_MS)
+	{
+		m_modelManager->FixedUpdate();
+		m_simulationManager->FixedUpdate();
+		//m_FPSCounter.FixedUpdate();
+
+		m_lastFixedTime = crtTime;	
+		//std::cout << "tick\n";
+	}
+	Core::DeltaTime::SetDt(crtTime - m_lastFrameTime);
+	//std::cout << crtTime - m_lastFixedTime << " since last fixed, dt = " << Core::DeltaTime::GetDt() << std::endl;
+	m_lastFrameTime = crtTime;
 // 	m_physicsManager->FixedUpdate();
 // 	m_physicsManager->SetCollisionPairs(m_simulationManager->GetCurrentCollisionPairsPtr());
 // 	m_physicsManager->CollisionResponse();
 
 
-	m_modelManager->Update();
-	m_simulationManager->Update();
-	//m_physicsManager->Update();
-	m_FPSCounter.Update();
-	m_camera->Update();
+	
 }
 
 void Managers::SceneManager::notifyDisplayFrame()
@@ -72,11 +82,21 @@ void Managers::SceneManager::notifyDisplayFrame()
 
 
 	glUseProgram(Managers::ShaderManager::GetSceneShader());
-	m_FPSCounter.Draw();
-	m_modelManager->Draw(m_projectionMatrix, m_camera->GetViewMatrix());
+
+	glm::vec3 light_position = glm::vec3(0.f, 0.f, 1.f);
+
+	glUniform3f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "lightPosition"), light_position.x, light_position.y, light_position.z);
+	glUniform3f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "eyePosition"), m_camera->GetEyeVector().x, m_camera->GetEyeVector().y, m_camera->GetEyeVector().z);
+	glUniform1i(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "shininess"), 30);
+	glUniform1f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "kd"), 0.5);
+	glUniform1f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "ks"), 0.5);
+	glm::mat4 viewProjection = m_projectionMatrix * m_camera->GetViewMatrix();
+
+	//m_FPSCounter.Draw();
+	m_modelManager->Draw(viewProjection);
 
 	m_simulationManager->Draw();
-	m_simulationManager->Draw(m_projectionMatrix, m_camera->GetViewMatrix());
+	m_simulationManager->Draw(viewProjection);
 
 
 // 	/* Enable blending, necessary for our alpha texture */
@@ -92,12 +112,17 @@ void Managers::SceneManager::notifyDisplayFrame()
 
 void Managers::SceneManager::notifyEndFrame()
 {
+	m_modelManager->Update();
+	m_simulationManager->Update();
+	//m_physicsManager->Update();
+	//m_FPSCounter.Update();
+	m_camera->Update();
 }
 
 void Managers::SceneManager::notifyReshape(int width, int height, int previousWidth, int previousHeight)
 {
 	float ar = (float)glutGet(GLUT_WINDOW_WIDTH) / (float)glutGet(GLUT_WINDOW_HEIGHT);
-	float angle = 45.0f, near1 = 0.1f, far1 = 2000.0f;
+	float angle = 45.0f, near1 = 0.001f, far1 = 2000.0f;
 
 	m_projectionMatrix[0][0] = 1.0f / (ar * tan(angle / 2.0f));
 	m_projectionMatrix[1][1] = 1.0f / tan(angle / 2.0f);

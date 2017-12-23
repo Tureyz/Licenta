@@ -8,7 +8,7 @@ Rendering::Models::MeshObject::MeshObject(int rows, int cols, Managers::ModelMan
 
 Rendering::Models::MeshObject::~MeshObject()
 {
-
+	delete m_clothBehavior;
 }
 
 void Rendering::Models::MeshObject::Create()
@@ -22,8 +22,8 @@ void Rendering::Models::MeshObject::Create(const glm::mat4 &mvp)
 	m_boundingBox.CreateVisualBody(m_modelManager->CreateBasicVisualBody(Simulation::PhysicsObjectType::OBJ_CUBE));
 
 	UpdateVertices(mvp);
-
-	SetCollisionData(new Collision::DataStructures::CollisionData(&m_visualBody.m_verts, &m_visualBody.m_transformedVerts, &m_visualBody.m_indices));
+	SetCollisionData(new Collision::DataStructures::CollisionData(&m_visualBody.m_verts, &m_visualBody.m_indices));
+	m_clothBehavior = new Collision::DataStructures::ClothBehavior(m_collisionData);
 	//m_collisionData->m_narrowPhaseMethod->SetModelManager(m_modelManager);
 	
 	//m_collisionData->CreateTriangles();

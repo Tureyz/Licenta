@@ -1,5 +1,6 @@
 #pragma once
 #include "Model.h"
+#include "../../Collision/DataStructures/ClothBehavior.h"
 
 namespace Rendering
 {
@@ -14,6 +15,7 @@ namespace Rendering
 			virtual void Create(const glm::mat4 &mvp) override final;
 		private:
 			int m_rows, m_cols;
+			Collision::DataStructures::ClothBehavior *m_clothBehavior;
 
 		};
 	}

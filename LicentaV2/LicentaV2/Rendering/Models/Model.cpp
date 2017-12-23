@@ -20,7 +20,7 @@ Rendering::Models::Model::Model(Managers::ModelManager *modelManager, Managers::
 
 	SetRotationStep(glm::vec3(0.f));
 	SetRotationAngle(0.f);
-	SetScaleStep(glm::vec3(0.f));
+	SetScaleStep(glm::vec3(1.f));
 	SetTranslationStep(glm::vec3(0.f));
 	
 
@@ -84,7 +84,7 @@ void Rendering::Models::Model::Create(const glm::mat4 &mvp)
 
 	UpdateVertices(mvp);
 
-	SetCollisionData(new Collision::DataStructures::CollisionData(&m_visualBody.m_verts, &m_visualBody.m_transformedVerts, &m_visualBody.m_indices));
+	SetCollisionData(new Collision::DataStructures::CollisionData(&m_visualBody.m_verts, &m_visualBody.m_indices));
 	//m_collisionData->CreateTriangles();
 }
 
@@ -92,14 +92,14 @@ void Rendering::Models::Model::Draw()
 {
 }
 
-void Rendering::Models::Model::Draw(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix)
+void Rendering::Models::Model::Draw(const glm::mat4 & viewProjection)
 {
-	glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * m_modelMatrix;
-	Rendering::ShapeRenderer::Draw(MVPMatrix, this->m_visualBody);
+	//glm::mat4 MVPMatrix = projectionMatrix * viewMatrix /** m_modelMatrix*/;
+	Rendering::ShapeRenderer::Draw(viewProjection, this->m_visualBody);
 
 	if (m_boundingBox.GetVisible())
 	{
-		Rendering::ShapeRenderer::DrawWithLines(projectionMatrix * viewMatrix, this->m_boundingBox.m_visualBody);
+		Rendering::ShapeRenderer::DrawWithLines(viewProjection, this->m_boundingBox.m_visualBody);
 	}
 
 

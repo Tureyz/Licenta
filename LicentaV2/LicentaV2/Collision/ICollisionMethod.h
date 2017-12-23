@@ -12,19 +12,6 @@
 
 using namespace Rendering;
 
-
-namespace std
-{
-
-	template <> struct hash<glm::vec3>
-	{
-		inline size_t operator()(const glm::vec3 &v) const {
-			std::hash<size_t> hasher;
-			return hasher((uint64_t)(v.x)) ^ hasher((uint64_t)(v.y)) ^ hasher((uint64_t)(v.z));
-		}
-	};
-}
-
 namespace Collision
 {
 	class ICollisionMethod
@@ -36,7 +23,7 @@ namespace Collision
 		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> TestCollision() final;
 		virtual void Update() final;
 
-		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) = 0;
+		virtual void DrawDebug(const glm::mat4& viewProjection) = 0;
 
 		virtual void ObjectMoved(Rendering::IPhysicsObject *object) = 0;
 		virtual void ObjectAdded(Rendering::IPhysicsObject *object) = 0;

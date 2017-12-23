@@ -44,5 +44,7 @@ namespace Collision
 
 		void PrintIDsRecursive(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node);
 
+		void UpdateBoxes(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node);
+
 	};
 }

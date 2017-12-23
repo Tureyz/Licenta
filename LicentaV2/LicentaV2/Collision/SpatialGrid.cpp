@@ -50,7 +50,7 @@ void Collision::SpatialGrid::MakeNewGrid()
 	}
 }
 
-void Collision::SpatialGrid::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::SpatialGrid::DrawDebug(const glm::mat4& viewProjection)
 {
 	if (!GetShowDebug())
 		return;
@@ -63,10 +63,10 @@ void Collision::SpatialGrid::DrawDebug(const glm::mat4& projectionMatrix, const 
 			{
 				glm::vec3 trans = m_worldMin + m_cellSize / 2.f + glm::vec3(i, j, k) * m_cellSize;
 				glm::mat4 modelMatrix = glm::translate(glm::mat4(1), trans) * glm::scale(glm::mat4(1), m_cellSize);
-				glm::mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
+				//glm::mat4 MVPMatrix = viewProjection * viewMatrix * modelMatrix;
 				
 				glLineWidth(static_cast<GLfloat>(m_grid[i][j][k].size() ? 3 : 1));
-				Rendering::ShapeRenderer::DrawWithLines(MVPMatrix, m_vao, *m_indices, m_grid[i][j][k].size() ? COLLISIONMETHOD : 0);				
+				Rendering::ShapeRenderer::DrawWithLines(viewProjection * modelMatrix, m_vao, *m_indices, m_grid[i][j][k].size() ? COLLISIONMETHOD : 0);
 				glLineWidth(1);
 			}
 		}

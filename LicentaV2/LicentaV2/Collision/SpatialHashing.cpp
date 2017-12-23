@@ -31,7 +31,7 @@ void Collision::SpatialHashing::_Update()
 	}
 }
 
-void Collision::SpatialHashing::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::SpatialHashing::DrawDebug(const glm::mat4& viewProjection)
 {
 
 }

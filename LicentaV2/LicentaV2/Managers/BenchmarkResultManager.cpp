@@ -177,7 +177,7 @@ void Managers::BenchmarkResultManager::DumpToDisk()
 		}
 	}
 
-	Benchmark::Plotter::GeneratePlotsFromRawData();
+	Core::Utils::GeneratePlotsFromRawData();
 	ResetScenarioClass();
 	ReserveSpace();
 }

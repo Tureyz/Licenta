@@ -16,7 +16,7 @@ namespace Rendering
 			virtual void Create() override;
 			virtual void Create(const glm::mat4 &mvp);
 			virtual void Draw() override;
-			virtual void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override final;
+			virtual void Draw(const glm::mat4& viewProjection) override final;
 
 			virtual void Destroy() override;
 			virtual void SetBoundingBoxVisible(bool value);

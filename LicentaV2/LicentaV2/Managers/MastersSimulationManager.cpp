@@ -22,18 +22,18 @@ void Managers::MastersSimulationManager::Init()
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
 	m_broadPhaseMethod->SetModelManager(m_modelManager);
 
-	Rendering::Models::MeshObject *testObj = new Rendering::Models::MeshObject(25, 25, m_modelManager, this);
+	Rendering::Models::MeshObject *testObj = new Rendering::Models::MeshObject(100, 100, m_modelManager, this);
 	testObj->SetID(m_objectIDCounter);
 	testObj->Create();
 	//testObj->GetCollisionData()->m_narrowPhaseMethod->SetShowDebug(m_narrowPhaseDebugDraw);
 
-	testObj->ScaleAbsolute(glm::vec3(1.f));
-	testObj->RotateAbsolute(glm::vec3(0.f, 1.f, 0.f), 15);
-	testObj->TranslateAbsolute(glm::vec3(0.1f));
+	//testObj->ScaleAbsolute(glm::vec3(1.f));
+	//testObj->RotateAbsolute(glm::vec3(0.f, 1.f, 0.f), 15);
+	//testObj->TranslateAbsolute(glm::vec3(0.1f));
 
-	testObj->SetScaleStep(glm::vec3(1.f));
-	testObj->SetRotationAngleStep(0.f);
-	testObj->SetTranslationStep(glm::vec3(0.f));
+	//testObj->SetScaleStep(glm::vec3(1.f));
+	//testObj->SetRotationAngleStep(0.f);
+	//testObj->SetTranslationStep(glm::vec3(0.f));
 
 	ObjectAdded(testObj);
 	ObjectMoved(testObj);
@@ -45,14 +45,16 @@ void Managers::MastersSimulationManager::Init()
 	Rendering::Models::Sphere *sphereObj = new Rendering::Models::Sphere(m_modelManager, this);
 	sphereObj->SetID(m_objectIDCounter);
 	sphereObj->Create();
+	sphereObj->TranslateAbsolute(glm::vec3(-0.25f, -0.25f, 0));
 
-	sphereObj->ScaleAbsolute(glm::vec3(0.1f));
-	sphereObj->RotateAbsolute(glm::vec3(1.f), 0);
-	sphereObj->TranslateAbsolute(glm::vec3(-1.f, -1.f, 0.05f));
-
-	sphereObj->SetScaleStep(glm::vec3(1.f));
-	sphereObj->SetRotationAngleStep(0.f);
-	sphereObj->SetTranslationStep(glm::vec3(0.001f, 0.001f, 0.f));
+// 	sphereObj->ScaleAbsolute(glm::vec3(0.25f));
+// 	sphereObj->RotateAbsolute(glm::vec3(1.f), 0);
+// 	sphereObj->TranslateAbsolute(glm::vec3(-0.25f, -0.25f, 0.05f));
+// 
+// 	sphereObj->SetScaleStep(glm::vec3(1.f));
+// 	sphereObj->SetRotationStep(glm::vec3(0.f, 1.f, 0.f));
+// 	sphereObj->SetRotationAngleStep(0.01f);
+// 	sphereObj->SetTranslationStep(glm::vec3(0.00005f, 0.00005f, 0.f));
 
 	ObjectAdded(sphereObj);
 	ObjectMoved(sphereObj);
@@ -78,8 +80,7 @@ void Managers::MastersSimulationManager::Init()
 
 
 
-	m_modelManager->SetBoundingBoxesVisibile(true);
-
+	m_modelManager->SetBoundingBoxesVisibile(false);
 
 }
 
@@ -131,10 +132,10 @@ void Managers::MastersSimulationManager::Update()
 {
 }
 
-void Managers::MastersSimulationManager::Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Managers::MastersSimulationManager::Draw(const glm::mat4 &viewProjection)
 {
 	if (m_broadPhaseMethod)
-		m_broadPhaseMethod->DrawDebug(projectionMatrix, viewMatrix);
+		m_broadPhaseMethod->DrawDebug(viewProjection);
 }
 
 void Managers::MastersSimulationManager::ObjectMoved(Rendering::IPhysicsObject *object)

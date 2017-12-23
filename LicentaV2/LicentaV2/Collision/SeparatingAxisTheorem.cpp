@@ -15,7 +15,7 @@ void Collision::SeparatingAxisTheorem::_Update()
 {
 }
 
-void Collision::SeparatingAxisTheorem::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::SeparatingAxisTheorem::DrawDebug(const glm::mat4& viewProjection)
 {
 }
 

@@ -19,12 +19,21 @@ std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Col
 
 void Collision::NarrowBVH::Update()
 {
-	if (m_root)
-	{
-		delete m_root;
-	}
+	// 	if (m_root)
+	// 	{
+	// 		delete m_root;
+	// 	}
+	// 
+	// 	CreateTree(&m_root, m_allObjects->data(), m_allObjects->size());
 
-	CreateTree(&m_root, m_allObjects->data(), m_allObjects->size());
+	if (!m_root)
+	{
+		CreateTree(&m_root, m_allObjects->data(), m_allObjects->size());
+	}
+	else
+	{
+		UpdateBoxes(m_root);
+	}
 
 	//PrintIDsRecursive(m_root);
 
@@ -61,26 +70,26 @@ void Collision::NarrowBVH::CreateTree(DataStructures::BVHTree<DataStructures::Co
 	for (int i = 0; i < numObjects; ++i)
 	{
 		auto tri = objects[i];
-		glm::vec3 crtMin = tri->m_transformedVerts[0]->m_position, crtMax = tri->m_transformedVerts[0]->m_position;
+		glm::vec3 crtMin = tri->m_verts[0]->m_position, crtMax = tri->m_verts[0]->m_position;
 
-		for (int j = 1; j < tri->m_transformedVerts.size(); ++j)
+		for (int j = 1; j < tri->m_verts.size(); ++j)
 		{
-			if (tri->m_transformedVerts[j]->m_position.x < crtMin.x)
-				crtMin.x = tri->m_transformedVerts[j]->m_position.x;
-			if (tri->m_transformedVerts[j]->m_position.x > crtMax.x)
-				crtMax.x = tri->m_transformedVerts[j]->m_position.x;
+			if (tri->m_verts[j]->m_position.x < crtMin.x)
+				crtMin.x = tri->m_verts[j]->m_position.x;
+			if (tri->m_verts[j]->m_position.x > crtMax.x)
+				crtMax.x = tri->m_verts[j]->m_position.x;
 
-			if (tri->m_transformedVerts[j]->m_position.y < crtMin.y)
-				crtMin.y = tri->m_transformedVerts[j]->m_position.y;
-			if (tri->m_transformedVerts[j]->m_position.y > crtMax.y)
-				crtMax.y = tri->m_transformedVerts[j]->m_position.y;
+			if (tri->m_verts[j]->m_position.y < crtMin.y)
+				crtMin.y = tri->m_verts[j]->m_position.y;
+			if (tri->m_verts[j]->m_position.y > crtMax.y)
+				crtMax.y = tri->m_verts[j]->m_position.y;
 
-			if (tri->m_transformedVerts[j]->m_position.z < crtMin.z)
-				crtMin.z = tri->m_transformedVerts[j]->m_position.z;
-			if (tri->m_transformedVerts[j]->m_position.z > crtMax.z)
-				crtMax.z = tri->m_transformedVerts[j]->m_position.z;
+			if (tri->m_verts[j]->m_position.z < crtMin.z)
+				crtMin.z = tri->m_verts[j]->m_position.z;
+			if (tri->m_verts[j]->m_position.z > crtMax.z)
+				crtMax.z = tri->m_verts[j]->m_position.z;
 		}
-		
+
 
 		bounds.push_back(std::make_pair(crtMin, crtMax));
 	}
@@ -104,7 +113,7 @@ void Collision::NarrowBVH::CreateTree(DataStructures::BVHTree<DataStructures::Co
 
 void Collision::NarrowBVH::ObjectMoved(Collision::DataStructures::CollisionTriangle *object)
 {
-	
+
 }
 
 void Collision::NarrowBVH::ObjectAdded(Collision::DataStructures::CollisionTriangle *object)
@@ -253,25 +262,9 @@ void Collision::NarrowBVH::DrawRecursive(DataStructures::BVHTree<DataStructures:
 
 bool Collision::NarrowBVH::ChildrenSelectionRule(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *left, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *right)
 {
-// 	if (!left->IsLeaf() && right->IsLeaf())
-// 		return false;
-// 	if (!right->IsLeaf() && left->IsLeaf())
-// 		return true;
-
 	float leftVolume = (left->m_boundingBox.m_maxX - left->m_boundingBox.m_minX) * (left->m_boundingBox.m_maxY - left->m_boundingBox.m_minY) * (left->m_boundingBox.m_maxZ - left->m_boundingBox.m_minZ);
 	float rightVolume = (right->m_boundingBox.m_maxX - right->m_boundingBox.m_minX) * (right->m_boundingBox.m_maxY - right->m_boundingBox.m_minY) * (right->m_boundingBox.m_maxZ - right->m_boundingBox.m_minZ);
 
-// 	if (right->m_type == DataStructures::BVHTree<DataStructures::CollisionTriangle *>::LEAF)
-// 	{
-// 		std::cout << leftVolume << " " << rightVolume << std::endl;
-// 	}
-// 
-// 	if (left->m_type == DataStructures::BVHTree<DataStructures::CollisionTriangle *>::LEAF)
-// 	{
-// 		std::cout << leftVolume << " " << rightVolume << std::endl;
-// 	}
-
-	//return std::rand() % 2;
 	return right->IsLeaf() || (!left->IsLeaf() && (leftVolume >= rightVolume));
 }
 
@@ -346,20 +339,13 @@ void Collision::NarrowBVH::QueryBVHPairsRecursive(DataStructures::BVHTree<DataSt
 	if (!first || !second)
 		return;
 
-// 	for (int i = 0; i < indent; ++i)
-// 	{
-// 		std::cout << "-";
-// 	}
-// 
-// 	std::cout << first->m_numObjects << " + " << second->m_numObjects << std::endl;
 	if (!first->m_boundingBox.Collides(second->m_boundingBox))
 		return;
 
-
-
 	if (first->IsLeaf() && second->IsLeaf())
 	{
-		result.insert(std::make_pair(first->m_objects[0], second->m_objects[0]));
+		if (Collision::DataStructures::CollisionTriangle::TriangleTest(*first->m_objects[0], *second->m_objects[0]))
+			result.insert(std::make_pair(first->m_objects[0], second->m_objects[0]));
 	}
 	else
 	{
@@ -387,4 +373,51 @@ void Collision::NarrowBVH::PrintIDsRecursive(DataStructures::BVHTree<DataStructu
 
 	PrintIDsRecursive(node->m_left);
 	PrintIDsRecursive(node->m_right);
+}
+
+void Collision::NarrowBVH::UpdateBoxes(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node)
+{
+	if (!node)
+		return;
+
+	UpdateBoxes(node->m_left);
+	UpdateBoxes(node->m_right);
+
+	glm::vec3 minCoords, maxCoords;
+
+	if (node->IsLeaf())
+	{
+		auto tri = node->m_objects[0];
+
+		minCoords = tri->m_verts[0]->m_position;
+		maxCoords = tri->m_verts[0]->m_position;
+
+		for (int i = 1; i < 3; ++i)
+		{
+			if (tri->m_verts[i]->m_position.x < minCoords.x) minCoords.x = tri->m_verts[i]->m_position.x;
+			if (tri->m_verts[i]->m_position.y < minCoords.y) minCoords.y = tri->m_verts[i]->m_position.y;
+			if (tri->m_verts[i]->m_position.z < minCoords.z) minCoords.z = tri->m_verts[i]->m_position.z;
+
+			if (tri->m_verts[i]->m_position.x > maxCoords.x) maxCoords.x = tri->m_verts[i]->m_position.x;
+			if (tri->m_verts[i]->m_position.y > maxCoords.y) maxCoords.y = tri->m_verts[i]->m_position.y;
+			if (tri->m_verts[i]->m_position.z > maxCoords.z) maxCoords.z = tri->m_verts[i]->m_position.z;
+		}
+
+	}
+	else
+	{
+		auto bbl = node->m_left->m_boundingBox;
+		auto bbr = node->m_right->m_boundingBox;
+
+		minCoords.x = bbl.m_minX < bbr.m_minX ? bbl.m_minX : bbr.m_minX;
+		minCoords.y = bbl.m_minY < bbr.m_minY ? bbl.m_minY : bbr.m_minY;
+		minCoords.z = bbl.m_minZ < bbr.m_minZ ? bbl.m_minZ : bbr.m_minZ;
+
+		maxCoords.x = bbl.m_maxX > bbr.m_maxX ? bbl.m_maxX : bbr.m_maxX;
+		maxCoords.y = bbl.m_maxY > bbr.m_maxY ? bbl.m_maxY : bbr.m_maxY;
+		maxCoords.z = bbl.m_maxZ > bbr.m_maxZ ? bbl.m_maxZ : bbr.m_maxZ;
+
+	}
+
+	node->m_boundingBox.UpdateValues(minCoords, maxCoords);
 }

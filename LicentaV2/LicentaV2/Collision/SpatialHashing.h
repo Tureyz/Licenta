@@ -15,7 +15,7 @@ namespace Collision
 
 		~SpatialHashing();
 
-		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
+		virtual void DrawDebug(const glm::mat4& viewProjection) override;
 		
 		float GetCellSize() const { return m_cellSize; }
 		void SetCellSize(float val) { m_cellSize = val; }

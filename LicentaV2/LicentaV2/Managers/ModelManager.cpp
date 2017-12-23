@@ -32,13 +32,13 @@ void Managers::ModelManager::FixedUpdate()
 	}
 }
 
-void Managers::ModelManager::Draw(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix)
+void Managers::ModelManager::Draw(const glm::mat4& viewProjection)
 {
 	for (auto model : m_objectList)
 	{
-		model->Draw(projectionMatrix, viewMatrix);
+		model->Draw(viewProjection);
 		//std::wcout << model->GetPosition().x << L" " << model->GetPosition().y << L" " << model->GetPosition().z << std::endl;
-		
+
 	}
 }
 
@@ -46,7 +46,7 @@ void Managers::ModelManager::Update()
 {
 	for (auto model : m_objectList)
 	{
-		model->Update();		
+		model->Update();
 	}
 }
 
@@ -125,7 +125,7 @@ void Managers::ModelManager::Init()
 void Managers::ModelManager::CreateProps()
 {
 	CreateSphereProps();
-	CreateCubeProps();	
+	CreateCubeProps();
 	CreateTetrahedronProps();
 	CreateCylinderProps();
 	CreateConeProps();
@@ -316,36 +316,79 @@ void Managers::ModelManager::CreateCylinderProps()
 
 void Managers::ModelManager::CreateSphereProps()
 {
-	float longs = 15, lats = 15;
-	float const R = 1.f / (float)(longs - 1);
-	float const S = 1.f / (float)(lats - 1);
-	int r, s;
+	const float X = .525731112119133606;
+	const float Z = .850650808352039932;
+	const int divisionDepth = 3;
 
-	for (r = 0; r < longs; r++)
+	std::vector<glm::vec3> icoVerts = {
+		glm::vec3(-X, 0, Z), glm::vec3(X, 0, Z), glm::vec3(-X, 0, -Z), glm::vec3(X, 0, -Z),
+		glm::vec3(0, Z, X), glm::vec3(0, Z, -X), glm::vec3(0, -Z, X), glm::vec3(0, -Z, -X),
+		glm::vec3(Z, X, 0), glm::vec3(-Z, X, 0), glm::vec3(Z, -X, 0), glm::vec3(-Z, -X, 0)
+	};
+
+	std::vector<unsigned int> icoIndices = {
+		0, 4, 1, 0, 9, 4, 9, 5, 4, 4, 5, 8, 4, 8, 1,
+		8, 10, 1, 8, 3, 10, 5, 3, 8, 5, 2, 3, 2, 7, 3,
+		7, 10, 3, 7, 6, 10, 7, 11, 6, 11, 0, 6, 0, 1, 6,
+		6, 1, 10, 9, 0, 11, 9, 11 ,2, 9, 2, 5, 7, 2, 11
+	};
+	
+	for (int i = 0; i < divisionDepth; ++i)
 	{
-		for (s = 0; s < lats; s++)
+		std::vector<glm::vec3> newVerts;
+		std::vector<unsigned int> newIndices;
+		for (int j = 0; j < icoIndices.size(); j += 3)
 		{
-			float y = sin(-glm::half_pi<float>() + glm::pi<float>()* r * R);
-			float x = cos(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R);
-			float z = sin(2 * glm::pi<float>() * s * S) * sin(glm::pi<float>() * r * R);
-
-			m_sphereVerts.push_back(Rendering::VertexFormat(glm::vec3(x, y, z), Core::DEFAULT_OBJECT_COLOR));
+			SubdivideTriangle(icoVerts[icoIndices[j]], icoVerts[icoIndices[j + 1]], icoVerts[icoIndices[j + 2]], newVerts, newIndices);
 		}
+
+		icoVerts = newVerts;
+		icoIndices = newIndices;
 	}
 
-	for (r = 0; r < longs - 1; r++)
+	for (auto vert : icoVerts)
 	{
-		for (s = 0; s < lats - 1; s++)
-		{
-			m_sphereIndices.push_back((unsigned int)(r * lats + s));
-			m_sphereIndices.push_back((unsigned int)(r * lats + (s + 1)));
-			m_sphereIndices.push_back((unsigned int)((r + 1) * lats + (s + 1)));
-
-			m_sphereIndices.push_back((unsigned int)((r + 1) * lats + (s + 1)));
-			m_sphereIndices.push_back((unsigned int)((r + 1) * lats + s));
-			m_sphereIndices.push_back((unsigned int)(r * lats + s));
-		}
+		m_sphereVerts.push_back(Rendering::VertexFormat(vert, Core::DEFAULT_OBJECT_COLOR));
 	}
+
+	m_sphereIndices = icoIndices;
+}
+
+void Managers::ModelManager::SubdivideTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, std::vector<glm::vec3> &verts, std::vector<unsigned int> &indices)
+{
+	glm::vec3 v12 = glm::normalize(v1 + v2);
+	glm::vec3 v23 = glm::normalize(v2 + v3);
+	glm::vec3 v31 = glm::normalize(v3 + v1);
+
+	verts.push_back(v1);
+	unsigned int i1 = verts.size() - 1;
+	verts.push_back(v2);
+	unsigned int i2 = verts.size() - 1;
+	verts.push_back(v3);
+	unsigned int i3 = verts.size() - 1;
+
+	verts.push_back(v12);
+	unsigned int i12 = verts.size() - 1;
+	verts.push_back(v23);
+	unsigned int i23 = verts.size() - 1;
+	verts.push_back(v31);
+	unsigned int i31 = verts.size() - 1;
+
+	indices.push_back(i1);
+	indices.push_back(i12);
+	indices.push_back(i31);
+
+	indices.push_back(i2);
+	indices.push_back(i23);
+	indices.push_back(i12);
+
+	indices.push_back(i3);
+	indices.push_back(i31);
+	indices.push_back(i23);
+
+	indices.push_back(i12);
+	indices.push_back(i23);
+	indices.push_back(i31);
 }
 
 std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> Managers::ModelManager::CreateMeshProps(int rows, int cols)
@@ -355,27 +398,28 @@ std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> Managers::M
 	std::vector<Rendering::VertexFormat> verts;
 	std::vector<GLuint> indices;
 
-	float wStep = 1.0f / cols;
-	float hStep = 1.0f / rows;
+	float wStep = 2.0f / cols;
+	float hStep = 2.0f / rows;
+
+	for (int i = 0; i < rows; ++i)
+	{
+		for (int j = 0; j < cols; ++j)
+		{
+			verts.push_back(Rendering::VertexFormat(glm::vec3(hStep * i, wStep * j, 0), Core::DEFAULT_OBJECT_COLOR));
+		}
+	}
 
 	for (int i = 0; i < rows - 1; ++i)
 	{
 		for (int j = 0; j < cols - 1; ++j)
 		{
-			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * i, -0.5 + wStep * j, 0), Core::DEFAULT_OBJECT_COLOR));
-			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * i, -0.5 + wStep * (j + 1), 0), Core::DEFAULT_OBJECT_COLOR));
-			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * (i + 1), -0.5 + wStep * j, 0), Core::DEFAULT_OBJECT_COLOR));
-			verts.push_back(Rendering::VertexFormat(glm::vec3(-0.5 + hStep * (i + 1), -0.5 + wStep * (j + 1), 0), Core::DEFAULT_OBJECT_COLOR));
+			indices.push_back(rows * i + j);
+			indices.push_back(rows * (i + 1) + j + 1);
+			indices.push_back(rows * i + j + 1);
 
-			unsigned int lastIdx = static_cast<unsigned int>(verts.size() - 1);
-
-			indices.push_back(lastIdx - 3);
-			indices.push_back(lastIdx - 2);
-			indices.push_back(lastIdx - 1);
-
-			indices.push_back(lastIdx - 2);
-			indices.push_back(lastIdx - 1);
-			indices.push_back(lastIdx - 0);
+			indices.push_back(rows * i + j);
+			indices.push_back(rows * (i + 1) + j);
+			indices.push_back(rows * (i + 1) + j + 1);
 		}
 	}
 
@@ -416,13 +460,13 @@ Rendering::VisualBody Managers::ModelManager::CreateMeshVisualBody(const int row
 {
 	GLuint vao, vbo, ibo;
 	auto props = CreateMeshProps(rows, cols);
-	
+
 
 	CreateMeshBufferObjects(rows, cols, vao, vbo, ibo, props.first, props.second);
 
 	Rendering::VisualBody result(vao, vbo, ibo);
+	//	result.m_initialVerts = props.first;
 	result.m_verts = props.first;
-	result.m_transformedVerts = props.first;
 	result.m_indices = props.second;
 
 	return result;
@@ -430,12 +474,6 @@ Rendering::VisualBody Managers::ModelManager::CreateMeshVisualBody(const int row
 
 void Managers::ModelManager::CreateMeshBufferObjects(const int rows, const int cols, GLuint &vao, GLuint &vbo, GLuint &ibo, std::vector<Rendering::VertexFormat> &verts, std::vector<GLuint> &indices)
 {
-
-	auto props = CreateMeshProps(rows, cols);
-
-	verts = props.first;
-	indices = props.second;
-
 	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, verts, indices);
 }
 

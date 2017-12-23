@@ -14,7 +14,7 @@ namespace Managers
 		virtual void Init() = 0;
 		virtual void FixedUpdate() = 0;
 		virtual void Update() = 0;
-		virtual void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) = 0;
+		virtual void Draw(const glm::mat4& viewProjection) = 0;
 		virtual void Draw() = 0;
 		
 		virtual void ObjectMoved(Rendering::IPhysicsObject *object) = 0;

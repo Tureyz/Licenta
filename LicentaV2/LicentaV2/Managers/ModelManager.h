@@ -12,7 +12,7 @@ namespace Managers
 		~ModelManager();
 
 		void Init();
-		void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
+		void Draw(const glm::mat4& viewProjection);
 		void FixedUpdate();
 		void Update();
 		void DeleteAllModels();
@@ -53,6 +53,7 @@ namespace Managers
 		void CreateConeProps();
 		void CreateCylinderProps();
 		void CreateSphereProps();
+		void SubdivideTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, std::vector<glm::vec3> &verts, std::vector<unsigned int> &indices);
 		std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> CreateMeshProps(int rows, int cols);
 
 

@@ -2,14 +2,13 @@
 
 namespace Core
 {
+	static float m_dt;
+
 	class DeltaTime
 	{
-	public:
-		DeltaTime();
-		void UpdateTick();
-		float GetDeltaTime();
-	private:
-		int t1;
-		float dt;
+	public:		
+		static float GetDt();
+		static void SetDt(float ovalue);
+	private:		
 	};
 }

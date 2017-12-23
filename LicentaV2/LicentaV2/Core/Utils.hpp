@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <Windows.h>
+#include <ctime>
 #include "../Dependencies/glew/glew.h"
 #include "../Dependencies/glm/glm.hpp"
 #include "../Dependencies/freeglut/freeglut.h"
@@ -10,7 +11,9 @@
 
 namespace Core
 {
-	const glm::vec4 DEFAULT_OBJECT_COLOR(0.2f, 0.2f, 0.2f, 1.f);
+
+	const double TIME_STEP_MS = 1000.0 / 30.0;
+	const glm::vec4 DEFAULT_OBJECT_COLOR(0.3f, 0.3f, 0.3f, 1.f);
 	const glm::vec4 COLLIDING_OBJECT_COLOR(1.f, 0.f, 0.f, 1.f);
 	const glm::vec4 SELF_COLLIDING_OBJECT_COLOR(0.f, 0.5f, 0.f, 1.f);
 	const glm::vec4 BOUNDING_VOLUME_COLOR(0.f, 0.f, 1.f, 1.f);
@@ -43,9 +46,22 @@ namespace Core
 	const std::wstring  METHOD_SAP(L"Sweep-and-Prune");
 	const std::wstring  METHOD_S2S(L"Sphere-to-Sphere");
 
+
+
+
+
 	class Utils
 	{
 	public:
+
+		static void GeneratePlotsFromRawData()
+		{
+			SetCurrentDirectory((LPCWSTR)Core::BENCHMARK_FOLDER.c_str());
+			system("gnuplot script.plt");
+			system("gnuplot script2.plt");
+			SetCurrentDirectory((LPCWSTR)"..\\");
+		}
+
 		static void printToScreen(glm::vec2 pos, std::wstring  str)
 		{
 			//TODO find stuff that's not deprecated

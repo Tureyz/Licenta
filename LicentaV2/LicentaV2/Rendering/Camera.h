@@ -17,6 +17,8 @@ namespace Rendering
 
 		void Update();
 
+		glm::vec3 GetEyeVector() const { return m_eyeVector; }
+		void SetEyeVector(glm::vec3 val) { m_eyeVector = val; }
 	private:
 
 		glm::mat4 m_viewMatrix;

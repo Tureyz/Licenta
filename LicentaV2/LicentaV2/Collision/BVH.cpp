@@ -24,13 +24,13 @@ void Collision::BVH::_Update()
 	CreateTree(&m_root, m_allObjects->data(), m_allObjects->size());
 }
 
-void Collision::BVH::DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::BVH::DrawDebug(const glm::mat4& viewProjection)
 {
 	if (!GetShowDebug() || !m_root)
 		return;
 
 	glLineWidth(2);
-	DrawRecursive(m_root, projectionMatrix, viewMatrix);
+	DrawRecursive(m_root, viewProjection);
 	glLineWidth(1);
 }
 
@@ -207,15 +207,15 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree<Rendering
 	return leftSide.size();
 }
 
-void Collision::BVH::DrawRecursive(DataStructures::BVHTree<Rendering::IPhysicsObject *> * node, const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix)
+void Collision::BVH::DrawRecursive(DataStructures::BVHTree<Rendering::IPhysicsObject *> *node, const glm::mat4& viewProjection)
 {
 	if (!node)
 		return;
 
-	Rendering::ShapeRenderer::DrawWithLines(projectionMatrix * viewMatrix, node->m_boundingBox.m_visualBody);
+	Rendering::ShapeRenderer::DrawWithLines(viewProjection, node->m_boundingBox.m_visualBody);
 	
-	DrawRecursive(node->m_left, projectionMatrix, viewMatrix);
-	DrawRecursive(node->m_right, projectionMatrix, viewMatrix);
+	DrawRecursive(node->m_left, viewProjection);
+	DrawRecursive(node->m_right, viewProjection);
 }
 
 // false = right, true = left

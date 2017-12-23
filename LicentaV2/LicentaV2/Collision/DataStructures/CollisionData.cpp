@@ -4,14 +4,15 @@
 
 #include "../../Core/Utils.hpp"
 
-Collision::DataStructures::CollisionData::CollisionData(std::vector<Rendering::VertexFormat> *initialVerts, std::vector<Rendering::VertexFormat> *transformedVerts, std::vector<unsigned int> *indices)
+Collision::DataStructures::CollisionData::CollisionData(std::vector<Rendering::VertexFormat> *transformedVerts, std::vector<unsigned int> *indices)
 {
-	m_initialVerts = initialVerts;
-	m_transformedVerts = transformedVerts;
+	//m_initialVerts = initialVerts;
+	m_verts = transformedVerts;
 	m_indices = indices;
 	m_debugCnt = 0;
 
 	CreateTriangles();
+	std::cout <<m_verts->size() << " vertices, " << m_triangles.size() << " triangles, " << m_edges.size() << " edges" << std::endl;
 
 	//m_narrowPhaseMethod = new Collision::NarrowBVH(&m_triangles);	
 }
@@ -28,7 +29,20 @@ void Collision::DataStructures::CollisionData::FixedUpdate()
 {
 	for (auto tri : m_triangles)
 	{
+		for (auto vert : tri->m_verts)
+		{
+			vert->m_normal = glm::vec3(0);
+		}
+	}
+
+	for (auto tri : m_triangles)
+	{
 		tri->Update();
+	}
+
+	for (int i = 0; i < m_verts->size(); ++i)
+	{
+		(*m_verts)[i].m_normal = glm::normalize((*m_verts)[i].m_normal);
 	}
 }
 
@@ -68,35 +82,44 @@ void Collision::DataStructures::CollisionData::Update()
 void Collision::DataStructures::CollisionData::CreateTriangles()
 {
 	std::vector<unsigned int> ids = *m_indices;
-	std::vector<Rendering::VertexFormat> verts = *m_initialVerts;
+	std::vector<Rendering::VertexFormat> verts = *m_verts;
 
 	
-	int id = 321;
+	int triangleID = 321, edgeID = 321;
+
 	for (int i = 0; i < ids.size(); i += 3)
 	{
 		CollisionTriangle *triangle = new CollisionTriangle();
-		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i]]);
-		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i + 1]]);
-		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i + 2]]);
+// 		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i]]);
+// 		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i + 1]]);
+// 		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i + 2]]);
 
-		triangle->m_transformedVerts.push_back(&(*m_transformedVerts)[(*m_indices)[i]]);
-		triangle->m_transformedVerts.push_back(&(*m_transformedVerts)[(*m_indices)[i + 1]]);
-		triangle->m_transformedVerts.push_back(&(*m_transformedVerts)[(*m_indices)[i + 2]]);
+		triangle->m_verts.push_back(&(*m_verts)[ids[i]]);
+		triangle->m_verts.push_back(&(*m_verts)[ids[i + 1]]);
+		triangle->m_verts.push_back(&(*m_verts)[ids[i + 2]]);
 
 		triangle->m_collisionState = Rendering::CollisionState::DEFAULT;
 
-		int back = triangle->m_initialVerts.size() - 1;
+		int back = triangle->m_verts.size() - 1;
+		Collision::DataStructures::Edge e1(triangle->m_verts[back - 2], triangle->m_verts[back - 1], edgeID++);
+		m_edges.insert(e1);
+		triangle->m_edges.push_back(e1.GetID());
 
-		triangle->m_edges.push_back(std::make_pair(triangle->m_transformedVerts[back - 2], triangle->m_transformedVerts[back - 1]));
-		triangle->m_edges.push_back(std::make_pair(triangle->m_transformedVerts[back - 2], triangle->m_transformedVerts[back]));
-		triangle->m_edges.push_back(std::make_pair(triangle->m_transformedVerts[back - 1], triangle->m_transformedVerts[back]));
+		Collision::DataStructures::Edge e2(triangle->m_verts[back - 1], triangle->m_verts[back], edgeID++);
+		m_edges.insert(e2);
+		triangle->m_edges.push_back(e2.GetID());
 
-		triangle->SetID(id);
+		Collision::DataStructures::Edge e3(triangle->m_verts[back], triangle->m_verts[back - 2], edgeID++);
+		triangle->m_edges.push_back(e3.GetID());
+		m_edges.insert(e3);
 
-		triangle->m_center = (triangle->m_transformedVerts[0]->m_position + triangle->m_transformedVerts[1]->m_position + triangle->m_transformedVerts[2]->m_position) / 3.f;
+		triangle->SetID(triangleID++);
+
+		triangle->ComputeCenter();
+
+		triangle->ComputeFaceNormal();
 
 		m_triangles.push_back(triangle);
-
-		id++;
+		m_trianglePointers[triangle->GetID()] = triangle;
 	}
 }

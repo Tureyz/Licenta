@@ -2,8 +2,8 @@
 
 Rendering::VisualBody::VisualBody(std::vector<VertexFormat> verts, std::vector<GLuint> indices, GLuint vao, GLuint vbo, GLuint ibo)
 {
+	//m_initialVerts = verts;
 	m_verts = verts;
-	m_transformedVerts = verts;
 	m_indices = indices;
 	m_vao = vao;
 	m_vbo = vbo;
@@ -26,15 +26,15 @@ std::pair<glm::vec3, glm::vec3> Rendering::VisualBody::UpdateVerts(glm::mat4 &mo
 {
 
 	glm::vec4 tmp = modelMat * glm::vec4(m_verts[0].m_position, 1);
-	m_transformedVerts[0].m_position = glm::vec3(tmp.x, tmp.y, tmp.z);
+	m_verts[0].m_position = glm::vec3(tmp.x, tmp.y, tmp.z);
 	glm::vec3 minCoords, maxCoords;
 
-	minCoords = maxCoords = glm::vec3(tmp.x, tmp.y, tmp.z);
+	minCoords = maxCoords = m_verts[0].m_position;
 
 	for (int i = 1; i < m_verts.size(); ++i)
 	{
 		tmp = modelMat * glm::vec4(m_verts[i].m_position, 1);
-		m_transformedVerts[i].m_position = glm::vec3(tmp.x, tmp.y, tmp.z);
+		m_verts[i].m_position = glm::vec3(tmp.x, tmp.y, tmp.z);
 
 		if (tmp.x < minCoords.x)
 			minCoords.x = tmp.x;
