@@ -23,11 +23,11 @@ namespace Managers
 
 		virtual void Draw() override;
 
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectMoved(Rendering::SceneObject *object) override;
 
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectAdded(Rendering::SceneObject *object) override;
 
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) override;
 
 		virtual void KeyPressed(unsigned char key) override;
 
@@ -37,11 +37,11 @@ namespace Managers
 
 		virtual void MouseMove(int x, int y, int width, int height) override;
 
-		virtual void BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce) override;
+		virtual void BreakObject(Rendering::SceneObject *obj, glm::vec3 impactForce) override;
 
 	private:
 
-		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> GetBroadPhasePairs();
+		std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> GetBroadPhasePairs();
 		Collision::ICollisionMethod *m_broadPhaseMethod;
 
 		std::unordered_map<size_t, Collision::NarrowBVH *> m_narrowMethods;

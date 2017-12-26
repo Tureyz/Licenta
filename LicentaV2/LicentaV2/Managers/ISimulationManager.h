@@ -17,26 +17,26 @@ namespace Managers
 		virtual void Draw(const glm::mat4& viewProjection) = 0;
 		virtual void Draw() = 0;
 		
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) = 0;
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) = 0;
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) = 0;		
+		virtual void ObjectMoved(Rendering::SceneObject *object) = 0;
+		virtual void ObjectAdded(Rendering::SceneObject *object) = 0;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) = 0;		
 
 		virtual void KeyPressed(unsigned char key) = 0;
 		virtual void KeyReleased(unsigned char key) = 0;
 		virtual void MousePressed(int button, int state, int x, int y) = 0;
 		virtual void MouseMove(int x, int y, int width, int height) = 0;
 		
-		virtual void BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce) = 0;
+		virtual void BreakObject(Rendering::SceneObject *obj, glm::vec3 impactForce) = 0;
 
-		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> *GetCurrentCollisionPairsPtr() { return &m_currentCollisionPairs; }
-		void SetCurrentCollisionPairs(std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &val) { m_currentCollisionPairs = val; }
+		std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> *GetCurrentCollisionPairsPtr() { return &m_currentCollisionPairs; }
+		void SetCurrentCollisionPairs(std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> &val) { m_currentCollisionPairs = val; }
 
 
 
 	protected:
-		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> m_currentCollisionPairs;
+		std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> m_currentCollisionPairs;
 		ModelManager *m_modelManager;
-		std::vector<Rendering::IPhysicsObject*> *m_allObjects;
+		std::vector<Rendering::SceneObject*> *m_allObjects;
 		size_t m_objectIDCounter;
 	};
 

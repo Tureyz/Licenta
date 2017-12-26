@@ -1,7 +1,7 @@
 #include "DummyMethod.h"
-#include "..\Rendering\IPhysicsObject.h"
+#include "..\Rendering\SceneObject.h"
 
-Collision::DummyMethod::DummyMethod(std::vector<IPhysicsObject *> *allObjects)
+Collision::DummyMethod::DummyMethod(std::vector<SceneObject *> *allObjects)
 {
 	m_allObjects = allObjects;
 	m_memoryUsed = 0;
@@ -19,19 +19,19 @@ void Collision::DummyMethod::DrawDebug(const glm::mat4& viewProjection)
 {
 }
 
-void Collision::DummyMethod::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::DummyMethod::ObjectMoved(Rendering::SceneObject *object)
 {
 }
 
-void Collision::DummyMethod::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::DummyMethod::ObjectAdded(Rendering::SceneObject *object)
 {
 }
 
-void Collision::DummyMethod::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::DummyMethod::ObjectRemoved(Rendering::SceneObject *object)
 {
 }
 
-std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::DummyMethod::_TestCollision()
+std::unordered_set<std::pair<SceneObject *, SceneObject *>> Collision::DummyMethod::_TestCollision()
 {
-	return std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>>();
+	return std::unordered_set<std::pair<SceneObject *, SceneObject *>>();
 }

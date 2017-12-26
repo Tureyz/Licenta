@@ -9,14 +9,14 @@ namespace Collision
 	{
 	public:
 
-		SweepAndPrune(std::vector<Rendering::IPhysicsObject *> *allObjects);
+		SweepAndPrune(std::vector<Rendering::SceneObject *> *allObjects);
 		~SweepAndPrune();
 
 		virtual void DrawDebug(const glm::mat4& viewProjection) override;
 
 	protected:
 
-		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+		virtual std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> _TestCollision() override;
 
 		virtual void _Update() override;
 
@@ -25,11 +25,11 @@ namespace Collision
 		class Projection
 		{
 		public:
-			Projection(float coord, bool begin, Rendering::IPhysicsObject *object) : m_coord(coord), m_begin(begin), m_object(object) {}
+			Projection(float coord, bool begin, Rendering::SceneObject *object) : m_coord(coord), m_begin(begin), m_object(object) {}
 
 			float m_coord;
 			bool m_begin;
-			Rendering::IPhysicsObject *m_object;
+			Rendering::SceneObject *m_object;
 		};
 
 		struct ObjectProjectionPointers
@@ -47,14 +47,14 @@ namespace Collision
 		void InsertionSort(std::vector<Projection *> &list);
 		void InsertionSort();
 
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectMoved(Rendering::SceneObject *object) override;
 
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectAdded(Rendering::SceneObject *object) override;
 
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) override;
 
 		std::vector<Projection *> m_xList, m_yList, m_zList;
 
-		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> m_collisionPairs;
+		std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> m_collisionPairs;
 	};
 }

@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdlib>
 
-Collision::SpatialHashing::SpatialHashing(std::vector<Rendering::IPhysicsObject *> *allObjects)
+Collision::SpatialHashing::SpatialHashing(std::vector<Rendering::SceneObject *> *allObjects)
 {
 	m_allObjects = allObjects;
 	m_cellSize = 5; //default
@@ -36,7 +36,7 @@ void Collision::SpatialHashing::DrawDebug(const glm::mat4& viewProjection)
 
 }
 
-void Collision::SpatialHashing::InsertObject(Rendering::IPhysicsObject *obj)
+void Collision::SpatialHashing::InsertObject(Rendering::SceneObject *obj)
 {
 	Rendering::Models::Model *castedObj = ((Rendering::Models::Model *)obj);
 	Collision::DataStructures::BoundingBox bb = castedObj->GetBoundingBox();
@@ -51,7 +51,7 @@ void Collision::SpatialHashing::InsertObject(Rendering::IPhysicsObject *obj)
 	InsertPoint(glm::vec3(bb.m_maxX, bb.m_maxY, bb.m_maxZ), obj);
 }
 
-void Collision::SpatialHashing::InsertPoint(glm::vec3 point, Rendering::IPhysicsObject *obj)
+void Collision::SpatialHashing::InsertPoint(glm::vec3 point, Rendering::SceneObject *obj)
 {
 	size_t hashKey = ObjectHash(point);
 
@@ -67,16 +67,16 @@ void Collision::SpatialHashing::InsertPoint(glm::vec3 point, Rendering::IPhysics
 
 	if (!m_bucketIndices.count(hashKey))
 	{
-		m_hashTable.push_back(std::unordered_set<Rendering::IPhysicsObject*>());
+		m_hashTable.push_back(std::unordered_set<Rendering::SceneObject*>());
 		m_bucketIndices[hashKey] = m_hashTable.size() - 1;
-		m_memoryUsed += sizeof(std::unordered_set<Rendering::IPhysicsObject*>) + sizeof(size_t);
+		m_memoryUsed += sizeof(std::unordered_set<Rendering::SceneObject*>) + sizeof(size_t);
 	}
 
 	m_hashTable[m_bucketIndices[hashKey]].insert(obj);
-	m_memoryUsed += sizeof(Rendering::IPhysicsObject *);
+	m_memoryUsed += sizeof(Rendering::SceneObject *);
 }
 
-void Collision::SpatialHashing::RemoveObject(Rendering::IPhysicsObject *obj)
+void Collision::SpatialHashing::RemoveObject(Rendering::SceneObject *obj)
 {
 
 	for (auto set : m_hashTable)
@@ -88,7 +88,7 @@ void Collision::SpatialHashing::RemoveObject(Rendering::IPhysicsObject *obj)
 	}
 }
 
-void Collision::SpatialHashing::MoveObject(Rendering::IPhysicsObject *obj)
+void Collision::SpatialHashing::MoveObject(Rendering::SceneObject *obj)
 {
 	for (auto bucket : m_hashTable)
 	{
@@ -125,7 +125,7 @@ size_t Collision::SpatialHashing::ObjectHash(glm::vec3 el)
 	return result;
 }
 
-void Collision::SpatialHashing::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::SpatialHashing::ObjectMoved(Rendering::SceneObject *object)
 {
 	// 	RemoveObject(object);
 	// 	InsertObject(object);
@@ -133,19 +133,19 @@ void Collision::SpatialHashing::ObjectMoved(Rendering::IPhysicsObject *object)
 		//MoveObject(object);
 }
 
-void Collision::SpatialHashing::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::SpatialHashing::ObjectAdded(Rendering::SceneObject *object)
 {
 	//InsertObject(object);
 }
 
-void Collision::SpatialHashing::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::SpatialHashing::ObjectRemoved(Rendering::SceneObject *object)
 {
 	//RemoveObject(object);
 }
 
-std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::SpatialHashing::_TestCollision()
+std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Collision::SpatialHashing::_TestCollision()
 {
-	std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
+	std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> result;
 	m_lastFrameTests = 0;
 
 	for (auto bucket : m_hashTable)

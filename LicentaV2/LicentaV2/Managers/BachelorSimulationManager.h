@@ -14,6 +14,7 @@
 #include "BenchmarkResultManager.h"
 
 
+
 namespace Managers
 {
 	class BachelorSimulationManager : public ISimulationManager
@@ -27,19 +28,19 @@ namespace Managers
 		void Draw(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 		void Draw();
 
-		void ObjectMoved(IPhysicsObject *object);
-		void ObjectAdded(IPhysicsObject *object);
-		void ObjectRemoved(IPhysicsObject *object);
+		void ObjectMoved(SceneObject *object);
+		void ObjectAdded(SceneObject *object);
+		void ObjectRemoved(SceneObject *object);
 
 		void KeyPressed(unsigned char key);
 		void KeyReleased(unsigned char key);
 		void MousePressed(int button, int state, int x, int y);
 		void MouseMove(int x, int y, int width, int height);
 
-		void BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce);
+		void BreakObject(Rendering::SceneObject *obj, glm::vec3 impactForce);
 
-		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> *GetCurrentCollisionPairsPtr() { return &m_currentCollisionPairs; }
-		void SetCurrentCollisionPairs(std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> &val) { m_currentCollisionPairs = val; }
+		std::unordered_set<std::pair<SceneObject *, SceneObject *>> *GetCurrentCollisionPairsPtr() { return &m_currentCollisionPairs; }
+		void SetCurrentCollisionPairs(std::unordered_set<std::pair<SceneObject *, SceneObject *>> &val) { m_currentCollisionPairs = val; }
 
 	private:
 		void SpawnObjectsFromScenario(const Simulation::Scenario *scenario);
@@ -58,8 +59,8 @@ namespace Managers
 
 		void DebugBreakAll();
 
-		Rendering::IPhysicsObject* SpawnObjectAt(const Simulation::PhysicsObjectType objectType, size_t ID, const glm::vec3 &position, const glm::vec3 &rotation, const float rotationAngle, const glm::vec3 &scale);
-		void SpawnManyAround(const glm::vec3 &position, const float radius, const int numberOfObjects, Simulation::PhysicsObjectType typeOfObjects);
+		//Rendering::IPhysicsObject* SpawnObjectAt(const Simulation::PhysicsObjectType objectType, size_t ID, const glm::vec3 &position, const glm::vec3 &rotation, const float rotationAngle, const glm::vec3 &scale);
+		//void SpawnManyAround(const glm::vec3 &position, const float radius, const int numberOfObjects, Simulation::PhysicsObjectType typeOfObjects);
 		void ResetCollisions();
 		void LoadScenario(Simulation::Scenario *scenario);
 		void CleanupCurrentScenario();
@@ -118,12 +119,12 @@ namespace Managers
 
 		std::wstring  m_benchmarkTimeInfo;
 
-		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> m_currentCollisionPairs;
+		std::unordered_set<std::pair<SceneObject *, SceneObject *>> m_currentCollisionPairs;
 
 		size_t m_firstAvailableID;
 
 		std::vector<Simulation::ObjectDescription> m_addQueue;
-		std::vector<Rendering::IPhysicsObject*> m_removeQueue;
+		std::vector<Rendering::SceneObject*> m_removeQueue;
 
 		std::pair<glm::vec3, glm::vec3> m_worldBounds;
 		std::vector<std::pair<float, glm::vec3>> m_worldNormals;

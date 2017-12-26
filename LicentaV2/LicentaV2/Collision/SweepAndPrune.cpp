@@ -2,7 +2,7 @@
 #include "../Rendering/Models/Model.h"
 #include <iterator>
 
-Collision::SweepAndPrune::SweepAndPrune(std::vector<Rendering::IPhysicsObject *> *allObjects)
+Collision::SweepAndPrune::SweepAndPrune(std::vector<Rendering::SceneObject *> *allObjects)
 {
 	m_allObjects = allObjects;
 	m_memoryUsed = sizeof(Collision::SweepAndPrune);
@@ -60,7 +60,7 @@ void Collision::SweepAndPrune::InsertionSort(std::vector<Projection *> &list)
 				if (firstProj->m_object->SphereTest(secondProj->m_object))
 				{
 					m_collisionPairs.insert(std::make_pair(firstProj->m_object, secondProj->m_object));
-					m_memoryUsed += sizeof(std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>);
+					m_memoryUsed += sizeof(std::pair<Rendering::SceneObject *, Rendering::SceneObject *>);
 				}
 			}
 
@@ -69,7 +69,7 @@ void Collision::SweepAndPrune::InsertionSort(std::vector<Projection *> &list)
 				m_lastFrameTests++;
 				if (m_collisionPairs.erase(std::make_pair(firstProj->m_object, secondProj->m_object)) == 1)
 				{
-					m_memoryUsed -= sizeof(std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>);
+					m_memoryUsed -= sizeof(std::pair<Rendering::SceneObject *, Rendering::SceneObject *>);
 				}
 			}
 
@@ -80,7 +80,7 @@ void Collision::SweepAndPrune::InsertionSort(std::vector<Projection *> &list)
 	}
 }
 
-void Collision::SweepAndPrune::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::SweepAndPrune::ObjectMoved(Rendering::SceneObject *object)
 {
 	ObjectProjectionPointers *ptrs = (ObjectProjectionPointers *)object->m_auxCollisionData;
 	Collision::DataStructures::BoundingBox bb = ((Rendering::Models::Model *)object)->GetBoundingBox();
@@ -101,7 +101,7 @@ void Collision::SweepAndPrune::ObjectMoved(Rendering::IPhysicsObject *object)
 
 }
 
-void Collision::SweepAndPrune::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::SweepAndPrune::ObjectAdded(Rendering::SceneObject *object)
 {
 	Rendering::Models::Model *castedObj = (Rendering::Models::Model *) object;
 	Collision::DataStructures::BoundingBox bb = castedObj->GetBoundingBox();
@@ -133,7 +133,7 @@ void Collision::SweepAndPrune::ObjectAdded(Rendering::IPhysicsObject *object)
 	m_memoryUsed += sizeof(Projection) * 6 + sizeof(ObjectProjectionPointers);
 }
 
-void Collision::SweepAndPrune::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::SweepAndPrune::ObjectRemoved(Rendering::SceneObject *object)
 {
 
 	for (auto it = m_xList.begin(); it != m_xList.end(); ++it)
@@ -171,7 +171,7 @@ void Collision::SweepAndPrune::InsertionSort()
 	InsertionSort(m_zList);
 }
 
-std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::SweepAndPrune::_TestCollision()
+std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Collision::SweepAndPrune::_TestCollision()
 {
 	return m_collisionPairs;
 }

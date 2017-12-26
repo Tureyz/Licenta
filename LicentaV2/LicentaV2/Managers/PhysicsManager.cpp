@@ -2,7 +2,7 @@
 #include "../Rendering/Models/Sphere.h"
 #include <algorithm>
 
-Managers::PhysicsManager::PhysicsManager(std::vector<Rendering::IPhysicsObject*> *objectList)
+Managers::PhysicsManager::PhysicsManager(std::vector<Rendering::SceneObject*> *objectList)
 {
 	m_objectList = objectList;
 
@@ -50,7 +50,7 @@ void Managers::PhysicsManager::FixedUpdate()
 					float len = glm::length(r12);
 					float dstSq = len * len;
 
-					totalGravitationalPull += ((secondObj->GetMass()) / dstSq) * glm::normalize(r12);
+					//totalGravitationalPull += ((secondObj->GetMass()) / dstSq) * glm::normalize(r12);
 				}
 
 				firstObj->SetTranslationStep((firstObj->GetTranslationStep() + (m_gravityVel * totalGravitationalPull)) * m_linearVelDecay);
@@ -65,7 +65,7 @@ void Managers::PhysicsManager::FixedUpdate()
 				obj->SetRotationAngleStep(obj->GetRotationAngleStep() * m_angularVelDecay);
 				//glm::vec3 gravitationalPull = model->GetMass() * (m_gravityCenter - model->GetPosition()) * m_gravityVel * (1.f / std::fmaxf(m_gravityVel, glm::distance(m_gravityCenter, model->GetPosition())));
 				auto distanceToCenter = std::fmaxf(0.1f, glm::distance(obj->GetPosition(), m_gravityCenter));
-				glm::vec3 gravitationalPull = obj->GetMass() * m_gravityVel * (m_gravityCenter - obj->GetPosition()) / (distanceToCenter * distanceToCenter);
+				glm::vec3 gravitationalPull = /*obj->GetMass()*/ 1  * m_gravityVel * (m_gravityCenter - obj->GetPosition()) / (distanceToCenter * distanceToCenter);
 				obj->SetTranslationStep(obj->GetTranslationStep() + gravitationalPull);
 			}
 		}
@@ -88,7 +88,7 @@ void Managers::PhysicsManager::Update()
 	for (auto obj : *m_objectList)
 	{
 		auto objPos = obj->GetPosition();
-		auto objRad = obj->GetSphereRadius();
+		auto objRad = /*obj->GetSphereRadius()*/ 15;
 		auto objTr = obj->GetTranslationStep() * 0.99f;
 
 		if (objPos.x < m_worldBounds.first.x + objRad)
@@ -125,10 +125,10 @@ static void printVec(glm::vec3 input)
 
 void Managers::PhysicsManager::CollisionResponse()
 {
-	for (std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *> pair : *m_collisionPairs)
+	for (std::pair<Rendering::SceneObject *, Rendering::SceneObject *> pair : *m_collisionPairs)
 	{
-		Rendering::Models::Sphere *firstObj = (Rendering::Models::Sphere *) pair.first;
-		Rendering::Models::Sphere *secondObj = (Rendering::Models::Sphere *) pair.second;
+		Rendering::SceneObject *firstObj = (Rendering::SceneObject *) pair.first;
+		Rendering::SceneObject *secondObj = (Rendering::SceneObject *) pair.second;
 
 		PushObjectsApart(firstObj, secondObj);
 		
@@ -195,28 +195,30 @@ void Managers::PhysicsManager::KeyReleased(unsigned char key)
 
 }
 
-bool Managers::PhysicsManager::WillBreak(Rendering::IPhysicsObject * obj, Rendering::IPhysicsObject * other, glm::vec3 force)
+bool Managers::PhysicsManager::WillBreak(Rendering::SceneObject * obj, Rendering::SceneObject * other, glm::vec3 force)
 {	
-	float breakCoefficient = glm::length(force) * other->GetMass();
-	float resistCoefficient = obj->GetSphereRadius() * obj->GetMass() / 5;
+// 	float breakCoefficient = glm::length(force) * other->GetMass();
+// 	float resistCoefficient = obj->GetSphereRadius() * obj->GetMass() / 5;
+// 
+// //  	if (obj->GetSphereRadius() > 4.f)
+// //  		std::wcout << breakCoefficient << L" " << resistCoefficient << std::endl;
+// 
+// 	return (breakCoefficient > resistCoefficient) && obj->GetSphereRadius() > 1;
 
-//  	if (obj->GetSphereRadius() > 4.f)
-//  		std::wcout << breakCoefficient << L" " << resistCoefficient << std::endl;
-
-	return (breakCoefficient > resistCoefficient) && obj->GetSphereRadius() > 1;
+	return false;
 }
 
-void Managers::PhysicsManager::PushObjectsApart(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj)
+void Managers::PhysicsManager::PushObjectsApart(Rendering::SceneObject *firstObj, Rendering::SceneObject *secondObj)
 {
 	glm::vec3 firstCenter = firstObj->GetPosition();
 	glm::vec3 secondCenter = secondObj->GetPosition();
 
-	float firstRadius = firstObj->GetSphereRadius();
-	float secondRadius = secondObj->GetSphereRadius();
+	float firstRadius = 15;// firstObj->GetSphereRadius();
+	float secondRadius = 16;// secondObj->GetSphereRadius();
 
 
-	float firstMass = firstObj->GetMass();
-	float secondMass = secondObj->GetMass();	
+	float firstMass = 1;// firstObj->GetMass();
+	float secondMass = 3;// secondObj->GetMass();
 
 	float push = (firstRadius + secondRadius - glm::distance(firstCenter, secondCenter));
 
@@ -232,26 +234,26 @@ void Managers::PhysicsManager::PushObjectsApart(Rendering::Models::Sphere *first
 	secondObj->TranslateAbsolute(n * push * secondPushFac);
 }
 
-std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> Managers::PhysicsManager::ComputeReactionVels(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj)
+std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> Managers::PhysicsManager::ComputeReactionVels(Rendering::SceneObject *firstObj, Rendering::SceneObject *secondObj)
 {
 	glm::vec3 firstCenter = firstObj->GetPosition();
 	glm::vec3 secondCenter = secondObj->GetPosition();
 
-	float firstRadius = firstObj->GetSphereRadius();
-	float secondRadius = secondObj->GetSphereRadius();
+	float firstRadius = 1;// firstObj->GetSphereRadius();
+	float secondRadius = 1;// secondObj->GetSphereRadius();
 
-	float m1 = firstObj->GetMass();
-	float m2 = secondObj->GetMass();
+	float m1 = 1;// firstObj->GetMass();
+	float m2 = 1;// secondObj->GetMass();
 
-	float im1 = firstObj->GetInverseMass();
-	float im2 = secondObj->GetInverseMass();
+	float im1 = 1;// firstObj->GetInverseMass();
+	float im2 = 1;// secondObj->GetInverseMass();
 
-	glm::mat3 invFirstTensor = firstObj->GetInverseInertiaTensor();
-	glm::mat3 invSecondTensor = secondObj->GetInverseInertiaTensor();
+	glm::mat3 invFirstTensor;// = firstObj->GetInverseInertiaTensor();
+	glm::mat3 invSecondTensor;// = secondObj->GetInverseInertiaTensor();
 
 	glm::vec3 n = glm::normalize(secondCenter - firstCenter);
 
-	glm::vec3 contactPoint = firstCenter + n * firstObj->GetSphereRadius();
+	glm::vec3 contactPoint = firstCenter + n * 1.f;// firstObj->GetSphereRadius();
 
 	glm::vec3 v1 = firstObj->GetTranslationStep();
 	glm::vec3 v2 = secondObj->GetTranslationStep();
@@ -299,20 +301,20 @@ std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> Mana
 	return std::make_pair(std::make_pair(finalV1, finalOm1), std::make_pair(finalV2, finalOm2));
 }
 
-void Managers::PhysicsManager::ApplyAngularVel(Rendering::Models::Sphere *obj, glm::vec3 axis)
+void Managers::PhysicsManager::ApplyAngularVel(Rendering::SceneObject *obj, glm::vec3 axis)
 {
 	obj->SetRotationStep(axis);
 	obj->SetRotationAngleStep(glm::length(axis));
 }
 
-void Managers::PhysicsManager::ApplyLinearVel(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj, glm::vec3 force)
+void Managers::PhysicsManager::ApplyLinearVel(Rendering::SceneObject *firstObj, Rendering::SceneObject *secondObj, glm::vec3 force)
 {
-	if (!firstObj->GetBroken())
+	if (!false)
 	{
 		if (WillBreak(firstObj, secondObj, force))
 		{
 			//std::wcout << L"B";
-			firstObj->GetSimulationManager()->BreakObject(firstObj, force);
+			//firstObj->GetSimulationManager()->BreakObject(firstObj, force);
 		}
 		else
 		{

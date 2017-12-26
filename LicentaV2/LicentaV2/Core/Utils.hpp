@@ -12,7 +12,10 @@
 namespace Core
 {
 
-	const double TIME_STEP_MS = 1000.0 / 30.0;
+	const float TIME_STEP_MS = 1000.f / 30.f;
+	const float TIME_STEP = TIME_STEP_MS / 1000.f;
+	const glm::vec3 GRAVITY_ACCEL(0, -9.81f, 0);
+
 	const glm::vec4 DEFAULT_OBJECT_COLOR(0.3f, 0.3f, 0.3f, 1.f);
 	const glm::vec4 COLLIDING_OBJECT_COLOR(1.f, 0.f, 0.f, 1.f);
 	const glm::vec4 SELF_COLLIDING_OBJECT_COLOR(0.f, 0.5f, 0.f, 1.f);

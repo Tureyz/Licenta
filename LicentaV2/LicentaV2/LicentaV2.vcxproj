@@ -146,16 +146,16 @@
     <ClCompile Include="Collision\DataStructures\BVHTree.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Collision\DataStructures\ClothBehavior.cpp" />
-    <ClCompile Include="Collision\DataStructures\ClothNode.cpp" />
-    <ClCompile Include="Collision\DataStructures\CollisionData.cpp" />
-    <ClCompile Include="Collision\DataStructures\CollisionTriangle.cpp" />
-    <ClCompile Include="Collision\DataStructures\Constraint.cpp" />
-    <ClCompile Include="Collision\DataStructures\Edge.cpp" />
+    <ClCompile Include="Physics\DeformableBody.cpp" />
+    <ClCompile Include="Physics\ClothNode.cpp" />
+    <ClCompile Include="Physics\RigidBody.cpp" />
+    <ClCompile Include="Physics\CollisionTriangle.cpp" />
+    <ClCompile Include="Physics\Constraint.cpp" />
+    <ClCompile Include="Physics\Edge.cpp" />
     <ClCompile Include="Collision\DataStructures\OctreeNode.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Collision\DataStructures\Plane.cpp" />
+    <ClCompile Include="Physics\Plane.cpp" />
     <ClCompile Include="Collision\DummyMethod.cpp" />
     <ClCompile Include="Collision\NarrowBVH.cpp" />
     <ClCompile Include="Collision\Octree.cpp">
@@ -199,17 +199,18 @@
     </ClCompile>
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Collision\DataStructures\BoundingBox.cpp" />
-    <ClCompile Include="Rendering\Models\Cone.cpp" />
-    <ClCompile Include="Rendering\Models\Cube.cpp" />
-    <ClCompile Include="Rendering\Models\Cylinder.cpp" />
-    <ClCompile Include="Rendering\Models\MeshObject.cpp" />
-    <ClCompile Include="Rendering\Models\Model.cpp" />
-    <ClCompile Include="Rendering\Models\Sphere.cpp" />
-    <ClCompile Include="Rendering\Models\Tetrahedron.cpp" />
+    <ClCompile Include="Rendering\SceneObject.cpp" />
     <ClCompile Include="Rendering\ShapeRenderer.cpp" />
     <ClCompile Include="Rendering\VisualBody.cpp" />
-    <ClCompile Include="Simulation\Scenario.cpp" />
-    <ClCompile Include="Simulation\ScenarioGenerator.cpp" />
+    <ClCompile Include="Rendering\VisualBodyFactory.cpp" />
+    <ClCompile Include="Simulation\Scenario.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Simulation\ScenarioGenerator.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Benchmark\FPSCounter.h">
@@ -226,17 +227,17 @@
     <ClInclude Include="Collision\DataStructures\BVHTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Collision\DataStructures\ClothBehavior.h" />
-    <ClInclude Include="Collision\DataStructures\ClothNode.h" />
-    <ClInclude Include="Collision\DataStructures\CollisionData.h" />
-    <ClInclude Include="Collision\DataStructures\CollisionTriangle.h" />
-    <ClInclude Include="Collision\DataStructures\Constraint.h" />
-    <ClInclude Include="Collision\DataStructures\Edge.h" />
+    <ClInclude Include="Physics\DeformableBody.h" />
+    <ClInclude Include="Physics\ClothNode.h" />
+    <ClInclude Include="Physics\RigidBody.h" />
+    <ClInclude Include="Physics\CollisionTriangle.h" />
+    <ClInclude Include="Physics\Constraint.h" />
+    <ClInclude Include="Physics\Edge.h" />
     <ClInclude Include="Collision\DataStructures\LinkedList.hpp" />
     <ClInclude Include="Collision\DataStructures\OctreeNode.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Collision\DataStructures\Plane.h" />
+    <ClInclude Include="Physics\Plane.h" />
     <ClInclude Include="Collision\DummyMethod.h" />
     <ClInclude Include="Collision\INarrowPhaseMethod.h" />
     <ClInclude Include="Collision\NarrowBVH.h" />
@@ -280,16 +281,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Managers\ISimulationManager.h" />
+    <ClInclude Include="Physics\IPhysicsbody.h" />
     <ClInclude Include="Rendering\Camera.h" />
-    <ClInclude Include="Rendering\IPhysicsObject.h" />
+    <ClInclude Include="Rendering\SceneObject.h" />
     <ClInclude Include="Collision\DataStructures\BoundingBox.h" />
-    <ClInclude Include="Rendering\Models\Cone.h" />
-    <ClInclude Include="Rendering\Models\Cube.h" />
-    <ClInclude Include="Rendering\Models\Cylinder.h" />
-    <ClInclude Include="Rendering\Models\MeshObject.h" />
-    <ClInclude Include="Rendering\Models\Model.h" />
-    <ClInclude Include="Rendering\Models\Sphere.h" />
-    <ClInclude Include="Rendering\Models\Tetrahedron.h" />
     <ClInclude Include="Rendering\ShapeRenderer.h" />
     <ClInclude Include="Rendering\VertexFormat.h" />
     <ClInclude Include="Dependencies\glm\common.hpp" />
@@ -318,8 +313,15 @@
     <ClInclude Include="Managers\SceneManager.h" />
     <ClInclude Include="Managers\ShaderManager.h" />
     <ClInclude Include="Rendering\VisualBody.h" />
-    <ClInclude Include="Simulation\Scenario.h" />
-    <ClInclude Include="Simulation\ScenarioGenerator.h" />
+    <ClInclude Include="Rendering\VisualBodyFactory.h" />
+    <ClInclude Include="Simulation\Scenario.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Simulation\ScenarioGenerator.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />

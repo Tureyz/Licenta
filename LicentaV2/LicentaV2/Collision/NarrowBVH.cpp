@@ -2,7 +2,9 @@
 #include <algorithm>
 #include <iterator>
 
-Collision::NarrowBVH::NarrowBVH(std::vector<Collision::DataStructures::CollisionTriangle *> *triangles)
+#include "../Rendering/VisualBodyFactory.h"
+
+Collision::NarrowBVH::NarrowBVH(std::vector<Physics::CollisionTriangle *> *triangles)
 {
 	m_allObjects = triangles;
 }
@@ -12,7 +14,7 @@ Collision::NarrowBVH::~NarrowBVH()
 
 }
 
-std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Collision::DataStructures::CollisionTriangle *>> Collision::NarrowBVH::TestCollision(NarrowBVH *other)
+std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> Collision::NarrowBVH::TestCollision(NarrowBVH *other)
 {
 	return QueryBVHPairs(m_root, other->m_root);
 }
@@ -49,14 +51,14 @@ void Collision::NarrowBVH::DrawDebug(const glm::mat4& projectionMatrix, const gl
 	glLineWidth(1);
 }
 
-void Collision::NarrowBVH::CreateTree(DataStructures::BVHTree<DataStructures::CollisionTriangle *> **node, DataStructures::CollisionTriangle ** objects, size_t numObjects)
+void Collision::NarrowBVH::CreateTree(DataStructures::BVHTree<Physics::CollisionTriangle *> **node, Physics::CollisionTriangle ** objects, size_t numObjects)
 {
 	if (numObjects <= 0)
 	{
 		return;
 	}
 
-	DataStructures::BVHTree<DataStructures::CollisionTriangle *> *newNode = new DataStructures::BVHTree<DataStructures::CollisionTriangle *>();
+	DataStructures::BVHTree<Physics::CollisionTriangle *> *newNode = new DataStructures::BVHTree<Physics::CollisionTriangle *>();
 	*node = newNode;
 
 	// 	newNode->m_boundingBox = new Collision::DataStructures::BoundingBox(objects, numObjects);
@@ -64,7 +66,7 @@ void Collision::NarrowBVH::CreateTree(DataStructures::BVHTree<DataStructures::Co
 	// 	newNode->m_boundingBox->SetVisible(true);
 	newNode->m_objects = &objects[0];
 	newNode->m_numObjects = numObjects;
-	//newNode->m_boundingBox.CreateVisualBody(GetModelManager()->CreateBasicVisualBody(Simulation::PhysicsObjectType::OBJ_LINE_CUBE));
+	newNode->m_boundingBox.CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
 
 	std::vector<std::pair<glm::vec3, glm::vec3>> bounds;
 	for (int i = 0; i < numObjects; ++i)
@@ -99,11 +101,11 @@ void Collision::NarrowBVH::CreateTree(DataStructures::BVHTree<DataStructures::Co
 
 	if (numObjects <= 1)
 	{
-		newNode->m_type = DataStructures::BVHTree<DataStructures::CollisionTriangle *>::LEAF;
+		newNode->m_type = DataStructures::BVHTree<Physics::CollisionTriangle *>::LEAF;
 	}
 	else
 	{
-		newNode->m_type = DataStructures::BVHTree<DataStructures::CollisionTriangle *>::NODE;
+		newNode->m_type = DataStructures::BVHTree<Physics::CollisionTriangle *>::NODE;
 		size_t k = SplitObjects(newNode);
 
 		CreateTree(&newNode->m_left, &objects[0], k);
@@ -111,22 +113,22 @@ void Collision::NarrowBVH::CreateTree(DataStructures::BVHTree<DataStructures::Co
 	}
 }
 
-void Collision::NarrowBVH::ObjectMoved(Collision::DataStructures::CollisionTriangle *object)
+void Collision::NarrowBVH::ObjectMoved(Physics::CollisionTriangle *object)
 {
 
 }
 
-void Collision::NarrowBVH::ObjectAdded(Collision::DataStructures::CollisionTriangle *object)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void Collision::NarrowBVH::ObjectRemoved(Collision::DataStructures::CollisionTriangle *object)
+void Collision::NarrowBVH::ObjectAdded(Physics::CollisionTriangle *object)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-size_t Collision::NarrowBVH::SplitObjects(Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node)
+void Collision::NarrowBVH::ObjectRemoved(Physics::CollisionTriangle *object)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+size_t Collision::NarrowBVH::SplitObjects(Collision::DataStructures::BVHTree<Physics::CollisionTriangle *> *node)
 {
 	enum SplittingAxisType { AXIS_X = 0, AXIS_Y = 1, AXIS_Z = 2 };
 
@@ -148,7 +150,7 @@ size_t Collision::NarrowBVH::SplitObjects(Collision::DataStructures::BVHTree<Dat
 		splittingPoint = node->m_boundingBox.m_minZ + boxLengths.z / 2;
 	}
 
-	std::vector<DataStructures::CollisionTriangle *> leftSide, rightSide;
+	std::vector<Physics::CollisionTriangle *> leftSide, rightSide;
 
 	if (spl == AXIS_X)
 	{
@@ -201,15 +203,15 @@ size_t Collision::NarrowBVH::SplitObjects(Collision::DataStructures::BVHTree<Dat
 	{
 		if (spl == AXIS_X)
 		{
-			std::sort(rightSide.begin(), rightSide.end(), [](DataStructures::CollisionTriangle *a, DataStructures::CollisionTriangle *b) { return a->GetCenter().x < b->GetCenter().x; });
+			std::sort(rightSide.begin(), rightSide.end(), [](Physics::CollisionTriangle *a, Physics::CollisionTriangle *b) { return a->GetCenter().x < b->GetCenter().x; });
 		}
 		else if (spl == AXIS_Y)
 		{
-			std::sort(rightSide.begin(), rightSide.end(), [](DataStructures::CollisionTriangle *a, DataStructures::CollisionTriangle *b) { return a->GetCenter().y < b->GetCenter().y; });
+			std::sort(rightSide.begin(), rightSide.end(), [](Physics::CollisionTriangle *a, Physics::CollisionTriangle *b) { return a->GetCenter().y < b->GetCenter().y; });
 		}
 		else
 		{
-			std::sort(rightSide.begin(), rightSide.end(), [](DataStructures::CollisionTriangle *a, DataStructures::CollisionTriangle *b) { return a->GetCenter().z < b->GetCenter().z; });
+			std::sort(rightSide.begin(), rightSide.end(), [](Physics::CollisionTriangle *a, Physics::CollisionTriangle *b) { return a->GetCenter().z < b->GetCenter().z; });
 		}
 
 		for (auto obj : rightSide)
@@ -224,15 +226,15 @@ size_t Collision::NarrowBVH::SplitObjects(Collision::DataStructures::BVHTree<Dat
 	{
 		if (spl == AXIS_X)
 		{
-			std::sort(leftSide.begin(), leftSide.end(), [](DataStructures::CollisionTriangle *a, DataStructures::CollisionTriangle *b) { return a->GetCenter().x < b->GetCenter().x; });
+			std::sort(leftSide.begin(), leftSide.end(), [](Physics::CollisionTriangle *a, Physics::CollisionTriangle *b) { return a->GetCenter().x < b->GetCenter().x; });
 		}
 		else if (spl == AXIS_Y)
 		{
-			std::sort(leftSide.begin(), leftSide.end(), [](DataStructures::CollisionTriangle *a, DataStructures::CollisionTriangle *b) { return a->GetCenter().y < b->GetCenter().y; });
+			std::sort(leftSide.begin(), leftSide.end(), [](Physics::CollisionTriangle *a, Physics::CollisionTriangle *b) { return a->GetCenter().y < b->GetCenter().y; });
 		}
 		else
 		{
-			std::sort(leftSide.begin(), leftSide.end(), [](DataStructures::CollisionTriangle *a, DataStructures::CollisionTriangle *b) { return a->GetCenter().z < b->GetCenter().z; });
+			std::sort(leftSide.begin(), leftSide.end(), [](Physics::CollisionTriangle *a, Physics::CollisionTriangle *b) { return a->GetCenter().z < b->GetCenter().z; });
 		}
 
 		for (auto obj : leftSide)
@@ -255,12 +257,12 @@ size_t Collision::NarrowBVH::SplitObjects(Collision::DataStructures::BVHTree<Dat
 	return leftSide.size();
 }
 
-void Collision::NarrowBVH::DrawRecursive(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+void Collision::NarrowBVH::DrawRecursive(DataStructures::BVHTree<Physics::CollisionTriangle *> *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
 {
 
 }
 
-bool Collision::NarrowBVH::ChildrenSelectionRule(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *left, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *right)
+bool Collision::NarrowBVH::ChildrenSelectionRule(DataStructures::BVHTree<Physics::CollisionTriangle *> *left, DataStructures::BVHTree<Physics::CollisionTriangle *> *right)
 {
 	float leftVolume = (left->m_boundingBox.m_maxX - left->m_boundingBox.m_minX) * (left->m_boundingBox.m_maxY - left->m_boundingBox.m_minY) * (left->m_boundingBox.m_maxZ - left->m_boundingBox.m_minZ);
 	float rightVolume = (right->m_boundingBox.m_maxX - right->m_boundingBox.m_minX) * (right->m_boundingBox.m_maxY - right->m_boundingBox.m_minY) * (right->m_boundingBox.m_maxZ - right->m_boundingBox.m_minZ);
@@ -268,28 +270,28 @@ bool Collision::NarrowBVH::ChildrenSelectionRule(DataStructures::BVHTree<DataStr
 	return right->IsLeaf() || (!left->IsLeaf() && (leftVolume >= rightVolume));
 }
 
-std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Collision::DataStructures::CollisionTriangle *>> Collision::NarrowBVH::QueryBVHPairs(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *first, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *second)
+std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> Collision::NarrowBVH::QueryBVHPairs(DataStructures::BVHTree<Physics::CollisionTriangle *> *first, DataStructures::BVHTree<Physics::CollisionTriangle *> *second)
 {
-	std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Collision::DataStructures::CollisionTriangle *>> result;
+	std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> result;
 
 	QueryBVHPairsRecursive(first, second, result);
 
 	return result;
 }
 
-std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Collision::DataStructures::CollisionTriangle *>> Collision::NarrowBVH::QueryBVHPairsLoop(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *first, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *second)
+std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> Collision::NarrowBVH::QueryBVHPairsLoop(DataStructures::BVHTree<Physics::CollisionTriangle *> *first, DataStructures::BVHTree<Physics::CollisionTriangle *> *second)
 {
-	std::unordered_set<std::pair<DataStructures::CollisionTriangle *, DataStructures::CollisionTriangle *>> result;
+	std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> result;
 
-	std::vector<std::pair<Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *> *, Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *> *>> stack;
+	std::vector<std::pair<Collision::DataStructures::BVHTree<Physics::CollisionTriangle *> *, Collision::DataStructures::BVHTree<Physics::CollisionTriangle *> *>> stack;
 
 	while (1)
 	{
-		// 		if (first->m_type == Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *>::LEAF)
+		// 		if (first->m_type == Collision::DataStructures::BVHTree<Physics::CollisionTriangle *>::LEAF)
 		// 		{
 		// 			std::cout << "L1" << std::endl;
 		// 		}
-		// 		if (second->m_type == Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *>::LEAF)
+		// 		if (second->m_type == Collision::DataStructures::BVHTree<Physics::CollisionTriangle *>::LEAF)
 		// 		{
 		// 			std::cout << "L2" << std::endl;
 		// 		}
@@ -298,10 +300,10 @@ std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Col
 
 
 			//if (first->m_type == Collision::DataStructures::BVHTree::LEAF && second->m_type == Collision::DataStructures::BVHTree::LEAF && first != second)
-			if (first->m_type == Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *>::LEAF && second->m_type == Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *>::LEAF && first != second)
+			if (first->m_type == Collision::DataStructures::BVHTree<Physics::CollisionTriangle *>::LEAF && second->m_type == Collision::DataStructures::BVHTree<Physics::CollisionTriangle *>::LEAF && first != second)
 			{
 				//if (first->m_objects[0]->SphereTest(second->m_objects[0]))
-				if (Collision::DataStructures::CollisionTriangle::TriangleTest(*first->m_objects[0], *second->m_objects[0]))
+				if (Physics::CollisionTriangle::TriangleTest(*first->m_objects[0], *second->m_objects[0]))
 					result.insert(std::make_pair(first->m_objects[0], second->m_objects[0]));
 			}
 			else
@@ -334,7 +336,7 @@ std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Col
 	return result;
 }
 
-void Collision::NarrowBVH::QueryBVHPairsRecursive(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *first, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *second, std::unordered_set<std::pair<DataStructures::CollisionTriangle *, DataStructures::CollisionTriangle *>> &result, int indent /*= 0*/)
+void Collision::NarrowBVH::QueryBVHPairsRecursive(DataStructures::BVHTree<Physics::CollisionTriangle *> *first, DataStructures::BVHTree<Physics::CollisionTriangle *> *second, std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> &result, int indent /*= 0*/)
 {
 	if (!first || !second)
 		return;
@@ -344,7 +346,7 @@ void Collision::NarrowBVH::QueryBVHPairsRecursive(DataStructures::BVHTree<DataSt
 
 	if (first->IsLeaf() && second->IsLeaf())
 	{
-		if (Collision::DataStructures::CollisionTriangle::TriangleTest(*first->m_objects[0], *second->m_objects[0]))
+		if (Physics::CollisionTriangle::TriangleTest(*first->m_objects[0], *second->m_objects[0]))
 			result.insert(std::make_pair(first->m_objects[0], second->m_objects[0]));
 	}
 	else
@@ -362,7 +364,7 @@ void Collision::NarrowBVH::QueryBVHPairsRecursive(DataStructures::BVHTree<DataSt
 	}
 }
 
-void Collision::NarrowBVH::PrintIDsRecursive(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node)
+void Collision::NarrowBVH::PrintIDsRecursive(DataStructures::BVHTree<Physics::CollisionTriangle *> *node)
 {
 	if (!node)
 	{
@@ -375,7 +377,7 @@ void Collision::NarrowBVH::PrintIDsRecursive(DataStructures::BVHTree<DataStructu
 	PrintIDsRecursive(node->m_right);
 }
 
-void Collision::NarrowBVH::UpdateBoxes(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node)
+void Collision::NarrowBVH::UpdateBoxes(DataStructures::BVHTree<Physics::CollisionTriangle *> *node)
 {
 	if (!node)
 		return;

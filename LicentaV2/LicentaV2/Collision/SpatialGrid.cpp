@@ -7,14 +7,14 @@
 
 using namespace Rendering;
 
-Collision::SpatialGrid::SpatialGrid(std::vector<Rendering::IPhysicsObject *> *allObjects, int numberOfCells)
+Collision::SpatialGrid::SpatialGrid(std::vector<Rendering::SceneObject *> *allObjects, int numberOfCells)
 {
 	m_allObjects = allObjects;
 	m_numberOfCells = numberOfCells;
 
 	MakeNewGrid();
 
-	m_memoryUsed = sizeof(Collision::SpatialGrid) + sizeof(std::vector<Rendering::IPhysicsObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
+	m_memoryUsed = sizeof(Collision::SpatialGrid) + sizeof(std::vector<Rendering::SceneObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
 }
 
 void Collision::SpatialGrid::_Update()
@@ -23,7 +23,7 @@ void Collision::SpatialGrid::_Update()
 
 	MakeNewGrid();
 
-	m_memoryUsed += sizeof(std::vector<Rendering::IPhysicsObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
+	m_memoryUsed += sizeof(std::vector<Rendering::SceneObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
 
 	for (auto currentObj : (*m_allObjects))
 	{
@@ -32,7 +32,7 @@ void Collision::SpatialGrid::_Update()
 		{
 			m_grid[static_cast<std::size_t>(cellIndexes[i].x)][static_cast<std::size_t>(cellIndexes[i].y)][static_cast<std::size_t>(cellIndexes[i].z)].push_back(currentObj);
 		}
-		m_memoryUsed += sizeof(Rendering::IPhysicsObject*) * cellIndexes.size();
+		m_memoryUsed += sizeof(Rendering::SceneObject*) * cellIndexes.size();
 	}
 }
 
@@ -82,7 +82,7 @@ void Collision::SpatialGrid::SetParams(glm::vec3 worldMin, glm::vec3 worldMax, i
 	m_cellSize = (m_worldMax - m_worldMin) / ((float)m_numberOfCells);
 }
 
-std::vector<glm::vec3> Collision::SpatialGrid::FindCells(IPhysicsObject *obj)
+std::vector<glm::vec3> Collision::SpatialGrid::FindCells(SceneObject *obj)
 {
 	Collision::DataStructures::BoundingBox objBB = ((Models::Model *)obj)->GetBoundingBox();
 
@@ -111,21 +111,21 @@ std::vector<glm::vec3> Collision::SpatialGrid::FindCells(IPhysicsObject *obj)
 	return result;
 }
 
-void Collision::SpatialGrid::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::SpatialGrid::ObjectMoved(Rendering::SceneObject *object)
 {
 }
 
-void Collision::SpatialGrid::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::SpatialGrid::ObjectAdded(Rendering::SceneObject *object)
 {
 }
 
-void Collision::SpatialGrid::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::SpatialGrid::ObjectRemoved(Rendering::SceneObject *object)
 {
 }
 
-std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::SpatialGrid::_TestCollision()
+std::unordered_set<std::pair<SceneObject *, SceneObject *>> Collision::SpatialGrid::_TestCollision()
 {
-	std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> result;
+	std::unordered_set<std::pair<SceneObject *, SceneObject *>> result;
 	m_lastFrameTests = 0;	
 
 	for (auto obj : *(m_allObjects))
@@ -138,7 +138,7 @@ std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::Spa
 			{
 				if (obj == secondObj) continue;
 
-				std::pair<IPhysicsObject *, IPhysicsObject *> firstPair(obj, secondObj);
+				std::pair<SceneObject *, SceneObject *> firstPair(obj, secondObj);
 
 				m_lastFrameTests++;
 				if (((Models::Model *)obj)->GetBoundingBox().Collides(((Models::Model *)secondObj)->GetBoundingBox()))

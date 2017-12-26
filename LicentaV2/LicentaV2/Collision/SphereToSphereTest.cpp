@@ -1,7 +1,7 @@
 #include "SphereToSphereTest.h"
 #include "../Rendering/Models/Sphere.h"
 
-Collision::SphereToSphereTest::SphereToSphereTest(std::vector<Rendering::IPhysicsObject *> *allObjects)
+Collision::SphereToSphereTest::SphereToSphereTest(std::vector<Rendering::SceneObject *> *allObjects)
 {
 	m_allObjects = allObjects;
 }
@@ -10,24 +10,24 @@ void Collision::SphereToSphereTest::DrawDebug(const glm::mat4& viewProjection)
 {
 }
 
-void Collision::SphereToSphereTest::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::SphereToSphereTest::ObjectMoved(Rendering::SceneObject *object)
 {
 
 }
 
-void Collision::SphereToSphereTest::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::SphereToSphereTest::ObjectAdded(Rendering::SceneObject *object)
 {
 
 }
 
-void Collision::SphereToSphereTest::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::SphereToSphereTest::ObjectRemoved(Rendering::SceneObject *object)
 {
 
 }
 
-std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::SphereToSphereTest::_TestCollision()
+std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Collision::SphereToSphereTest::_TestCollision()
 {
-	std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> result;
+	std::unordered_set<std::pair<SceneObject *, SceneObject *>> result;
 
 	for (auto firstObj : *m_allObjects)
 	{

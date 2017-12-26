@@ -1,23 +1,23 @@
-#include "CollisionData.h"
+#include "RigidBody.h"
 
 #include <utility>
 
-#include "../../Core/Utils.hpp"
+#include "../Core/Utils.hpp"
 
-Collision::DataStructures::CollisionData::CollisionData(std::vector<Rendering::VertexFormat> *transformedVerts, std::vector<unsigned int> *indices)
+Physics::RigidBody::RigidBody(std::vector<Rendering::VertexFormat> *verts, std::vector<unsigned int> *indices)
 {
 	//m_initialVerts = initialVerts;
-	m_verts = transformedVerts;
+	m_verts = verts;
 	m_indices = indices;
 	m_debugCnt = 0;
 
 	CreateTriangles();
-	std::cout <<m_verts->size() << " vertices, " << m_triangles.size() << " triangles, " << m_edges.size() << " edges" << std::endl;
+	//std::cout <<m_verts->size() << " vertices, " << m_triangles.size() << " triangles, " << m_edges.size() << " edges" << std::endl;
 
 	//m_narrowPhaseMethod = new Collision::NarrowBVH(&m_triangles);	
 }
 
-Collision::DataStructures::CollisionData::~CollisionData()
+Physics::RigidBody::~RigidBody()
 {
 	for (int i = 0; i < m_triangles.size(); ++i)
 	{
@@ -25,7 +25,7 @@ Collision::DataStructures::CollisionData::~CollisionData()
 	}
 }
 
-void Collision::DataStructures::CollisionData::FixedUpdate()
+void Physics::RigidBody::FixedUpdate()
 {
 	for (auto tri : m_triangles)
 	{
@@ -46,7 +46,7 @@ void Collision::DataStructures::CollisionData::FixedUpdate()
 	}
 }
 
-void Collision::DataStructures::CollisionData::Update()
+void Physics::RigidBody::Update()
 {
 	
 	
@@ -76,10 +76,9 @@ void Collision::DataStructures::CollisionData::Update()
 // 
 // 	m_debugCnt++;
 
-	m_changedSinceLastUpdate = true;
 }
 
-void Collision::DataStructures::CollisionData::CreateTriangles()
+void Physics::RigidBody::CreateTriangles()
 {
 	std::vector<unsigned int> ids = *m_indices;
 	std::vector<Rendering::VertexFormat> verts = *m_verts;
@@ -89,7 +88,7 @@ void Collision::DataStructures::CollisionData::CreateTriangles()
 
 	for (int i = 0; i < ids.size(); i += 3)
 	{
-		CollisionTriangle *triangle = new CollisionTriangle();
+		Physics::CollisionTriangle *triangle = new Physics::CollisionTriangle();
 // 		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i]]);
 // 		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i + 1]]);
 // 		triangle->m_initialVerts.push_back(&(*m_initialVerts)[(*m_indices)[i + 2]]);
@@ -100,18 +99,17 @@ void Collision::DataStructures::CollisionData::CreateTriangles()
 
 		triangle->m_collisionState = Rendering::CollisionState::DEFAULT;
 
-		int back = triangle->m_verts.size() - 1;
-		Collision::DataStructures::Edge e1(triangle->m_verts[back - 2], triangle->m_verts[back - 1], edgeID++);
-		m_edges.insert(e1);
-		triangle->m_edges.push_back(e1.GetID());
+		//Collision::DataStructures::Edge e1(triangle->m_verts[back - 2], triangle->m_verts[back - 1], edgeID++);
+		//m_edges.insert(e1);
+		//triangle->m_edges.push_back(e1.GetID());
 
-		Collision::DataStructures::Edge e2(triangle->m_verts[back - 1], triangle->m_verts[back], edgeID++);
-		m_edges.insert(e2);
-		triangle->m_edges.push_back(e2.GetID());
+		//Collision::DataStructures::Edge e2(triangle->m_verts[back - 1], triangle->m_verts[back], edgeID++);
+		//m_edges.insert(e2);
+		//triangle->m_edges.push_back(e2.GetID());
 
-		Collision::DataStructures::Edge e3(triangle->m_verts[back], triangle->m_verts[back - 2], edgeID++);
-		triangle->m_edges.push_back(e3.GetID());
-		m_edges.insert(e3);
+		//Collision::DataStructures::Edge e3(triangle->m_verts[back], triangle->m_verts[back - 2], edgeID++);
+		//triangle->m_edges.push_back(e3.GetID());
+		//m_edges.insert(e3);
 
 		triangle->SetID(triangleID++);
 
@@ -120,6 +118,6 @@ void Collision::DataStructures::CollisionData::CreateTriangles()
 		triangle->ComputeFaceNormal();
 
 		m_triangles.push_back(triangle);
-		m_trianglePointers[triangle->GetID()] = triangle;
+		//m_trianglePointers[triangle->GetID()] = triangle;
 	}
 }

@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "../../Dependencies/glm/glm.hpp"
-#include "../../Rendering/IPhysicsObject.h"
+#include "../../Rendering/SceneObject.h"
 
 namespace Collision
 {
@@ -16,7 +16,7 @@ namespace Collision
 			float m_halfW;
 			glm::vec3 m_center;
 			std::vector<OctreeNode *> m_children;
-			std::vector<Rendering::IPhysicsObject *> m_objects;
+			std::vector<Rendering::SceneObject *> m_objects;
 		private:
 
 		};

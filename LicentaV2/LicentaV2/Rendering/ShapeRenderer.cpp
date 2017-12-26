@@ -25,7 +25,7 @@ void Rendering::ShapeRenderer::CreateBufferObjects(GLuint &vao, GLuint &vbo, GLu
 	glBindVertexArray(0);
 }
 
-void Rendering::ShapeRenderer::Draw(const glm::mat4 viewProjection, const Rendering::VisualBody &body)
+void Rendering::ShapeRenderer::Draw(const glm::mat4 viewProjection, const Rendering::VisualBody *body)
 {
 	//glUniform1i(2, collisionState);
  	//glUniform1i(2, 0);
@@ -40,13 +40,13 @@ void Rendering::ShapeRenderer::Draw(const glm::mat4 viewProjection, const Render
 // 		verts[i].m_position = glm::vec3(tmp.x, tmp.y, tmp.z);
 // 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, body.m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * body.m_verts.size(), &body.m_verts[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, body->m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * body->m_verts.size(), &body->m_verts[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindVertexArray(body.m_vao);	
+	glBindVertexArray(body->m_vao);	
 
-	glDrawElements(GL_TRIANGLES, (GLsizei)(body.m_indices.size()), GL_UNSIGNED_INT, &(body.m_indices[0]));
+	glDrawElements(GL_TRIANGLES, (GLsizei)(body->m_indices.size()), GL_UNSIGNED_INT, &(body->m_indices[0]));
 	glBindVertexArray(0);
 }
 
@@ -55,17 +55,17 @@ void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 viewProjection, con
 
 }
 
-void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 viewProjection, const Rendering::VisualBody &body)
+void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 viewProjection, const Rendering::VisualBody *body)
 {	
 
 	glUniformMatrix4fv(3, 1, false, &viewProjection[0][0]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, body.m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * body.m_verts.size(), &body.m_verts[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, body->m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * body->m_verts.size(), &body->m_verts[0], GL_STATIC_DRAW);
 
-	glBindVertexArray(body.m_vao);
+	glBindVertexArray(body->m_vao);
 
-	glDrawElements(GL_LINE_LOOP, (GLsizei)body.m_indices.size(), GL_UNSIGNED_INT, &body.m_indices[0]);
+	glDrawElements(GL_LINE_LOOP, (GLsizei)body->m_indices.size(), GL_UNSIGNED_INT, &body->m_indices[0]);
 	glBindVertexArray(0);	
 }
 

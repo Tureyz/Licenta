@@ -3,14 +3,14 @@
 
 Managers::SceneManager::SceneManager()
 {
-	m_initTime = clock();
+	m_initTime = (float) clock();
 	m_lastFixedTime = m_initTime;
 	m_lastFrameTime = m_initTime;
 	Core::DeltaTime::SetDt(0);
 
 	glEnable(GL_DEPTH_TEST);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//m_textRenderer = new TextRenderer();
 
 	m_shaderManager = new ShaderManager();
@@ -52,7 +52,7 @@ void Managers::SceneManager::notifyBeginFrame()
 // 	m_timeBase = m_time;
 // 	m_deltaTime.UpdateTick();
 
-	float crtTime = clock();	
+	float crtTime = (float) clock();	
 
 	if (crtTime - m_lastFixedTime >= Core::TIME_STEP_MS)
 	{

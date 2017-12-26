@@ -2,7 +2,7 @@
 #include "../Dependencies/glm/gtx/projection.hpp"
 
 
-Collision::SeparatingAxisTheorem::SeparatingAxisTheorem(std::vector<Rendering::IPhysicsObject *> *allObjects)
+Collision::SeparatingAxisTheorem::SeparatingAxisTheorem(std::vector<Rendering::SceneObject *> *allObjects)
 {
 	m_allObjects = allObjects;
 }
@@ -19,19 +19,19 @@ void Collision::SeparatingAxisTheorem::DrawDebug(const glm::mat4& viewProjection
 {
 }
 
-void Collision::SeparatingAxisTheorem::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::SeparatingAxisTheorem::ObjectMoved(Rendering::SceneObject *object)
 {
 }
 
-void Collision::SeparatingAxisTheorem::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::SeparatingAxisTheorem::ObjectAdded(Rendering::SceneObject *object)
 {
 }
 
-void Collision::SeparatingAxisTheorem::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::SeparatingAxisTheorem::ObjectRemoved(Rendering::SceneObject *object)
 {
 }
 
-std::vector<glm::vec3> Collision::SeparatingAxisTheorem::GetTestingAxes(Rendering::IPhysicsObject *obj1, Rendering::IPhysicsObject *obj2)
+std::vector<glm::vec3> Collision::SeparatingAxisTheorem::GetTestingAxes(Rendering::SceneObject *obj1, Rendering::SceneObject *obj2)
 {
 	const std::vector<VertexFormat> verts1 = obj1->GetVertices();
 	const std::vector<unsigned int> indices1 = obj1->GetIndices();
@@ -85,7 +85,7 @@ std::vector<glm::vec3> Collision::SeparatingAxisTheorem::GetTestingAxes(Renderin
 	return result;
 }
 
-std::pair<float, float> Collision::SeparatingAxisTheorem::GetProjection(Rendering::IPhysicsObject *obj, const glm::vec3 &axis)
+std::pair<float, float> Collision::SeparatingAxisTheorem::GetProjection(Rendering::SceneObject *obj, const glm::vec3 &axis)
 {
 	std::pair<float, float> result((float) INT_MAX, (float) INT_MIN);
 
@@ -108,7 +108,7 @@ std::pair<float, float> Collision::SeparatingAxisTheorem::GetProjection(Renderin
 	return result;
 }
 
-bool Collision::SeparatingAxisTheorem::TestTwoObjects(Rendering::IPhysicsObject *obj1, Rendering::IPhysicsObject *obj2)
+bool Collision::SeparatingAxisTheorem::TestTwoObjects(Rendering::SceneObject *obj1, Rendering::SceneObject *obj2)
 {
 	std::vector<glm::vec3> axes = GetTestingAxes(obj1, obj2);
 //	std::vector<glm::vec3> axes2 = GetTestingAxes(obj2, TODO);
@@ -139,9 +139,9 @@ bool Collision::SeparatingAxisTheorem::TestProjectionOverlap(const std::pair<flo
 }
 
 
-std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::SeparatingAxisTheorem::_TestCollision()
+std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Collision::SeparatingAxisTheorem::_TestCollision()
 {	
-	std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
+	std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> result;
 
 	for (int i = 0; i < m_allObjects->size(); ++i)
 	{

@@ -7,44 +7,44 @@ namespace Collision
 	class NarrowBVH : public INarrowPhaseMethod
 	{
 	public:
-		NarrowBVH(std::vector<Collision::DataStructures::CollisionTriangle *> *triangles);
+		NarrowBVH(std::vector<Physics::CollisionTriangle *> *triangles);
 
 		~NarrowBVH();
-		virtual std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Collision::DataStructures::CollisionTriangle *>> TestCollision(NarrowBVH *other);
+		virtual std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> TestCollision(NarrowBVH *other);
 
 		virtual void Update() override;
 
 		virtual void DrawDebug(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) override;
-		void CreateTree(DataStructures::BVHTree<DataStructures::CollisionTriangle *> **node, DataStructures::CollisionTriangle **objects, size_t numObjects);
+		void CreateTree(DataStructures::BVHTree<Physics::CollisionTriangle *> **node, Physics::CollisionTriangle **objects, size_t numObjects);
 
-		virtual void ObjectMoved(Collision::DataStructures::CollisionTriangle *object) override;
+		virtual void ObjectMoved(Physics::CollisionTriangle *object) override;
 
-		virtual void ObjectAdded(Collision::DataStructures::CollisionTriangle *object) override;
+		virtual void ObjectAdded(Physics::CollisionTriangle *object) override;
 
-		virtual void ObjectRemoved(Collision::DataStructures::CollisionTriangle *object) override;
+		virtual void ObjectRemoved(Physics::CollisionTriangle *object) override;
 
-		size_t SplitObjects(Collision::DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node);
+		size_t SplitObjects(Collision::DataStructures::BVHTree<Physics::CollisionTriangle *> *node);
 
 	private:
 
-		void DrawRecursive(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
+		void DrawRecursive(DataStructures::BVHTree<Physics::CollisionTriangle *> *node, const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
-		bool ChildrenSelectionRule(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *left, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *right);
+		bool ChildrenSelectionRule(DataStructures::BVHTree<Physics::CollisionTriangle *> *left, DataStructures::BVHTree<Physics::CollisionTriangle *> *right);
 
-		std::unordered_set<std::pair<DataStructures::CollisionTriangle *, DataStructures::CollisionTriangle *>>
-			QueryBVHPairs(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *first, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *second);
+		std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>>
+			QueryBVHPairs(DataStructures::BVHTree<Physics::CollisionTriangle *> *first, DataStructures::BVHTree<Physics::CollisionTriangle *> *second);
 
-		std::unordered_set<std::pair<DataStructures::CollisionTriangle *, DataStructures::CollisionTriangle *>>
-			QueryBVHPairsLoop(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *first, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *second);
+		std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>>
+			QueryBVHPairsLoop(DataStructures::BVHTree<Physics::CollisionTriangle *> *first, DataStructures::BVHTree<Physics::CollisionTriangle *> *second);
 
-		void QueryBVHPairsRecursive(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *first, DataStructures::BVHTree<DataStructures::CollisionTriangle *> *second, std::unordered_set<std::pair<DataStructures::CollisionTriangle *, DataStructures::CollisionTriangle *>> &result, int indent = 0);
+		void QueryBVHPairsRecursive(DataStructures::BVHTree<Physics::CollisionTriangle *> *first, DataStructures::BVHTree<Physics::CollisionTriangle *> *second, std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> &result, int indent = 0);
 
-		DataStructures::BVHTree<DataStructures::CollisionTriangle *> *m_root;
+		DataStructures::BVHTree<Physics::CollisionTriangle *> *m_root;
 
 
-		void PrintIDsRecursive(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node);
+		void PrintIDsRecursive(DataStructures::BVHTree<Physics::CollisionTriangle *> *node);
 
-		void UpdateBoxes(DataStructures::BVHTree<DataStructures::CollisionTriangle *> *node);
+		void UpdateBoxes(DataStructures::BVHTree<Physics::CollisionTriangle *> *node);
 
 	};
 }

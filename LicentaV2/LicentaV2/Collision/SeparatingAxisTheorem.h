@@ -8,31 +8,31 @@ namespace Collision
 	{
 	public:
 
-		SeparatingAxisTheorem(std::vector<Rendering::IPhysicsObject *> *allObjects);
+		SeparatingAxisTheorem(std::vector<Rendering::SceneObject *> *allObjects);
 
 		~SeparatingAxisTheorem();
 		
 		virtual void DrawDebug(const glm::mat4& viewProjection) override;
 
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectMoved(Rendering::SceneObject *object) override;
 
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectAdded(Rendering::SceneObject *object) override;
 
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) override;
 
 	protected:
 
-		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+		virtual std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> _TestCollision() override;
 
 		virtual void _Update() override;
 
 	private:
 
-		std::vector<glm::vec3> GetTestingAxes(Rendering::IPhysicsObject *obj1, Rendering::IPhysicsObject *obj2);
+		std::vector<glm::vec3> GetTestingAxes(Rendering::SceneObject *obj1, Rendering::SceneObject *obj2);
 
-		std::pair<float, float> GetProjection(Rendering::IPhysicsObject *obj, const glm::vec3 &axis);		
+		std::pair<float, float> GetProjection(Rendering::SceneObject *obj, const glm::vec3 &axis);		
 
-		bool TestTwoObjects(Rendering::IPhysicsObject *obj1, Rendering::IPhysicsObject *obj2);
+		bool TestTwoObjects(Rendering::SceneObject *obj1, Rendering::SceneObject *obj2);
 
 		bool TestProjectionOverlap(const std::pair<float, float> &proj1, const std::pair<float, float> &proj2);
 

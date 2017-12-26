@@ -12,7 +12,7 @@ namespace Collision
 			BoundingBox();
 			~BoundingBox();
 
-			void CreateVisualBody(Rendering::VisualBody &visualBody);
+			void CreateVisualBody(Rendering::VisualBody *visualBody);
 
 			virtual void Update();
 
@@ -23,7 +23,7 @@ namespace Collision
 
 			GLfloat m_minX, m_maxX, m_minY, m_maxY, m_minZ, m_maxZ;
 
-			Rendering::VisualBody m_visualBody;
+			Rendering::VisualBody *m_visualBody;
 
 			bool GetVisible() const { return m_isVisible; }
 			void SetVisible(bool val) { m_isVisible = val; }

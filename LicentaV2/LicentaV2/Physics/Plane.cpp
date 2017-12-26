@@ -1,17 +1,17 @@
 #include "Plane.h"
 
-Collision::DataStructures::Plane::Plane()
+Physics::Plane::Plane()
 {
 	m_normal = glm::vec3(0);
 	m_d = 0;
 }
 
-float Collision::DataStructures::Plane::DistFromPlane(glm::vec3 point)
+float Physics::Plane::DistFromPlane(glm::vec3 point)
 {
 	return glm::dot(m_normal, point) + m_d;
 }
 
-void Collision::DataStructures::Plane::GetSegmentPlaneIntersection(const glm::vec3 P1, const glm::vec3 P2, std::unordered_set<glm::vec3, Vec3Hash, Vec3EqualEps> &outSegTips)
+void Physics::Plane::GetSegmentPlaneIntersection(const glm::vec3 P1, const glm::vec3 P2, std::unordered_set<glm::vec3, Vec3Hash, Vec3EqualEps> &outSegTips)
 {
 	float d1 = DistFromPlane(P1), d2 = DistFromPlane(P2);
 
@@ -33,7 +33,7 @@ void Collision::DataStructures::Plane::GetSegmentPlaneIntersection(const glm::ve
 	outSegTips.insert(P1 + t * (P2 - P1));
 }
 
-std::vector<glm::vec3> Collision::DataStructures::Plane::TrianglePlaneIntersection(const glm::vec3 triA, const glm::vec3 triB, const glm::vec3 triC)
+std::vector<glm::vec3> Physics::Plane::TrianglePlaneIntersection(const glm::vec3 triA, const glm::vec3 triB, const glm::vec3 triC)
 {
 	std::unordered_set<glm::vec3, Vec3Hash, Vec3EqualEps> outSegTips;
 
@@ -44,7 +44,7 @@ std::vector<glm::vec3> Collision::DataStructures::Plane::TrianglePlaneIntersecti
 	return std::vector<glm::vec3>(outSegTips.begin(), outSegTips.end());
 }
 
-std::pair<glm::vec3, glm::vec3> Collision::DataStructures::Plane::PlaneIntersect(const Plane &p1, const Plane &p2)
+std::pair<glm::vec3, glm::vec3> Physics::Plane::PlaneIntersect(const Plane &p1, const Plane &p2)
 {
 	// Compute direction of intersection line
 	glm::vec3 d = glm::cross(p1.m_normal, p2.m_normal);

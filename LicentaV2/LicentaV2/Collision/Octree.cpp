@@ -3,7 +3,7 @@
 #include "..\Rendering\Models\Model.h"
 #include "..\Rendering\ShapeRenderer.h"
 
-Collision::Octree::Octree(std::vector<Rendering::IPhysicsObject *> *allObjects, glm::vec3 worldMin, glm::vec3 worldMax)
+Collision::Octree::Octree(std::vector<Rendering::SceneObject *> *allObjects, glm::vec3 worldMin, glm::vec3 worldMax)
 {
 	m_allObjects = allObjects;
 	m_worldCenter = worldMin + (worldMax - worldMin) / 2.f;
@@ -48,9 +48,9 @@ void Collision::Octree::DrawDebug(const glm::mat4& viewProjection)
 	glLineWidth(1);
 }
 
-std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::Octree::_TestCollision()
+std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Collision::Octree::_TestCollision()
 {	
-	std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> result;
+	std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> result;
 
 	m_lastFrameTests = 0;
 	TestCollisionsRecursive(m_root, result);
@@ -64,13 +64,13 @@ void Collision::Octree::SetParams(int splitThreshold, int maximumDepth)
 	m_maximumDepth = maximumDepth;
 }
 
-void Collision::Octree::InsertIntoTree(Rendering::IPhysicsObject *object)
+void Collision::Octree::InsertIntoTree(Rendering::SceneObject *object)
 {
 	int a = 0;
 	__InsertIntoTree(m_root, object, a);
 }
 
-void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rendering::IPhysicsObject *object, int &depth)
+void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rendering::SceneObject *object, int &depth)
 {
 	int childIndex = 0;
 
@@ -105,7 +105,7 @@ void Collision::Octree::__InsertIntoTree(DataStructures::OctreeNode *node, Rende
 	}
 }
 
-bool Collision::Octree::CompletelyInside(Rendering::IPhysicsObject *object, glm::vec3 center, float halfWidth)
+bool Collision::Octree::CompletelyInside(Rendering::SceneObject *object, glm::vec3 center, float halfWidth)
 {
 	glm::vec3 nodeDimMax = center + halfWidth;
 	glm::vec3 nodeDimMin = center - halfWidth;
@@ -124,7 +124,7 @@ bool Collision::Octree::CompletelyInside(Rendering::IPhysicsObject *object, glm:
 	//return true;
 }
 
-bool Collision::Octree::StraddleX(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node)
+bool Collision::Octree::StraddleX(Rendering::SceneObject *object, DataStructures::OctreeNode *node)
 {
 	float nodeDimMax = node->m_center.x + node->m_halfW;
 	float nodeDimMin = node->m_center.x - node->m_halfW;
@@ -132,7 +132,7 @@ bool Collision::Octree::StraddleX(Rendering::IPhysicsObject *object, DataStructu
 	return object->GetBoundingBox().m_maxX > nodeDimMax || object->GetBoundingBox().m_minX < nodeDimMin;
 }
 
-bool Collision::Octree::StraddleY(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node)
+bool Collision::Octree::StraddleY(Rendering::SceneObject *object, DataStructures::OctreeNode *node)
 {
 	float nodeDimMax = node->m_center.y + node->m_halfW;
 	float nodeDimMin = node->m_center.y - node->m_halfW;
@@ -140,7 +140,7 @@ bool Collision::Octree::StraddleY(Rendering::IPhysicsObject *object, DataStructu
 	return object->GetBoundingBox().m_maxY > nodeDimMax || object->GetBoundingBox().m_minY < nodeDimMin;
 }
 
-bool Collision::Octree::StraddleZ(Rendering::IPhysicsObject *object, DataStructures::OctreeNode *node)
+bool Collision::Octree::StraddleZ(Rendering::SceneObject *object, DataStructures::OctreeNode *node)
 {
 	float nodeDimMax = node->m_center.z + node->m_halfW;
 	float nodeDimMin = node->m_center.z - node->m_halfW;
@@ -164,7 +164,7 @@ void Collision::Octree::DrawRecursive(DataStructures::OctreeNode *node, const gl
 	}
 }
 
-void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node, std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> &collisions)
+void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node, std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> &collisions)
 {
 	static std::vector<DataStructures::OctreeNode *> stack;
 	static int depth = 0;
@@ -206,14 +206,14 @@ void Collision::Octree::TestCollisionsRecursive(DataStructures::OctreeNode *node
 	depth--;
 }
 
-void Collision::Octree::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::Octree::ObjectMoved(Rendering::SceneObject *object)
 {
 }
 
-void Collision::Octree::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::Octree::ObjectAdded(Rendering::SceneObject *object)
 {
 }
 
-void Collision::Octree::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::Octree::ObjectRemoved(Rendering::SceneObject *object)
 {
 }

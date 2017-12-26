@@ -11,7 +11,7 @@ namespace Collision
 	{
 	public:
 
-		SpatialHashing(std::vector<Rendering::IPhysicsObject *> *allObjects);
+		SpatialHashing(std::vector<Rendering::SceneObject *> *allObjects);
 
 		~SpatialHashing();
 
@@ -24,29 +24,29 @@ namespace Collision
 
 	protected:
 
-		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+		virtual std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> _TestCollision() override;
 
 		virtual void _Update() override;
 
 	private:
 
-		void InsertPoint(glm::vec3 point, Rendering::IPhysicsObject *obj);
-		void InsertObject(Rendering::IPhysicsObject *obj);
+		void InsertPoint(glm::vec3 point, Rendering::SceneObject *obj);
+		void InsertObject(Rendering::SceneObject *obj);
 
-		void RemoveObject(Rendering::IPhysicsObject *obj);
+		void RemoveObject(Rendering::SceneObject *obj);
 
-		void MoveObject(Rendering::IPhysicsObject *obj);
+		void MoveObject(Rendering::SceneObject *obj);
 
 		size_t ObjectHash(glm::vec3 el);
 
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectMoved(Rendering::SceneObject *object) override;
 
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectAdded(Rendering::SceneObject *object) override;
 
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) override;
 
 		float m_cellSize;
-		std::vector<std::unordered_set<IPhysicsObject*>> m_hashTable;
+		std::vector<std::unordered_set<SceneObject*>> m_hashTable;
 		std::unordered_map<size_t, size_t> m_bucketIndices;
 	};
 }

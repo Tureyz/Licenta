@@ -102,7 +102,7 @@ void Managers::BachelorSimulationManager::Update()
 
 	for (auto desc : m_addQueue)
 	{
-		IPhysicsObject *obj = SpawnObjectAt(desc.m_objectType, desc.m_ID, desc.m_initialPosition, desc.m_initialRotation, desc.m_initialRotationAngle, desc.m_initialScale);
+		SceneObject *obj = SpawnObjectAt(desc.m_objectType, desc.m_ID, desc.m_initialPosition, desc.m_initialRotation, desc.m_initialRotationAngle, desc.m_initialScale);
 		obj->SetTranslationStep(desc.m_translationStep);
 		obj->SetScaleStep(desc.m_scaleStep);
 		obj->SetRotationStep(desc.m_rotationStep);
@@ -119,7 +119,7 @@ void Managers::BachelorSimulationManager::Draw(const glm::mat4& projectionMatrix
 	(*m_activeMethod).second->DrawDebug(projectionMatrix, viewMatrix);
 }
 
-void Managers::BachelorSimulationManager::ObjectMoved(IPhysicsObject *object)
+void Managers::BachelorSimulationManager::ObjectMoved(SceneObject *object)
 {
 	for (auto method : m_collisionMethods)
 	{
@@ -127,7 +127,7 @@ void Managers::BachelorSimulationManager::ObjectMoved(IPhysicsObject *object)
 	}
 }
 
-void Managers::BachelorSimulationManager::ObjectAdded(IPhysicsObject *object)
+void Managers::BachelorSimulationManager::ObjectAdded(SceneObject *object)
 {
 	for (auto method : m_collisionMethods)
 	{
@@ -135,7 +135,7 @@ void Managers::BachelorSimulationManager::ObjectAdded(IPhysicsObject *object)
 	}
 }
 
-void Managers::BachelorSimulationManager::ObjectRemoved(IPhysicsObject *object)
+void Managers::BachelorSimulationManager::ObjectRemoved(SceneObject *object)
 {
 	for (auto method : m_collisionMethods)
 	{
@@ -374,7 +374,7 @@ void Managers::BachelorSimulationManager::FreeCollisionMethods()
 	}
 }
 
-void Managers::BachelorSimulationManager::BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce)
+void Managers::BachelorSimulationManager::BreakObject(Rendering::SceneObject *obj, glm::vec3 impactForce)
 {
 	if (obj->GetObjectType() != 1)
 		return;
@@ -495,7 +495,7 @@ void Managers::BachelorSimulationManager::RecordLastFrameResults()
 
 		ResetCollisions();
 
-		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> asd = methodPointer->TestCollision();
+		std::unordered_set<std::pair<SceneObject *, SceneObject *>> asd = methodPointer->TestCollision();
 
 		for (auto criterion : methodPointer->GetLastFrameCriteria())
 		{
@@ -644,7 +644,7 @@ void Managers::BachelorSimulationManager::SpawnObjectsFromScenario(const Simulat
 {
 	for (auto desc : scenario->GetObjectDescriptions())
 	{
-		IPhysicsObject *obj = SpawnObjectAt(desc.m_objectType, desc.m_ID, desc.m_initialPosition, desc.m_initialRotation, desc.m_initialRotationAngle, desc.m_initialScale);
+		SceneObject *obj = SpawnObjectAt(desc.m_objectType, desc.m_ID, desc.m_initialPosition, desc.m_initialRotation, desc.m_initialRotationAngle, desc.m_initialScale);
 		obj->SetTranslationStep(desc.m_translationStep);
 		obj->SetScaleStep(desc.m_scaleStep);
 		obj->SetRotationStep(desc.m_rotationStep);
@@ -655,7 +655,7 @@ void Managers::BachelorSimulationManager::SpawnObjectsFromScenario(const Simulat
 	m_firstAvailableID++;
 }
 
-Rendering::IPhysicsObject* Managers::BachelorSimulationManager::SpawnObjectAt(const Simulation::PhysicsObjectType objectType, size_t ID, const glm::vec3 &position, const glm::vec3 &rotation, const float rotationAngle, const glm::vec3 &scale)
+Rendering::SceneObject* Managers::BachelorSimulationManager::SpawnObjectAt(const Simulation::PhysicsObjectType objectType, size_t ID, const glm::vec3 &position, const glm::vec3 &rotation, const float rotationAngle, const glm::vec3 &scale)
 {
 	Rendering::Models::Model *newObj;
 

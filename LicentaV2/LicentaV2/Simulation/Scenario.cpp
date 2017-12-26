@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void Simulation::Scenario::LoadFromObjects(std::vector<Rendering::IPhysicsObject*> objects, std::wstring  scenarioName, size_t numberOfFrames)
+void Simulation::Scenario::LoadFromObjects(std::vector<Rendering::SceneObject*> objects, std::wstring  scenarioName, size_t numberOfFrames)
 {
 	m_objectDescriptions.clear();
 	this->m_name = scenarioName;

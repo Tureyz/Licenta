@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Rendering/IPhysicsObject.h"
+#include "../../Rendering/SceneObject.h"
 #include "../../Collision/DataStructures/BoundingBox.h"
 
 namespace Collision

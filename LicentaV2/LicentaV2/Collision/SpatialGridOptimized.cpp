@@ -7,14 +7,14 @@
 
 using namespace Rendering;
 
-Collision::SpatialGridOptimized::SpatialGridOptimized(std::vector<Rendering::IPhysicsObject *> *allObjects, int numberOfCells)
+Collision::SpatialGridOptimized::SpatialGridOptimized(std::vector<Rendering::SceneObject *> *allObjects, int numberOfCells)
 {
 	m_allObjects = allObjects;
 	m_numberOfCells = numberOfCells;
 
 	MakeNewGrid();
 
-	m_memoryUsed = sizeof(Collision::SpatialGridOptimized) + sizeof(std::vector<Rendering::IPhysicsObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
+	m_memoryUsed = sizeof(Collision::SpatialGridOptimized) + sizeof(std::vector<Rendering::SceneObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
 }
 
 void Collision::SpatialGridOptimized::_Update()
@@ -23,7 +23,7 @@ void Collision::SpatialGridOptimized::_Update()
 
 	MakeNewGrid();
 
-	m_memoryUsed += sizeof(std::vector<Rendering::IPhysicsObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
+	m_memoryUsed += sizeof(std::vector<Rendering::SceneObject *>) * m_numberOfCells * m_numberOfCells * m_numberOfCells;
 
 	for (auto currentObj : (*m_allObjects))
 	{
@@ -33,7 +33,7 @@ void Collision::SpatialGridOptimized::_Update()
 			m_grid[static_cast<std::size_t>(cellIndexes[i].x)][static_cast<std::size_t>(cellIndexes[i].y)][static_cast<std::size_t>(cellIndexes[i].z)].push_back(currentObj);
 			m_populatedCells.insert(cellIndexes[i]);
 		}
-		m_memoryUsed += sizeof(Rendering::IPhysicsObject*) * cellIndexes.size();
+		m_memoryUsed += sizeof(Rendering::SceneObject*) * cellIndexes.size();
 	}
 }
 
@@ -84,7 +84,7 @@ void Collision::SpatialGridOptimized::SetParams(glm::vec3 worldMin, glm::vec3 wo
 	m_cellSize = (m_worldMax - m_worldMin) / ((float)m_numberOfCells);
 }
 
-std::vector<glm::vec3> Collision::SpatialGridOptimized::FindCells(IPhysicsObject *obj)
+std::vector<glm::vec3> Collision::SpatialGridOptimized::FindCells(SceneObject *obj)
 {
 	Collision::DataStructures::BoundingBox objBB = ((Models::Model *)obj)->GetBoundingBox();
 
@@ -113,21 +113,21 @@ std::vector<glm::vec3> Collision::SpatialGridOptimized::FindCells(IPhysicsObject
 	return result;
 }
 
-void Collision::SpatialGridOptimized::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::SpatialGridOptimized::ObjectMoved(Rendering::SceneObject *object)
 {
 }
 
-void Collision::SpatialGridOptimized::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::SpatialGridOptimized::ObjectAdded(Rendering::SceneObject *object)
 {
 }
 
-void Collision::SpatialGridOptimized::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::SpatialGridOptimized::ObjectRemoved(Rendering::SceneObject *object)
 {
 }
 
-std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::SpatialGridOptimized::_TestCollision()
+std::unordered_set<std::pair<SceneObject *, SceneObject *>> Collision::SpatialGridOptimized::_TestCollision()
 {
-	std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> result;
+	std::unordered_set<std::pair<SceneObject *, SceneObject *>> result;
 	m_lastFrameTests = 0;
 
 	// 	for (auto obj : *(m_allObjects))

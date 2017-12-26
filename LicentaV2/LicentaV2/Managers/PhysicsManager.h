@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
-#include "../Rendering/IPhysicsObject.h"
-#include "../Rendering/Models/Sphere.h"
+#include "../Rendering/SceneObject.h"
 #include "../Collision/ICollisionMethod.h"
 #include <unordered_set>
 
@@ -10,31 +9,31 @@ namespace Managers
 	class PhysicsManager
 	{
 	public:
-		PhysicsManager(std::vector<Rendering::IPhysicsObject*> *objectList);
+		PhysicsManager(std::vector<Rendering::SceneObject*> *objectList);
 		void FixedUpdate();
 		void Update();
 		void CollisionResponse();
-		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> *GetCollisionPairs() const { return m_collisionPairs; }
-		void SetCollisionPairs(std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> *val) { m_collisionPairs = val; }
+		std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> *GetCollisionPairs() const { return m_collisionPairs; }
+		void SetCollisionPairs(std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> *val) { m_collisionPairs = val; }
 
 		void KeyPressed(unsigned char key);
 		void KeyReleased(unsigned char key);
 
 
 	private:
-		bool WillBreak(Rendering::IPhysicsObject * obj, Rendering::IPhysicsObject * other, glm::vec3 force);
+		bool WillBreak(Rendering::SceneObject * obj, Rendering::SceneObject * other, glm::vec3 force);
 
 
-		void PushObjectsApart(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj);
+		void PushObjectsApart(Rendering::SceneObject *firstObj, Rendering::SceneObject *secondObj);
 
-		std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> ComputeReactionVels(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj);
+		std::pair<std::pair<glm::vec3, glm::vec3>, std::pair<glm::vec3, glm::vec3>> ComputeReactionVels(Rendering::SceneObject *firstObj, Rendering::SceneObject *secondObj);
 
-		void ApplyAngularVel(Rendering::Models::Sphere *obj, glm::vec3 axis);
+		void ApplyAngularVel(Rendering::SceneObject *obj, glm::vec3 axis);
 
-		void ApplyLinearVel(Rendering::Models::Sphere *firstObj, Rendering::Models::Sphere *secondObj, glm::vec3 force);
+		void ApplyLinearVel(Rendering::SceneObject *firstObj, Rendering::SceneObject *secondObj, glm::vec3 force);
 
-		std::vector<Rendering::IPhysicsObject*> *m_objectList;
-		std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> *m_collisionPairs;
+		std::vector<Rendering::SceneObject*> *m_objectList;
+		std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> *m_collisionPairs;
 
 		glm::vec3 m_gravityCenter;
 		float m_gravityMultiplier;

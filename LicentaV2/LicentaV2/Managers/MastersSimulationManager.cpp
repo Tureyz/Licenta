@@ -1,9 +1,10 @@
 #include "MastersSimulationManager.h"
-#include "..\Rendering\Models\Sphere.h"
-
-#include "..\Rendering\Models\MeshObject.h"
 #include "../Core/Utils.hpp"
-#include "..\Collision\BVH.h"
+#include "../Collision/BVH.h"
+
+#include "../Rendering/VisualBodyFactory.h"
+#include "../Physics/DeformableBody.h"
+#include "../Physics/RigidBody.h"
 
 Managers::MastersSimulationManager::MastersSimulationManager(Managers::ModelManager *modelManager)
 {
@@ -11,8 +12,8 @@ Managers::MastersSimulationManager::MastersSimulationManager(Managers::ModelMana
 	m_modelManager = modelManager;
 	m_allObjects = m_modelManager->GetModelListPtr();
 	m_objectBBsVisible = true;
-	m_broadPhaseDebugDraw = true;
-	m_narrowPhaseDebugDraw = true;
+	m_broadPhaseDebugDraw = false;
+	m_narrowPhaseDebugDraw = false;
 
 }
 
@@ -20,68 +21,40 @@ void Managers::MastersSimulationManager::Init()
 {
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
-	m_broadPhaseMethod->SetModelManager(m_modelManager);
 
-	Rendering::Models::MeshObject *testObj = new Rendering::Models::MeshObject(100, 100, m_modelManager, this);
-	testObj->SetID(m_objectIDCounter);
-	testObj->Create();
-	//testObj->GetCollisionData()->m_narrowPhaseMethod->SetShowDebug(m_narrowPhaseDebugDraw);
+	Rendering::SceneObject *meshObj = new Rendering::SceneObject();
+	meshObj->SetID(m_objectIDCounter);
+	meshObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
+	meshObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
+	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(20, 20));	
+	meshObj->UpdateVertices(glm::mat4(1.0f));
+	meshObj->SetPhysicsBody(new Physics::DeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices));
 
-	//testObj->ScaleAbsolute(glm::vec3(1.f));
-	//testObj->RotateAbsolute(glm::vec3(0.f, 1.f, 0.f), 15);
-	//testObj->TranslateAbsolute(glm::vec3(0.1f));
-
-	//testObj->SetScaleStep(glm::vec3(1.f));
-	//testObj->SetRotationAngleStep(0.f);
-	//testObj->SetTranslationStep(glm::vec3(0.f));
-
-	ObjectAdded(testObj);
-	ObjectMoved(testObj);
-	testObj->ObjectMoved();
-	m_modelManager->RegisterObject(m_objectIDCounter++, testObj);
+	ObjectAdded(meshObj);
+	ObjectMoved(meshObj);
+	meshObj->ObjectMoved();
+	m_modelManager->RegisterObject(m_objectIDCounter++, meshObj);
 
 
-
-	Rendering::Models::Sphere *sphereObj = new Rendering::Models::Sphere(m_modelManager, this);
+	Rendering::SceneObject *sphereObj = new Rendering::SceneObject();
 	sphereObj->SetID(m_objectIDCounter);
-	sphereObj->Create();
-	sphereObj->TranslateAbsolute(glm::vec3(-0.25f, -0.25f, 0));
+	sphereObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
+	sphereObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
+	sphereObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_SPHERE));
+	sphereObj->UpdateVertices(glm::mat4(1.0f));
+	sphereObj->SetPhysicsBody(new Physics::RigidBody(&sphereObj->GetVisualBody()->m_verts, &sphereObj->GetVisualBody()->m_indices));
 
-// 	sphereObj->ScaleAbsolute(glm::vec3(0.25f));
-// 	sphereObj->RotateAbsolute(glm::vec3(1.f), 0);
-// 	sphereObj->TranslateAbsolute(glm::vec3(-0.25f, -0.25f, 0.05f));
-// 
-// 	sphereObj->SetScaleStep(glm::vec3(1.f));
-// 	sphereObj->SetRotationStep(glm::vec3(0.f, 1.f, 0.f));
-// 	sphereObj->SetRotationAngleStep(0.01f);
-// 	sphereObj->SetTranslationStep(glm::vec3(0.00005f, 0.00005f, 0.f));
+	sphereObj->TranslateAbsolute(glm::vec3(-0.25f, -0.25f, 0));
+ 	sphereObj->SetTranslationStep(glm::vec3(0.00005f, 0.00005f, 0.f));
 
 	ObjectAdded(sphereObj);
 	ObjectMoved(sphereObj);
 	sphereObj->ObjectMoved();
 	m_modelManager->RegisterObject(m_objectIDCounter++, sphereObj);
 
-// 	Rendering::Models::Sphere *sphereObj2 = new Rendering::Models::Sphere(m_modelManager, this);
-// 	sphereObj2->SetID(m_objectIDCounter);
-// 	sphereObj2->Create();
-// 
-// 	sphereObj2->ScaleAbsolute(glm::vec3(0.1f));
-// 	sphereObj2->RotateAbsolute(glm::vec3(1.f), 0);
-// 	sphereObj2->TranslateAbsolute(glm::vec3(-1.f, -1.f, 0.05f));
-// 
-// 	sphereObj2->SetScaleStep(glm::vec3(1.f));
-// 	sphereObj2->SetRotationAngleStep(0.f);
-// 	sphereObj2->SetTranslationStep(glm::vec3(0.001f, 0.001f, 0.f));
-// 
-// 	ObjectAdded(sphereObj2);
-// 	ObjectMoved(sphereObj2);
-// 	sphereObj2->ObjectMoved();
-// 	m_modelManager->RegisterObject(m_objectIDCounter++, sphereObj2);
 
 
-
-	m_modelManager->SetBoundingBoxesVisibile(false);
-
+	m_modelManager->SetBoundingBoxesVisibile(m_objectBBsVisible);
 }
 
 void Managers::MastersSimulationManager::FixedUpdate()
@@ -102,20 +75,20 @@ void Managers::MastersSimulationManager::FixedUpdate()
 
 		if (!m_narrowMethods.count(candidatePair.first->GetID()))
 		{
-			Collision::NarrowBVH *method = new Collision::NarrowBVH(&(candidatePair.first->GetCollisionData()->m_triangles));
+			Collision::NarrowBVH *method = new Collision::NarrowBVH(candidatePair.first->GetPhysicsBody()->GetTrianglesPtr());
 			method->Update();
 			m_narrowMethods[candidatePair.first->GetID()] = method;
 		}
 
 		if (!m_narrowMethods.count(candidatePair.second->GetID()))
 		{
-			Collision::NarrowBVH *method = new Collision::NarrowBVH(&(candidatePair.second->GetCollisionData()->m_triangles));
+			Collision::NarrowBVH *method = new Collision::NarrowBVH(candidatePair.second->GetPhysicsBody()->GetTrianglesPtr());
 			method->Update();
 			m_narrowMethods[candidatePair.second->GetID()] = method;
 		}
 
 
-		std::unordered_set<std::pair<Collision::DataStructures::CollisionTriangle *, Collision::DataStructures::CollisionTriangle *>> collidingTriangles = m_narrowMethods[candidatePair.first->GetID()]->TestCollision(m_narrowMethods[candidatePair.second->GetID()]);
+		std::unordered_set<std::pair<Physics::CollisionTriangle *, Physics::CollisionTriangle *>> collidingTriangles = m_narrowMethods[candidatePair.first->GetID()]->TestCollision(m_narrowMethods[candidatePair.second->GetID()]);
 
 
 		for (auto trianglePair : collidingTriangles)
@@ -138,19 +111,19 @@ void Managers::MastersSimulationManager::Draw(const glm::mat4 &viewProjection)
 		m_broadPhaseMethod->DrawDebug(viewProjection);
 }
 
-void Managers::MastersSimulationManager::ObjectMoved(Rendering::IPhysicsObject *object)
+void Managers::MastersSimulationManager::ObjectMoved(Rendering::SceneObject *object)
 {
 	if (m_broadPhaseMethod)
 		m_broadPhaseMethod->ObjectMoved(object);
 }
 
-void Managers::MastersSimulationManager::ObjectAdded(Rendering::IPhysicsObject *object)
+void Managers::MastersSimulationManager::ObjectAdded(Rendering::SceneObject *object)
 {
 	if (m_broadPhaseMethod)
 		m_broadPhaseMethod->ObjectAdded(object);
 }
 
-void Managers::MastersSimulationManager::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Managers::MastersSimulationManager::ObjectRemoved(Rendering::SceneObject *object)
 {
 	if (m_broadPhaseMethod)
 		m_broadPhaseMethod->ObjectRemoved(object);
@@ -172,11 +145,11 @@ void Managers::MastersSimulationManager::MouseMove(int x, int y, int width, int 
 {
 }
 
-void Managers::MastersSimulationManager::BreakObject(Rendering::IPhysicsObject *obj, glm::vec3 impactForce)
+void Managers::MastersSimulationManager::BreakObject(Rendering::SceneObject *obj, glm::vec3 impactForce)
 {
 }
 
-std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Managers::MastersSimulationManager::GetBroadPhasePairs()
+std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Managers::MastersSimulationManager::GetBroadPhasePairs()
 {
 	return m_broadPhaseMethod->TestCollision();
 }

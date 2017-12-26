@@ -6,7 +6,7 @@ namespace Collision
 	class DummyMethod : public ICollisionMethod
 	{
 	public:
-		DummyMethod(std::vector<Rendering::IPhysicsObject *> *allObjects);
+		DummyMethod(std::vector<Rendering::SceneObject *> *allObjects);
 
 		virtual ~DummyMethod();
 
@@ -14,14 +14,14 @@ namespace Collision
 
 		virtual void DrawDebug(const glm::mat4& viewProjection) override;
 
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectMoved(Rendering::SceneObject *object) override;
 
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectAdded(Rendering::SceneObject *object) override;
 
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) override;
 
 	protected:
-		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+		virtual std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> _TestCollision() override;
 
 	};
 }

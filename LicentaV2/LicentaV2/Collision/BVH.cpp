@@ -3,10 +3,12 @@
 #include <iterator>
 
 #include "../Rendering/ShapeRenderer.h"
+#include "../Rendering/VisualBodyFactory.h"
+
 
 using namespace Collision;
 
-Collision::BVH::BVH(std::vector<IPhysicsObject *> *allObjects)
+Collision::BVH::BVH(std::vector<SceneObject *> *allObjects)
 {
 	m_allObjects = allObjects;
 	m_memoryUsed = sizeof(Collision::BVH);
@@ -34,14 +36,14 @@ void Collision::BVH::DrawDebug(const glm::mat4& viewProjection)
 	glLineWidth(1);
 }
 
-void Collision::BVH::CreateTree(DataStructures::BVHTree<Rendering::IPhysicsObject *> **node, IPhysicsObject ** objects, size_t numObjects)
+void Collision::BVH::CreateTree(DataStructures::BVHTree<Rendering::SceneObject *> **node, SceneObject ** objects, size_t numObjects)
 {
 	if (numObjects <= 0)
 	{
 		return;
 	}
 
-	DataStructures::BVHTree<Rendering::IPhysicsObject *> *newNode = new DataStructures::BVHTree<Rendering::IPhysicsObject *>();
+	DataStructures::BVHTree<Rendering::SceneObject *> *newNode = new DataStructures::BVHTree<Rendering::SceneObject *>();
 	*node = newNode;
 
 // 	newNode->m_boundingBox = new Collision::DataStructures::BoundingBox(objects, numObjects);
@@ -49,14 +51,14 @@ void Collision::BVH::CreateTree(DataStructures::BVHTree<Rendering::IPhysicsObjec
 // 	newNode->m_boundingBox->SetVisible(true);
 	newNode->m_objects = &objects[0];
 	newNode->m_numObjects = numObjects;
-	newNode->m_boundingBox.CreateVisualBody(GetModelManager()->CreateBasicVisualBody(Simulation::PhysicsObjectType::OBJ_LINE_CUBE));
+	newNode->m_boundingBox.CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
 
 	std::vector<std::pair<glm::vec3, glm::vec3>> bounds;
 	for (int i = 0; i < numObjects; ++i)
 	{
-		Collision::DataStructures::BoundingBox bb = objects[i]->GetBoundingBox();
+		Collision::DataStructures::BoundingBox *bb = objects[i]->GetBoundingBox();
 		
-		bounds.push_back(std::make_pair(glm::vec3(bb.m_minX, bb.m_minY, bb.m_minZ), glm::vec3(bb.m_maxX, bb.m_maxY, bb.m_maxZ)));
+		bounds.push_back(std::make_pair(glm::vec3(bb->m_minX, bb->m_minY, bb->m_minZ), glm::vec3(bb->m_maxX, bb->m_maxY, bb->m_maxZ)));
 	}
 
 	newNode->m_boundingBox.UpdateValues(bounds);
@@ -66,11 +68,11 @@ void Collision::BVH::CreateTree(DataStructures::BVHTree<Rendering::IPhysicsObjec
 
 	if (numObjects <= 1)
 	{
-		newNode->m_type = DataStructures::BVHTree<Rendering::IPhysicsObject *>::LEAF;
+		newNode->m_type = DataStructures::BVHTree<Rendering::SceneObject *>::LEAF;
 	}
 	else
 	{
-		newNode->m_type = DataStructures::BVHTree<Rendering::IPhysicsObject *>::NODE;
+		newNode->m_type = DataStructures::BVHTree<Rendering::SceneObject *>::NODE;
 		size_t k = SplitObjects(newNode);
 
 		CreateTree(&newNode->m_left, &objects[0], k);
@@ -78,7 +80,7 @@ void Collision::BVH::CreateTree(DataStructures::BVHTree<Rendering::IPhysicsObjec
 	}
 }
 
-size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree<Rendering::IPhysicsObject *> *node)
+size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree<Rendering::SceneObject *> *node)
 {
 	enum SplittingAxisType { AXIS_X = 0, AXIS_Y = 1, AXIS_Z = 2};
 
@@ -100,7 +102,7 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree<Rendering
 		splittingPoint = node->m_boundingBox.m_minZ + boxLengths.z / 2;
 	}
 
-	std::vector<IPhysicsObject *> leftSide, rightSide;
+	std::vector<SceneObject *> leftSide, rightSide;
 
 	if (spl == AXIS_X)
 	{		
@@ -153,15 +155,15 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree<Rendering
 	{
 		if (spl == AXIS_X)
 		{
-			std::sort(rightSide.begin(), rightSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().x < b->GetPosition().x; });
+			std::sort(rightSide.begin(), rightSide.end(), [](SceneObject *a, SceneObject *b) { return a->GetPosition().x < b->GetPosition().x; });
 		}
 		else if (spl == AXIS_Y)
 		{
-			std::sort(rightSide.begin(), rightSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().y < b->GetPosition().y; });
+			std::sort(rightSide.begin(), rightSide.end(), [](SceneObject *a, SceneObject *b) { return a->GetPosition().y < b->GetPosition().y; });
 		}
 		else
 		{
-			std::sort(rightSide.begin(), rightSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().z < b->GetPosition().z; });
+			std::sort(rightSide.begin(), rightSide.end(), [](SceneObject *a, SceneObject *b) { return a->GetPosition().z < b->GetPosition().z; });
 		}
 
 		for (auto obj : rightSide)
@@ -176,15 +178,15 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree<Rendering
 	{
 		if (spl == AXIS_X)
 		{
-			std::sort(leftSide.begin(), leftSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().x < b->GetPosition().x; });
+			std::sort(leftSide.begin(), leftSide.end(), [](SceneObject *a, SceneObject *b) { return a->GetPosition().x < b->GetPosition().x; });
 		}
 		else if (spl == AXIS_Y)
 		{
-			std::sort(leftSide.begin(), leftSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().y < b->GetPosition().y; });
+			std::sort(leftSide.begin(), leftSide.end(), [](SceneObject *a, SceneObject *b) { return a->GetPosition().y < b->GetPosition().y; });
 		}
 		else
 		{
-			std::sort(leftSide.begin(), leftSide.end(), [](IPhysicsObject *a, IPhysicsObject *b) { return a->GetPosition().z < b->GetPosition().z; });
+			std::sort(leftSide.begin(), leftSide.end(), [](SceneObject *a, SceneObject *b) { return a->GetPosition().z < b->GetPosition().z; });
 		}
 
 		for (auto obj : leftSide)
@@ -207,7 +209,7 @@ size_t Collision::BVH::SplitObjects(Collision::DataStructures::BVHTree<Rendering
 	return leftSide.size();
 }
 
-void Collision::BVH::DrawRecursive(DataStructures::BVHTree<Rendering::IPhysicsObject *> *node, const glm::mat4& viewProjection)
+void Collision::BVH::DrawRecursive(DataStructures::BVHTree<Rendering::SceneObject *> *node, const glm::mat4& viewProjection)
 {
 	if (!node)
 		return;
@@ -219,19 +221,19 @@ void Collision::BVH::DrawRecursive(DataStructures::BVHTree<Rendering::IPhysicsOb
 }
 
 // false = right, true = left
-bool Collision::BVH::ChildrenSelectionRule(DataStructures::BVHTree<Rendering::IPhysicsObject *> * left, DataStructures::BVHTree<Rendering::IPhysicsObject *> * right)
+bool Collision::BVH::ChildrenSelectionRule(DataStructures::BVHTree<Rendering::SceneObject *> * left, DataStructures::BVHTree<Rendering::SceneObject *> * right)
 {	
 	float leftVolume = (left->m_boundingBox.m_maxX - left->m_boundingBox.m_minX) * (left->m_boundingBox.m_maxY - left->m_boundingBox.m_minY) * (left->m_boundingBox.m_maxZ - left->m_boundingBox.m_minZ);
 	float rightVolume = (right->m_boundingBox.m_maxX - right->m_boundingBox.m_minX) * (right->m_boundingBox.m_maxY - right->m_boundingBox.m_minY) * (right->m_boundingBox.m_maxZ - right->m_boundingBox.m_minZ);
 
-	return right->m_type == DataStructures::BVHTree<Rendering::IPhysicsObject *>::LEAF || (left->m_type != DataStructures::BVHTree<Rendering::IPhysicsObject *>::LEAF && (leftVolume >= rightVolume));
+	return right->m_type == DataStructures::BVHTree<Rendering::SceneObject *>::LEAF || (left->m_type != DataStructures::BVHTree<Rendering::SceneObject *>::LEAF && (leftVolume >= rightVolume));
 }
 
-std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> Collision::BVH::QueryBVHPairs(DataStructures::BVHTree<Rendering::IPhysicsObject *> *first, DataStructures::BVHTree<Rendering::IPhysicsObject *> *second)
+std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Collision::BVH::QueryBVHPairs(DataStructures::BVHTree<Rendering::SceneObject *> *first, DataStructures::BVHTree<Rendering::SceneObject *> *second)
 {
-	std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> result;
+	std::unordered_set<std::pair<SceneObject *, SceneObject *>> result;
 
-	std::vector<std::pair<Collision::DataStructures::BVHTree<Rendering::IPhysicsObject *> *, Collision::DataStructures::BVHTree<Rendering::IPhysicsObject *> *>> stack;
+	std::vector<std::pair<Collision::DataStructures::BVHTree<Rendering::SceneObject *> *, Collision::DataStructures::BVHTree<Rendering::SceneObject *> *>> stack;
 
 	m_lastFrameTests = 0;
 	while (1)
@@ -240,7 +242,7 @@ std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObj
 		if (first && second && first->m_boundingBox.Collides(second->m_boundingBox))
 		{
 			//if (first->m_type == Collision::DataStructures::BVHTree::LEAF && second->m_type == Collision::DataStructures::BVHTree::LEAF && first != second)
-			if (first->m_type == Collision::DataStructures::BVHTree<Rendering::IPhysicsObject *>::LEAF && second->m_type == Collision::DataStructures::BVHTree<Rendering::IPhysicsObject *>::LEAF && first != second)
+			if (first->m_type == Collision::DataStructures::BVHTree<Rendering::SceneObject *>::LEAF && second->m_type == Collision::DataStructures::BVHTree<Rendering::SceneObject *>::LEAF && first != second)
 			{
 				//if (first->m_objects[0]->SphereTest(second->m_objects[0]))
 				result.insert(std::make_pair(first->m_objects[0], second->m_objects[0]));
@@ -271,21 +273,21 @@ std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObj
 	return result;
 }
 
-void Collision::BVH::ObjectMoved(Rendering::IPhysicsObject *object)
+void Collision::BVH::ObjectMoved(Rendering::SceneObject *object)
 {
 }
 
-void Collision::BVH::ObjectAdded(Rendering::IPhysicsObject *object)
+void Collision::BVH::ObjectAdded(Rendering::SceneObject *object)
 {
 }
 
-void Collision::BVH::ObjectRemoved(Rendering::IPhysicsObject *object)
+void Collision::BVH::ObjectRemoved(Rendering::SceneObject *object)
 {
 }
 
-std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> Collision::BVH::_TestCollision()
+std::unordered_set<std::pair<SceneObject *, SceneObject *>> Collision::BVH::_TestCollision()
 {	
 	if (!m_root)
-		return std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>>();
+		return std::unordered_set<std::pair<SceneObject *, SceneObject *>>();
 	return QueryBVHPairs(m_root, m_root);
 }

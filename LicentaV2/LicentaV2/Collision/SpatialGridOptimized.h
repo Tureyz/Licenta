@@ -9,7 +9,7 @@ namespace Collision
 	{
 	public:
 
-		SpatialGridOptimized(std::vector<Rendering::IPhysicsObject *> *allObjects, int numberOfCells);
+		SpatialGridOptimized(std::vector<Rendering::SceneObject *> *allObjects, int numberOfCells);
 
 
 		virtual void DrawDebug(const glm::mat4& viewProjection) override;
@@ -18,18 +18,18 @@ namespace Collision
 
 	protected:
 
-		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() override;
+		virtual std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> _TestCollision() override;
 
 		virtual void _Update() override;
 
 	private:
-		std::vector<glm::vec3> FindCells(Rendering::IPhysicsObject *obj);
+		std::vector<glm::vec3> FindCells(Rendering::SceneObject *obj);
 
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectMoved(Rendering::SceneObject *object) override;
 
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectAdded(Rendering::SceneObject *object) override;
 
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) override;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) override;
 
 		void MakeNewGrid();
 
@@ -37,7 +37,7 @@ namespace Collision
 		glm::vec3 m_worldMax;
 		int m_numberOfCells;
 		glm::vec3 m_cellSize;
-		std::vector<std::vector<std::vector<std::vector<Rendering::IPhysicsObject *>>>> m_grid;
+		std::vector<std::vector<std::vector<std::vector<Rendering::SceneObject *>>>> m_grid;
 		std::unordered_set<glm::vec3> m_populatedCells;
 
 	};

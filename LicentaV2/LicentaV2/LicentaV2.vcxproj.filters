@@ -30,22 +30,10 @@
     <ClCompile Include="Managers\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Models\Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Managers\ModelManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Models\Cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Models\Tetrahedron.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Models\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Collision\DummyMethod.cpp">
@@ -87,12 +75,6 @@
     <ClCompile Include="Core\DeltaTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Models\Cylinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering\Models\Cone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Collision\SeparatingAxisTheorem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -123,34 +105,37 @@
     <ClCompile Include="Managers\MastersSimulationManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering\Models\MeshObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Collision\DataStructures\CollisionData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Collision\DataStructures\CollisionTriangle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Rendering\VisualBody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Collision\NarrowBVH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collision\DataStructures\Plane.cpp">
+    <ClCompile Include="Physics\ClothNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collision\DataStructures\ClothBehavior.cpp">
+    <ClCompile Include="Physics\Constraint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collision\DataStructures\ClothNode.cpp">
+    <ClCompile Include="Physics\Edge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collision\DataStructures\Constraint.cpp">
+    <ClCompile Include="Physics\RigidBody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collision\DataStructures\Edge.cpp">
+    <ClCompile Include="Physics\DeformableBody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\CollisionTriangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Plane.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\VisualBodyFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering\SceneObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -236,25 +221,10 @@
     <ClInclude Include="Rendering\VertexFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\IPhysicsObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Models\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Managers\ModelManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Models\Cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Models\Tetrahedron.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Models\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Collision\ICollisionMethod.h">
@@ -305,12 +275,6 @@
     <ClInclude Include="Core\DeltaTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Models\Cylinder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering\Models\Cone.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Collision\SeparatingAxisTheorem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -347,34 +311,40 @@
     <ClInclude Include="Managers\MastersSimulationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering\Models\MeshObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Collision\DataStructures\CollisionData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Collision\DataStructures\CollisionTriangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Rendering\VisualBody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Collision\NarrowBVH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Collision\DataStructures\Plane.h">
+    <ClInclude Include="Physics\ClothNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Collision\DataStructures\ClothBehavior.h">
+    <ClInclude Include="Physics\Constraint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Collision\DataStructures\ClothNode.h">
+    <ClInclude Include="Physics\Edge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Collision\DataStructures\Constraint.h">
+    <ClInclude Include="Physics\IPhysicsbody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Collision\DataStructures\Edge.h">
+    <ClInclude Include="Physics\RigidBody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\DeformableBody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\CollisionTriangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\VisualBodyFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\SceneObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

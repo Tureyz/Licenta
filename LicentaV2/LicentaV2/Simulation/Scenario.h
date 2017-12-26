@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "..\Rendering\IPhysicsObject.h"
+#include "..\Rendering\SceneObject.h"
 
 namespace Simulation
 {
@@ -11,7 +11,7 @@ namespace Simulation
 
 	struct ObjectDescription
 	{
-		PhysicsObjectType m_objectType;
+//		PhysicsObjectType m_objectType;
 		size_t m_ID;
 
 		glm::vec3 m_initialPosition;
@@ -30,7 +30,7 @@ namespace Simulation
 	class Scenario
 	{
 	public:
-		void LoadFromObjects(std::vector<Rendering::IPhysicsObject*> objects, std::wstring  scenarioName, size_t numberOfFrames);
+		void LoadFromObjects(std::vector<Rendering::SceneObject*> objects, std::wstring  scenarioName, size_t numberOfFrames);
 		void LoadFromFile(std::wstring  fileName);
 		void LoadFromFile(std::wstring  fileName, int numberOfObjects);
 		void SaveToFile(std::wstring  fileName);

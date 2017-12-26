@@ -5,9 +5,7 @@
 #include <unordered_set>
 
 #include "..\Core\Utils.hpp"
-#include "..\Rendering\IPhysicsObject.h"
-#include "..\Managers\ModelManager.h"
-
+#include "..\Rendering\SceneObject.h"
 
 
 using namespace Rendering;
@@ -20,14 +18,14 @@ namespace Collision
 
 		virtual ~ICollisionMethod() = 0;
 
-		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> TestCollision() final;
+		virtual std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> TestCollision() final;
 		virtual void Update() final;
 
 		virtual void DrawDebug(const glm::mat4& viewProjection) = 0;
 
-		virtual void ObjectMoved(Rendering::IPhysicsObject *object) = 0;
-		virtual void ObjectAdded(Rendering::IPhysicsObject *object) = 0;
-		virtual void ObjectRemoved(Rendering::IPhysicsObject *object) = 0;
+		virtual void ObjectMoved(Rendering::SceneObject *object) = 0;
+		virtual void ObjectAdded(Rendering::SceneObject *object) = 0;
+		virtual void ObjectRemoved(Rendering::SceneObject *object) = 0;
 
 		void SetDrawBuffers(GLuint vao, GLuint vbo, GLuint ibo) { m_vao = vao; m_vbo = vbo; m_ibo = ibo; }
 		void SetIndices(std::vector<GLuint> *indices) { m_indices = indices; }
@@ -38,14 +36,12 @@ namespace Collision
 		std::unordered_map<std::wstring , float> GetLastFrameCriteria() const { return m_lastFrameCriteria; }
 		void SetLastFrameCriteria(std::unordered_map<std::wstring , float> val) { m_lastFrameCriteria = val; }
 
-		Managers::ModelManager * GetModelManager() const { return m_modelManager; }
-		void SetModelManager(Managers::ModelManager * val) { m_modelManager = val; }
 	protected:
 
-		virtual std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> _TestCollision() = 0;
+		virtual std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> _TestCollision() = 0;
 		virtual void _Update() = 0;
 
-		std::vector<Rendering::IPhysicsObject *> *m_allObjects;
+		std::vector<Rendering::SceneObject *> *m_allObjects;
 		bool m_showDebug;
 		GLuint m_vao, m_vbo, m_ibo;
 		std::vector<GLuint> *m_indices;
@@ -55,7 +51,6 @@ namespace Collision
 		size_t m_lastFrameTests;
 		size_t m_memoryUsed;
 
-		Managers::ModelManager *m_modelManager;
 	private:
 
 	};
@@ -63,10 +58,10 @@ namespace Collision
 	inline ICollisionMethod::~ICollisionMethod() {}
 
 
-	inline std::unordered_set<std::pair<Rendering::IPhysicsObject *, Rendering::IPhysicsObject *>> ICollisionMethod::TestCollision()
+	inline std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> ICollisionMethod::TestCollision()
 	{		
 		auto start = std::chrono::high_resolution_clock::now();
-		std::unordered_set<std::pair<IPhysicsObject *, IPhysicsObject *>> result = _TestCollision();
+		std::unordered_set<std::pair<SceneObject *, SceneObject *>> result = _TestCollision();
 		auto end = std::chrono::high_resolution_clock::now();
 
 		auto timeSpent = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();

@@ -1,9 +1,9 @@
 #include "CollisionTriangle.h"
 
-#include "../../Core/Utils.hpp"
-#include "../../Dependencies/glm/gtx/intersect.hpp"
+#include "../Core/Utils.hpp"
+#include "../Dependencies/glm/gtx/intersect.hpp"
 
-void Collision::DataStructures::CollisionTriangle::Update()
+void Physics::CollisionTriangle::Update()
 {
 	ComputeCenter();
 	ResetCollisionState();
@@ -13,22 +13,22 @@ void Collision::DataStructures::CollisionTriangle::Update()
 	ComputePlane();
 }
 
-bool Collision::DataStructures::CollisionTriangle::TriangleTest(CollisionTriangle &a, CollisionTriangle &b)
+bool Physics::CollisionTriangle::TriangleTest(CollisionTriangle &a, CollisionTriangle &b)
 {
-// 	if (a.PointsSameSide(b))
-// 		return false;
-// 	if (b.PointsSameSide(a))
-// 		return false;
+	// 	if (a.PointsSameSide(b))
+	// 		return false;
+	// 	if (b.PointsSameSide(a))
+	// 		return false;
 
 	if (a.PointsSameSideDet(b))
 		return false;
 	if (b.PointsSameSideDet(a))
-		return false;	
+		return false;
 
 	std::pair<glm::vec3, glm::vec3> lineIntersect = Plane::PlaneIntersect(a.m_plane, b.m_plane);
 
 	glm::vec3 normalizedLineSeg = glm::normalize(lineIntersect.first + 15.f * lineIntersect.second);
-	
+
 	float dx = abs(glm::acos(glm::dot(normalizedLineSeg, glm::vec3(1, 0, 0))));
 	float dy = abs(glm::acos(glm::dot(normalizedLineSeg, glm::vec3(0, 1, 0))));
 	float dz = abs(glm::acos(glm::dot(normalizedLineSeg, glm::vec3(0, 0, 1))));
@@ -109,8 +109,8 @@ bool Collision::DataStructures::CollisionTriangle::TriangleTest(CollisionTriangl
 		}
 	}
 
-// 	return (t1Proj.first < t2Proj.first && t1Proj.second > t2Proj.first) || (t1Proj.first < t2Proj.second && t1Proj.second > t2Proj.second) ||
-// 		(t1Proj.first < t2Proj.first && t1Proj.second > t2Proj.second) || (t1Proj.first > t2Proj.first && t1Proj.second < t2Proj.second);
+	// 	return (t1Proj.first < t2Proj.first && t1Proj.second > t2Proj.first) || (t1Proj.first < t2Proj.second && t1Proj.second > t2Proj.second) ||
+	// 		(t1Proj.first < t2Proj.first && t1Proj.second > t2Proj.second) || (t1Proj.first > t2Proj.first && t1Proj.second < t2Proj.second);
 
 
 	return !(t1Proj.second <= t1Proj.first || t2Proj.second <= t1Proj.first);
@@ -121,12 +121,12 @@ bool Collision::DataStructures::CollisionTriangle::TriangleTest(CollisionTriangl
 
 }
 
-glm::vec3 Collision::DataStructures::CollisionTriangle::GetCenter()
+glm::vec3 Physics::CollisionTriangle::GetCenter()
 {
 	return m_center;
 }
 
-void Collision::DataStructures::CollisionTriangle::SetColliding()
+void Physics::CollisionTriangle::SetColliding()
 {
 	m_collisionState = Rendering::CollisionState::COLLIDING;
 
@@ -135,23 +135,33 @@ void Collision::DataStructures::CollisionTriangle::SetColliding()
 	m_verts[2]->m_color = Core::COLLIDING_OBJECT_COLOR;
 }
 
-void Collision::DataStructures::CollisionTriangle::ComputeFaceNormal()
+void Physics::CollisionTriangle::ComputeFaceNormal()
 {
-	m_faceNormal = glm::cross(m_verts[1]->m_position - m_verts[0]->m_position, m_verts[2]->m_position - m_verts[0]->m_position);
+	m_faceNormal = glm::normalize(glm::cross(m_verts[1]->m_position - m_verts[0]->m_position, m_verts[2]->m_position - m_verts[0]->m_position));
 }
 
-void Collision::DataStructures::CollisionTriangle::ComputeCenter()
+void Physics::CollisionTriangle::ComputeCenter()
 {
 	m_center = (m_verts[0]->m_position + m_verts[1]->m_position + m_verts[2]->m_position) / 3.f;
 }
 
-void Collision::DataStructures::CollisionTriangle::ComputePlane()
+void Physics::CollisionTriangle::ComputePlane()
 {
 	m_plane.m_normal = glm::normalize(m_faceNormal);
 	m_plane.m_d = glm::dot(m_plane.m_normal, m_verts[0]->m_position);
 }
 
-glm::vec3 Collision::DataStructures::CollisionTriangle::Barycentric(glm::vec3 p)
+void Physics::CollisionTriangle::ComputeArea()
+{
+	glm::vec3 a = m_verts[0]->m_position;
+	glm::vec3 b = m_verts[1]->m_position;
+	glm::vec3 c = m_verts[2]->m_position;
+
+	//m_area = (a.x * b.y * c.z + a.y * b.z * c.x + b.x * c.y * a.z - a.z * b.y * c.x - b.x * a.y * c.z - c.y * b.z * a.x) / 2;
+	m_area = glm::length(glm::cross(b - a, c - a)) / 2.f;
+}
+
+glm::vec3 Physics::CollisionTriangle::Barycentric(glm::vec3 p)
 {
 	glm::vec3 result;
 
@@ -190,7 +200,7 @@ glm::vec3 Collision::DataStructures::CollisionTriangle::Barycentric(glm::vec3 p)
 	return glm::vec3(u, v, w);
 }
 
-void Collision::DataStructures::CollisionTriangle::ResetCollisionState()
+void Physics::CollisionTriangle::ResetCollisionState()
 {
 	m_collisionState = Rendering::CollisionState::DEFAULT;
 	m_verts[0]->m_color = Core::DEFAULT_OBJECT_COLOR;
@@ -198,7 +208,7 @@ void Collision::DataStructures::CollisionTriangle::ResetCollisionState()
 	m_verts[2]->m_color = Core::DEFAULT_OBJECT_COLOR;
 }
 
-void Collision::DataStructures::CollisionTriangle::AddFaceNormalToVerts()
+void Physics::CollisionTriangle::AddFaceNormalToVerts()
 {
 	for (int i = 0; i < 3; ++i)
 	{
@@ -206,25 +216,25 @@ void Collision::DataStructures::CollisionTriangle::AddFaceNormalToVerts()
 	}
 }
 
-bool Collision::DataStructures::CollisionTriangle::EdgeEdgeTest(Collision::DataStructures::Edge *edge1, Collision::DataStructures::Edge *edge2)
+bool Physics::CollisionTriangle::EdgeEdgeTest(Physics::Edge *edge1, Physics::Edge *edge2)
 {
 
 
 	return false;
 }
 
-bool Collision::DataStructures::CollisionTriangle::PointTriangleTest(glm::vec3 point, CollisionTriangle &triangle)
+bool Physics::CollisionTriangle::PointTriangleTest(glm::vec3 point, CollisionTriangle &triangle)
 {
 	glm::vec3 bar = triangle.Barycentric(point);
 	return bar.y > 0.f && bar.z > 0.f && (bar.y + bar.z) <= 1.f;
 }
 
-float Collision::DataStructures::CollisionTriangle::TriArea2D(float x1, float y1, float x2, float y2, float x3, float y3)
+float Physics::CollisionTriangle::TriArea2D(float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	return (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
 }
 
-bool Collision::DataStructures::CollisionTriangle::PointsSameSide(const CollisionTriangle &other)
+bool Physics::CollisionTriangle::PointsSameSide(const CollisionTriangle &other)
 {
 	glm::vec4 planeEc = glm::vec4(m_plane.m_normal, m_plane.m_d);
 
@@ -235,7 +245,7 @@ bool Collision::DataStructures::CollisionTriangle::PointsSameSide(const Collisio
 	return (d1 < 0 && d2 < 0 && d3 < 0) || (d1 > 0 && d2 > 0 && d3 > 0);
 }
 
-bool Collision::DataStructures::CollisionTriangle::PointsSameSideDet(const CollisionTriangle &other)
+bool Physics::CollisionTriangle::PointsSameSideDet(const CollisionTriangle &other)
 {
 	float d1 = PlaneDeterminant(*this, other.m_verts[0]);
 	float d2 = PlaneDeterminant(*this, other.m_verts[1]);
@@ -244,7 +254,7 @@ bool Collision::DataStructures::CollisionTriangle::PointsSameSideDet(const Colli
 	return (d1 < 0 && d2 < 0 && d3 < 0) || (d1 > 0 && d2 > 0 && d3 > 0);
 }
 
-float Collision::DataStructures::CollisionTriangle::PlaneDeterminant(const CollisionTriangle &tri, const Rendering::VertexFormat *point)
+float Physics::CollisionTriangle::PlaneDeterminant(const CollisionTriangle &tri, const Rendering::VertexFormat *point)
 {
 
 	glm::vec3 e1 = tri.m_verts[1]->m_position - tri.m_verts[0]->m_position;

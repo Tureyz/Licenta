@@ -10,14 +10,14 @@ Collision::DataStructures::BoundingBox::~BoundingBox()
 {	
 }
 
-void Collision::DataStructures::BoundingBox::CreateVisualBody(Rendering::VisualBody &visualBody)
+void Collision::DataStructures::BoundingBox::CreateVisualBody(Rendering::VisualBody *visualBody)
 {
 	m_visualBody = visualBody;
 
 
-	for (int i = 0; i < m_visualBody.m_verts.size(); ++i)
+	for (int i = 0; i < m_visualBody->m_verts.size(); ++i)
 	{
-		m_visualBody.m_verts[i].m_color = Core::BOUNDING_VOLUME_COLOR;
+		m_visualBody->m_verts[i].m_color = Core::BOUNDING_VOLUME_COLOR;
 	}
 
 }
@@ -50,7 +50,7 @@ void Collision::DataStructures::BoundingBox::UpdateValues(glm::vec3 minCoords, g
 	m_maxY = maxCoords.y;
 	m_maxZ = maxCoords.z;
 
-//	UpdateVisualVerts();
+	UpdateVisualVerts();
 	
 
 // 	m_visualBody->m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 0
@@ -118,37 +118,32 @@ bool Collision::DataStructures::BoundingBox::Collides(const BoundingBox &other)
 void Collision::DataStructures::BoundingBox::UpdateVisualVerts()
 {
 
-	m_visualBody.m_verts.clear();
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 0
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 1
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_maxY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 2
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_maxY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 3
 
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_maxY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 4
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_maxY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 5
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_minY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 6
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 7
+	m_visualBody->m_verts[0].m_position = glm::vec3(m_minX, m_minY, m_maxZ); // 0
+	m_visualBody->m_verts[1].m_position = glm::vec3(m_maxX, m_minY, m_maxZ); // 1
+	m_visualBody->m_verts[2].m_position = glm::vec3(m_maxX, m_maxY, m_maxZ); // 2
+	m_visualBody->m_verts[3].m_position = glm::vec3(m_minX, m_maxY, m_maxZ); // 3
+	m_visualBody->m_verts[4].m_position = glm::vec3(m_maxX, m_maxY, m_maxZ); // 4
+	m_visualBody->m_verts[5].m_position = glm::vec3(m_maxX, m_maxY, m_minZ); // 5
+	m_visualBody->m_verts[6].m_position = glm::vec3(m_maxX, m_minY, m_minZ); // 6
+	m_visualBody->m_verts[7].m_position = glm::vec3(m_maxX, m_minY, m_maxZ); // 7
+	m_visualBody->m_verts[8].m_position = glm::vec3(m_minX, m_minY, m_minZ); // 8
+	m_visualBody->m_verts[9].m_position = glm::vec3(m_maxX, m_minY, m_minZ); // 9
+	m_visualBody->m_verts[10].m_position = glm::vec3(m_maxX, m_maxY, m_minZ); // 10
+	m_visualBody->m_verts[11].m_position = glm::vec3(m_minX, m_maxY, m_minZ); // 11
+	m_visualBody->m_verts[12].m_position = glm::vec3(m_minX, m_minY, m_minZ); // 12
+	m_visualBody->m_verts[13].m_position = glm::vec3(m_minX, m_minY, m_maxZ); // 13
+	m_visualBody->m_verts[14].m_position = glm::vec3(m_minX, m_maxY, m_maxZ); // 14
+	m_visualBody->m_verts[15].m_position = glm::vec3(m_minX, m_maxY, m_minZ); // 15
+	m_visualBody->m_verts[16].m_position = glm::vec3(m_maxX, m_maxY, m_maxZ); // 16
+	m_visualBody->m_verts[17].m_position = glm::vec3(m_minX, m_maxY, m_maxZ); // 17
+	m_visualBody->m_verts[18].m_position = glm::vec3(m_minX, m_maxY, m_minZ); // 18
+	m_visualBody->m_verts[19].m_position = glm::vec3(m_maxX, m_maxY, m_minZ); // 19
+	m_visualBody->m_verts[20].m_position = glm::vec3(m_minX, m_minY, m_minZ); // 20
+	m_visualBody->m_verts[21].m_position = glm::vec3(m_maxX, m_minY, m_minZ); // 21
+	m_visualBody->m_verts[22].m_position = glm::vec3(m_maxX, m_minY, m_maxZ); // 22
+	m_visualBody->m_verts[23].m_position = glm::vec3(m_minX, m_minY, m_maxZ); // 23
 
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 8
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_minY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 9
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_maxY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 10
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_maxY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 11
-
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 12
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 13
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_maxY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 14
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_maxY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 15
-
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_maxY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 16
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_maxY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 17
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_maxY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 18
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_maxY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 19
-
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 20
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_minY, m_minZ), Core::BOUNDING_VOLUME_COLOR)); // 21
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_maxX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 22
-	m_visualBody.m_verts.push_back(Rendering::VertexFormat(glm::vec3(m_minX, m_minY, m_maxZ), Core::BOUNDING_VOLUME_COLOR)); // 23
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_visualBody.m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * m_visualBody.m_verts.size(), &m_visualBody.m_verts[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, m_visualBody->m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * m_visualBody->m_verts.size(), &m_visualBody->m_verts[0], GL_STATIC_DRAW);
 }
