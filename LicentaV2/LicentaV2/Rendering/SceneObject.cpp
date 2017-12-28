@@ -113,6 +113,8 @@ void Rendering::SceneObject::Update()
 {
 
 	m_modelMatrix = m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+ 	m_rotationMatrix = m_scaleMatrix = glm::mat4(1);
+ 	m_translationMatrix = glm::mat4(1);
 	UpdateVertices(m_modelMatrix);
 
 

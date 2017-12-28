@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <functional>
+
 #include "../Dependencies/glm/glm.hpp"
 #include "ClothNode.h"
 
@@ -9,17 +11,19 @@ namespace Physics
 	class Constraint
 	{
 	public:
-		enum FunctionTypes { EDGE_STRETCH, TRIANGLE_BEND };
+		//Constraint(std::vector<Physics::ClothNode *> points, float stiffness, bool type);
+		virtual void Init() = 0;
+		virtual float ComputeConstraint() = 0;
+		virtual glm::vec3 ComputeDerivative(size_t index) = 0;
+		virtual float ComputeScalingFactor() = 0;
+
+		virtual void Solve(int iterationCount) = 0;
+
 		int m_cardinality;
 		std::vector<Physics::ClothNode *> m_points;
 		float m_stiffness;
 		bool m_type;
-		FunctionTypes m_funcType;
 		std::vector<float> m_auxValues;
-
-
-		static float StretchFunc(glm::vec3 p1, glm::vec3 p2, float l0);
-		static float BendingFunc(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, float fi0);
 
 	};
 }

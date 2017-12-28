@@ -27,15 +27,15 @@ void main()
 	vec3 L = normalize(lightPosition - inPosition);
 	vec3 V = normalize(eyePosition - inPosition);
 
-	float ambientLight = 0.5;
-	float LdotN = max(dot(L, inNormal), 0);
+	float ambientLight = 0.6;
+	float LdotN = clamp(dot(-L, inNormal), 0, 1);
 	float diffuseLight = LdotN * kd;
 	float specularLight = 0;
 
 	if (LdotN > 0.0)
 	{
 		vec3 R = -normalize(reflect(L, inNormal));
-		specularLight = ks * pow(max(dot(R, V), 0), shininess);
+		specularLight = ks * pow(max(dot(V, R), 0), shininess);
 	}
 
 	light = (ambientLight + diffuseLight) + specularLight;

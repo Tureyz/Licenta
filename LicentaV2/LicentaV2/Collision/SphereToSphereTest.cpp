@@ -1,5 +1,4 @@
 #include "SphereToSphereTest.h"
-#include "../Rendering/Models/Sphere.h"
 
 Collision::SphereToSphereTest::SphereToSphereTest(std::vector<Rendering::SceneObject *> *allObjects)
 {
@@ -33,23 +32,23 @@ std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>
 	{
 		for (auto secondObj : *m_allObjects)
 		{
-			if (firstObj != secondObj)
-			{
-				Rendering::Models::Sphere *firstSphere = (Rendering::Models::Sphere *) firstObj;
-				Rendering::Models::Sphere *secondSphere = (Rendering::Models::Sphere *) secondObj;
-
-				auto firstCenter = firstSphere->GetPosition();
-				auto secondCenter = secondSphere->GetPosition();
-
-				//was initial verts
-				auto firstRadius = glm::distance(firstCenter, firstSphere->GetVisualBody().m_verts[0].m_position);
-				auto secondRadius = glm::distance(secondCenter, secondSphere->GetVisualBody().m_verts[0].m_position);
-
-				if (glm::distance(firstCenter, secondCenter) < firstRadius + secondRadius)
-				{
-					result.insert(std::make_pair(firstObj, secondObj));
-				}
-			}
+// 			if (firstObj != secondObj)
+// 			{
+// 				Rendering::Models::Sphere *firstSphere = (Rendering::Models::Sphere *) firstObj;
+// 				Rendering::Models::Sphere *secondSphere = (Rendering::Models::Sphere *) secondObj;
+// 
+// 				auto firstCenter = firstSphere->GetPosition();
+// 				auto secondCenter = secondSphere->GetPosition();
+// 
+// 				//was initial verts
+// 				auto firstRadius = glm::distance(firstCenter, firstSphere->GetVisualBody().m_verts[0].m_position);
+// 				auto secondRadius = glm::distance(secondCenter, secondSphere->GetVisualBody().m_verts[0].m_position);
+// 
+// 				if (glm::distance(firstCenter, secondCenter) < firstRadius + secondRadius)
+// 				{
+// 					result.insert(std::make_pair(firstObj, secondObj));
+// 				}
+// 			}
 		}
 	}
 

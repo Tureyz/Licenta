@@ -13,6 +13,7 @@ namespace Physics
 		float m_invMass;
 		Rendering::VertexFormat *m_vertexLink;
 		size_t m_ID;
+		bool m_isFixed;
 
 		ClothNode(glm::vec3 pos, glm::vec3 vel, Rendering::VertexFormat *parent, size_t ID) : m_pos(pos), m_vel(vel), m_vertexLink(parent), m_ID(ID) { m_mass = m_invMass = 0; }
 

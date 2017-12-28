@@ -12,7 +12,7 @@
 namespace Core
 {
 
-	const float TIME_STEP_MS = 1000.f / 30.f;
+	const float TIME_STEP_MS = 1000.f / 60.f;
 	const float TIME_STEP = TIME_STEP_MS / 1000.f;
 	const glm::vec3 GRAVITY_ACCEL(0, -9.81f, 0);
 
@@ -160,6 +160,11 @@ namespace Core
 		static float scaleValue(const float val, std::pair<float, float> oldRange, std::pair<float, float> newRange)
 		{
 			return ((newRange.second - newRange.first) * (val - oldRange.first) / (oldRange.second - oldRange.first)) + newRange.first;
+		}
+
+		static float clamp(const float val, const float lo, const float hi)
+		{
+			return val < lo ? lo : val > hi ? hi : val;
 		}
 	};
 }

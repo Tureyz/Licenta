@@ -1,5 +1,4 @@
 #include "SweepAndPrune.h"
-#include "../Rendering/Models/Model.h"
 #include <iterator>
 
 Collision::SweepAndPrune::SweepAndPrune(std::vector<Rendering::SceneObject *> *allObjects)

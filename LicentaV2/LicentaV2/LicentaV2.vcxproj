@@ -146,6 +146,7 @@
     <ClCompile Include="Collision\DataStructures\BVHTree.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Physics\BendConstraint.cpp" />
     <ClCompile Include="Physics\DeformableBody.cpp" />
     <ClCompile Include="Physics\ClothNode.cpp" />
     <ClCompile Include="Physics\RigidBody.cpp" />
@@ -168,18 +169,23 @@
     </ClCompile>
     <ClCompile Include="Collision\SpatialGrid.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Collision\SpatialGridOptimized.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Collision\SpatialHashing.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Collision\SphereToSphereTest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Collision\SweepAndPrune.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Core\DeltaTime.cpp" />
     <ClCompile Include="Core\InitGLUT.cpp" />
@@ -197,6 +203,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Physics\RigidConstraint.cpp" />
+    <ClCompile Include="Physics\StretchConstraint.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Collision\DataStructures\BoundingBox.cpp" />
     <ClCompile Include="Rendering\SceneObject.cpp" />
@@ -227,6 +235,7 @@
     <ClInclude Include="Collision\DataStructures\BVHTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Physics\BendConstraint.h" />
     <ClInclude Include="Physics\DeformableBody.h" />
     <ClInclude Include="Physics\ClothNode.h" />
     <ClInclude Include="Physics\RigidBody.h" />
@@ -251,19 +260,24 @@
     </ClInclude>
     <ClInclude Include="Collision\SpatialGrid.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Collision\ICollisionMethod.h" />
     <ClInclude Include="Collision\SpatialGridOptimized.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Collision\SpatialHashing.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Collision\SphereToSphereTest.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Collision\SweepAndPrune.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Core\DeltaTime.h" />
     <ClInclude Include="Core\InitGLUT.h" />
@@ -282,6 +296,8 @@
     </ClInclude>
     <ClInclude Include="Managers\ISimulationManager.h" />
     <ClInclude Include="Physics\IPhysicsbody.h" />
+    <ClInclude Include="Physics\RigidConstraint.h" />
+    <ClInclude Include="Physics\StretchConstraint.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\SceneObject.h" />
     <ClInclude Include="Collision\DataStructures\BoundingBox.h" />

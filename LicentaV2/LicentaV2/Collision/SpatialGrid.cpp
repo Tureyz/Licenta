@@ -2,7 +2,6 @@
 #include "../Rendering/VertexFormat.h"
 #include "../Managers/ShaderManager.h"
 #include "../Collision/DataStructures/BoundingBox.h"
-#include "../Rendering/Models/Model.h"
 #include "../Rendering/ShapeRenderer.h"
 
 using namespace Rendering;

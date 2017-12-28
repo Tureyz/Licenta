@@ -26,9 +26,12 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->SetID(m_objectIDCounter);
 	meshObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
 	meshObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
-	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(20, 20));	
-	meshObj->UpdateVertices(glm::mat4(1.0f));
+	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(20, 20));
+	meshObj->RotateAbsolute(glm::vec3(0, 0, 1), 3.14159);
+	meshObj->TranslateAbsolute(glm::vec3(5.25f, 7.25f, 1));
+	meshObj->Update();	
 	meshObj->SetPhysicsBody(new Physics::DeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices));
+	//meshObj->RotateAbsolute(glm::vec3(1, 0, 0), 90);
 
 	ObjectAdded(meshObj);
 	ObjectMoved(meshObj);
@@ -36,21 +39,21 @@ void Managers::MastersSimulationManager::Init()
 	m_modelManager->RegisterObject(m_objectIDCounter++, meshObj);
 
 
-	Rendering::SceneObject *sphereObj = new Rendering::SceneObject();
-	sphereObj->SetID(m_objectIDCounter);
-	sphereObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
-	sphereObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
-	sphereObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_SPHERE));
-	sphereObj->UpdateVertices(glm::mat4(1.0f));
-	sphereObj->SetPhysicsBody(new Physics::RigidBody(&sphereObj->GetVisualBody()->m_verts, &sphereObj->GetVisualBody()->m_indices));
-
-	sphereObj->TranslateAbsolute(glm::vec3(-0.25f, -0.25f, 0));
- 	sphereObj->SetTranslationStep(glm::vec3(0.00005f, 0.00005f, 0.f));
-
-	ObjectAdded(sphereObj);
-	ObjectMoved(sphereObj);
-	sphereObj->ObjectMoved();
-	m_modelManager->RegisterObject(m_objectIDCounter++, sphereObj);
+// 	Rendering::SceneObject *sphereObj = new Rendering::SceneObject();
+// 	sphereObj->SetID(m_objectIDCounter);
+// 	sphereObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
+// 	sphereObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
+// 	sphereObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_SPHERE));
+// 	sphereObj->UpdateVertices(glm::mat4(1.0f));
+// 	sphereObj->SetPhysicsBody(new Physics::RigidBody(&sphereObj->GetVisualBody()->m_verts, &sphereObj->GetVisualBody()->m_indices));
+// 
+// 	sphereObj->TranslateAbsolute(glm::vec3(-0.25f, -0.25f, 0));
+//  	sphereObj->SetTranslationStep(glm::vec3(0.00005f, 0.00005f, 0.f));
+// 
+// 	ObjectAdded(sphereObj);
+// 	ObjectMoved(sphereObj);
+// 	sphereObj->ObjectMoved();
+// 	m_modelManager->RegisterObject(m_objectIDCounter++, sphereObj);
 
 
 
