@@ -6,6 +6,10 @@
 #include "ClothNode.h"
 #include "Constraint.h"
 #include "IPhysicsbody.h"
+#include "ClothTriangle.h"
+#include "Edge.h"
+
+#include "../Collision/NarrowSpatialHashing.h"
 
 namespace Physics
 {
@@ -21,6 +25,8 @@ namespace Physics
 
 
 		std::vector<ClothNode *> m_nodes;
+		std::vector<ClothTriangle *> m_triangles;
+		std::vector<Edge *> m_edges;
 		std::vector<Constraint *> m_constraints;
 		std::vector<Constraint *> m_dynamicConstraints;
 		float m_density;
@@ -29,16 +35,21 @@ namespace Physics
 		float m_kDamping;
 		float m_kBending;
 		float m_kStretching;
+		float m_averageEdgeLength;
+		float m_clothThickness;
+
+		Collision::NarrowSpatialHashing *m_selfCD;
 	private:
 
 		std::unordered_map<size_t, std::vector<size_t>> m_vertTriangleMap;
-		std::unordered_map<Physics::Edge, std::vector<ClothNode *>> m_edgeTriangleMap;
-		void CreateTriangles();
-		void CreateStretchingConstraints();
-		void CreateBendingConstraints();
+		std::unordered_map<Physics::Edge, Physics::ClothTriangle *> m_edgeTriangleMap;
+		void CreateTriangles();		
 		void CreateClothNodes(std::vector<Rendering::VertexFormat> *verts);
 		void ComputeVertexMasses();
 		void AdvanceVertices();
+
+		void ApplyExternalForces();
+
 		void UpdateTriangles();
 		void AddGroundConstraints();
 		void AddCollisionConstraints();

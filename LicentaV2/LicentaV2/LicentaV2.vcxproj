@@ -146,9 +146,12 @@
     <ClCompile Include="Collision\DataStructures\BVHTree.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Collision\NarrowSpatialHashing.cpp" />
     <ClCompile Include="Physics\BendConstraint.cpp" />
+    <ClCompile Include="Physics\ClothTriangle.cpp" />
     <ClCompile Include="Physics\DeformableBody.cpp" />
     <ClCompile Include="Physics\ClothNode.cpp" />
+    <ClCompile Include="Physics\PointTriangleSelfConstraint.cpp" />
     <ClCompile Include="Physics\RigidBody.cpp" />
     <ClCompile Include="Physics\CollisionTriangle.cpp" />
     <ClCompile Include="Physics\Constraint.cpp" />
@@ -235,9 +238,12 @@
     <ClInclude Include="Collision\DataStructures\BVHTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Collision\NarrowSpatialHashing.h" />
     <ClInclude Include="Physics\BendConstraint.h" />
+    <ClInclude Include="Physics\ClothTriangle.h" />
     <ClInclude Include="Physics\DeformableBody.h" />
     <ClInclude Include="Physics\ClothNode.h" />
+    <ClInclude Include="Physics\PointTriangleSelfConstraint.h" />
     <ClInclude Include="Physics\RigidBody.h" />
     <ClInclude Include="Physics\CollisionTriangle.h" />
     <ClInclude Include="Physics\Constraint.h" />

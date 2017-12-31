@@ -3,10 +3,6 @@
 
 Managers::SceneManager::SceneManager()
 {
-	m_initTime = (float) clock();
-	m_lastFixedTime = m_initTime;
-	m_lastFrameTime = m_initTime;
-	Core::DeltaTime::SetDt(0);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -32,6 +28,10 @@ Managers::SceneManager::SceneManager()
 	m_modelManager->Init();
 	m_simulationManager->Init();
 	
+	m_initTime = (float) clock();
+	m_lastFixedTime = m_initTime;
+	m_lastFrameTime = m_initTime;
+	Core::DeltaTime::SetDt(0);
 	//m_textRenderer->SetProgram(Managers::ShaderManager::GetTextShader());
 	//m_textRenderer->Init();
 
@@ -87,7 +87,7 @@ void Managers::SceneManager::notifyDisplayFrame()
 
 	glUniform3f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "lightPosition"), light_position.x, light_position.y, light_position.z);
 	glUniform3f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "eyePosition"), m_camera->GetEyeVector().x, m_camera->GetEyeVector().y, m_camera->GetEyeVector().z);
-	glUniform1i(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "shininess"), 5);
+	glUniform1i(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "shininess"), 6);
 	glUniform1f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "kd"), 0.5);
 	glUniform1f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "ks"), 0.5);
 	glm::mat4 viewProjection = m_projectionMatrix * m_camera->GetViewMatrix();

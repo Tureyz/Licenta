@@ -1,3 +1,2 @@
-﻿  StretchConstraint.cpp
-d:\git repos\licenta\licentav2\licentav2\physics\stretchconstraint.cpp(54): warning C4715: 'Physics::StretchConstraint::ComputeDerivative': not all control paths return a value
+﻿  DeformableBody.cpp
   LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe

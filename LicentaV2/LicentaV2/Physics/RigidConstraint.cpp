@@ -15,7 +15,7 @@ void Physics::RigidConstraint::Init()
 
 float Physics::RigidConstraint::ComputeConstraint()
 {
-	return glm::dot(m_points[0]->m_pos - m_qc, m_nc);
+	return glm::dot(m_points[0]->m_projection - m_qc, m_nc);
 }
 
 glm::vec3 Physics::RigidConstraint::ComputeDerivative(size_t index)
@@ -42,5 +42,6 @@ void Physics::RigidConstraint::Solve(int iterationCount)
 	float kp = 1 - std::powf(1 - m_stiffness, 1.f / iterationCount);
 	glm::vec3 correction = -ComputeScalingFactor() * m_points[0]->m_invMass * m_nc * kp;
 
-	m_points[0]->m_pos += correction;
+	if (glm::length(correction) > EPS)
+		m_points[0]->m_projection += correction;
 }

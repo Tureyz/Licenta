@@ -32,11 +32,9 @@ void main()
 	float diffuseLight = LdotN * kd;
 	float specularLight = 0;
 
-	if (LdotN > 0.0)
-	{
-		vec3 R = -normalize(reflect(L, inNormal));
-		specularLight = ks * pow(max(dot(V, R), 0), shininess);
-	}
+
+	vec3 R = -normalize(reflect(L, inNormal));
+	specularLight = ks * pow(max(dot(V, R), 0), shininess);
 
 	light = (ambientLight + diffuseLight) + specularLight;
 

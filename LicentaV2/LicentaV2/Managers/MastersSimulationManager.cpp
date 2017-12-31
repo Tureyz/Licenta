@@ -26,7 +26,7 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->SetID(m_objectIDCounter);
 	meshObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
 	meshObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
-	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(20, 20));
+	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(40, 40));
 	meshObj->RotateAbsolute(glm::vec3(0, 0, 1), 3.14159);
 	meshObj->TranslateAbsolute(glm::vec3(5.25f, 7.25f, 1));
 	meshObj->Update();	

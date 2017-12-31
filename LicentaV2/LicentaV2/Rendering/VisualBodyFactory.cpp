@@ -350,13 +350,28 @@ std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> Rendering::
 	{
 		for (int j = 0; j < cols - 1; ++j)
 		{
-			indices.push_back(rows * i + j);
-			indices.push_back(rows * (i + 1) + j + 1);
-			indices.push_back(rows * i + j + 1);
+			if ((i + j) % 2 == 0)
+			{
+				indices.push_back(rows * i + j);
+				indices.push_back(rows * (i + 1) + j);
+				indices.push_back(rows * i + j + 1);
 
-			indices.push_back(rows * i + j);
-			indices.push_back(rows * (i + 1) + j);
-			indices.push_back(rows * (i + 1) + j + 1);
+				indices.push_back(rows * i + j + 1);
+				indices.push_back(rows * (i + 1) + j);
+				indices.push_back(rows * (i + 1) + j + 1);
+
+			}
+			else
+			{
+				indices.push_back(rows * i + j);
+				indices.push_back(rows * (i + 1) + j);
+				indices.push_back(rows * (i + 1) + j + 1);
+
+				indices.push_back(rows * (i + 1) + j + 1);
+				indices.push_back(rows * i + j + 1);
+				indices.push_back(rows * i + j);
+			}
+			
 		}
 	}
 

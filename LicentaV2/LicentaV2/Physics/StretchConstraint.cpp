@@ -62,14 +62,6 @@ float Physics::StretchConstraint::ComputeScalingFactor()
 
 void Physics::StretchConstraint::Solve(int iterationCount)
 {
-	// 	for (int i = 0; i < m_points.size(); ++i)
-	// 	{
-	// 		if (m_points[i]->m_isFixed)
-	// 			continue;
-	// 		glm::vec3 correction = -ComputeScalingFactor() * m_points[i]->m_invMass * ComputeDerivative(i);
-	// 		m_points[i]->m_pos += correction * kp;
-	// 	}
-
 	float kp = 1 - std::powf(1 - m_stiffness, 1.f / iterationCount);
 	float w1 = m_points[0]->m_invMass;
 	float w2 = m_points[1]->m_invMass;
@@ -80,7 +72,7 @@ void Physics::StretchConstraint::Solve(int iterationCount)
 		return;
 	}
 
-	glm::vec3 diff = m_points[0]->m_pos - m_points[1]->m_pos;
+	glm::vec3 diff = m_points[0]->m_projection - m_points[1]->m_projection;
 	float len = glm::length(diff);
 
 	glm::vec3 n = diff / len;
@@ -90,12 +82,9 @@ void Physics::StretchConstraint::Solve(int iterationCount)
 	glm::vec3 correction1 = (-w1 / wSum) * tempTerm;
 	glm::vec3 correction2 = (w2 / wSum) * tempTerm;
 
-// 	float strain = m_l0 / 10.f;
-// 	glm::vec3 min(-strain), max(strain);
-// 	correction1 = glm::clamp(correction1, min, max);
-// 	correction2 = glm::clamp(correction2, min, max);
-
-	m_points[0]->m_pos += correction1;
-	m_points[1]->m_pos += correction2;
+	if (glm::length(correction1) > EPS)
+		m_points[0]->m_projection += correction1;
+	if (glm::length(correction2) > EPS)
+		m_points[1]->m_projection += correction2;
 }
 

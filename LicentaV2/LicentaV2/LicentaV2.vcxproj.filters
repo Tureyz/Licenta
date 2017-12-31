@@ -147,6 +147,15 @@
     <ClCompile Include="Physics\RigidConstraint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\ClothTriangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision\NarrowSpatialHashing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PointTriangleSelfConstraint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\glm\common.hpp">
@@ -363,6 +372,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Physics\RigidConstraint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\ClothTriangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision\NarrowSpatialHashing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PointTriangleSelfConstraint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

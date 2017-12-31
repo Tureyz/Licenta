@@ -8,6 +8,8 @@
 
 namespace Physics
 {
+	static const float EPS = 1.f / 1000000;
+
 	class Constraint
 	{
 	public:
@@ -24,6 +26,7 @@ namespace Physics
 		float m_stiffness;
 		bool m_type;
 		std::vector<float> m_auxValues;
+
 
 	};
 }

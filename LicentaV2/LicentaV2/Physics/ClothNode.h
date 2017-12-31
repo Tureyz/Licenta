@@ -8,6 +8,7 @@ namespace Physics
 	{
 	public:
 		glm::vec3 m_pos;
+		glm::vec3 m_projection;
 		glm::vec3 m_vel;
 		float m_mass;
 		float m_invMass;

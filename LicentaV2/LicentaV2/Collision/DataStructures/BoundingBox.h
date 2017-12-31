@@ -16,6 +16,8 @@ namespace Collision
 
 			virtual void Update();
 
+			void UpdateValues(std::vector<glm::vec3> coords);
+			void UpdateValuesUnsorted(glm::vec3 p1, glm::vec3 p2);
 			void UpdateValues(glm::vec3 minCoords, glm::vec3 maxCoords);
 			void UpdateValues(std::vector<std::pair<glm::vec3, glm::vec3>> objectBounds);
 
