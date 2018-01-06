@@ -1,3 +1,1 @@
-﻿  DeformableBody.cpp
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe
+﻿  LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe

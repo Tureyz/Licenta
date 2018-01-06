@@ -45,7 +45,7 @@ void Physics::BendConstraint::Solve(int iterationCount)
 	glm::vec3 n1 = glm::length(c23) <= EPS ? glm::vec3(0) : glm::normalize(c23);
 	glm::vec3 n2 = glm::length(c24) <= EPS ? glm::vec3(0) : glm::normalize(c24);
 
-	float d = Core::Utils::clamp(glm::dot(n1, n2), -1, 1);
+	float d = Core::Utils::Clamp(glm::dot(n1, n2), -1, 1);
 
 
 	glm::vec3 q3 = (glm::cross(p2, n2) + (glm::cross(n1, p2) * d)) / glm::length(glm::cross(p2, p3));

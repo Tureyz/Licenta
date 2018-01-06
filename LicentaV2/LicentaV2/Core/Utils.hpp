@@ -162,9 +162,17 @@ namespace Core
 			return ((newRange.second - newRange.first) * (val - oldRange.first) / (oldRange.second - oldRange.first)) + newRange.first;
 		}
 
-		static float clamp(const float val, const float lo, const float hi)
+		static float Clamp(const float val, const float lo, const float hi)
 		{
 			return val < lo ? lo : val > hi ? hi : val;
+		}
+
+		static glm::vec3 ProjectPointLine(glm::vec3 point, glm::vec3 edgeP1, glm::vec3 edgeP2)
+		{
+			glm::vec3 ab = edgeP2 - edgeP1;
+			glm::vec3 ap = point - edgeP1;
+
+			return edgeP1 + glm::dot(ap, ab) / glm::dot(ab, ab) * ab;
 		}
 	};
 }

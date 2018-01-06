@@ -1,2 +1,4 @@
-﻿  DeformableBody.cpp
+﻿cl : Command line warning D9007: '/Gm' requires '/Zi or /ZI'; option ignored
+  MastersSimulationManager.cpp
+Managers\MastersSimulationManager.cpp(30): warning C4305: 'argument': truncation from 'double' to 'const float'
   LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe

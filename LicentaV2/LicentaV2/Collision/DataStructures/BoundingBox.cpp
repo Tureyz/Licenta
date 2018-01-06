@@ -5,10 +5,11 @@ Collision::DataStructures::BoundingBox::BoundingBox()
 {
 	SetVisible(false);
 	m_visualBody = NULL;
+	m_thickness = 0;
 }
 
 Collision::DataStructures::BoundingBox::~BoundingBox()
-{	
+{
 }
 
 void Collision::DataStructures::BoundingBox::CreateVisualBody(Rendering::VisualBody *visualBody)
@@ -27,8 +28,9 @@ void Collision::DataStructures::BoundingBox::Update()
 {
 }
 
+
 void Collision::DataStructures::BoundingBox::UpdateValuesUnsorted(glm::vec3 p1, glm::vec3 p2)
-{	
+{
 	glm::vec3 minCoords, maxCoords;
 
 	if (p1.x < p2.x)
@@ -67,6 +69,21 @@ void Collision::DataStructures::BoundingBox::UpdateValuesUnsorted(glm::vec3 p1, 
 	UpdateValues(minCoords, maxCoords);
 }
 
+void Collision::DataStructures::BoundingBox::UpdateValuesUnsorted(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4)
+{
+	glm::vec3 minCoords, maxCoords;
+
+	minCoords.x = (p1.x < p2.x && p1.x < p3.x && p1.x < p4.x) ? p1.x : (p2.x < p3.x && p2.x < p4.x) ? p2.x : (p3.x < p4.x) ? p3.x : p4.x;
+	minCoords.y = (p1.y < p2.y && p1.y < p3.y && p1.y < p4.y) ? p1.y : (p2.y < p3.y && p2.y < p4.y) ? p2.y : (p3.y < p4.y) ? p3.y : p4.y;
+	minCoords.z = (p1.z < p2.z && p1.z < p3.z && p1.z < p4.z) ? p1.z : (p2.z < p3.z && p2.z < p4.z) ? p2.z : (p3.z < p4.z) ? p3.z : p4.z;
+
+	maxCoords.x = (p1.x > p2.x && p1.x > p3.x && p1.x > p4.x) ? p1.x : (p2.x > p3.x && p2.x > p4.x) ? p2.x : (p3.x > p4.x) ? p3.x : p4.x;
+	maxCoords.y = (p1.y > p2.y && p1.y > p3.y && p1.y > p4.y) ? p1.y : (p2.y > p3.y && p2.y > p4.y) ? p2.y : (p3.y > p4.y) ? p3.y : p4.y;
+	maxCoords.z = (p1.z > p2.z && p1.z > p3.z && p1.z > p4.z) ? p1.z : (p2.z > p3.z && p2.z > p4.z) ? p2.z : (p3.z > p4.z) ? p3.z : p4.z;
+
+	UpdateValues(minCoords, maxCoords);
+}
+
 // void Collision::DataStructures::BoundingBox::Draw(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix)
 // {
 // 	if (!m_isVisible)
@@ -90,6 +107,8 @@ void Collision::DataStructures::BoundingBox::UpdateValues(glm::vec3 minCoords, g
 	m_maxX = maxCoords.x;
 	m_maxY = maxCoords.y;
 	m_maxZ = maxCoords.z;
+
+	Enlarge();
 
 	if (m_visualBody)
 		UpdateVisualVerts();
@@ -122,6 +141,8 @@ void Collision::DataStructures::BoundingBox::UpdateValues(std::vector<glm::vec3>
 			m_maxZ = coords[i].z;
 	}
 
+	Enlarge();
+
 	if (m_visualBody)
 		UpdateVisualVerts();
 }
@@ -153,13 +174,29 @@ void Collision::DataStructures::BoundingBox::UpdateValues(std::vector<std::pair<
 			m_maxZ = objectBounds[i].second.z;
 	}
 
+	Enlarge();
+
 	if (m_visualBody)
 		UpdateVisualVerts();
 }
 
-bool Collision::DataStructures::BoundingBox::Collides(const BoundingBox &other)
+bool Collision::DataStructures::BoundingBox::Collides(const BoundingBox &other) const
 {
 	return !(m_maxX < other.m_minX || m_minX > other.m_maxX || m_maxY < other.m_minY || m_minY > other.m_maxY || m_maxZ < other.m_minZ || m_minZ > other.m_maxZ);
+}
+
+void Collision::DataStructures::BoundingBox::Enlarge()
+{
+	if (m_thickness > 0)
+	{
+		m_minX -= m_thickness;
+		m_minY -= m_thickness;
+		m_minZ -= m_thickness;
+
+		m_maxX += m_thickness;
+		m_maxY += m_thickness;
+		m_maxZ += m_thickness;
+	}
 }
 
 void Collision::DataStructures::BoundingBox::UpdateVisualVerts()

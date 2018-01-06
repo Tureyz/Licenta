@@ -85,6 +85,7 @@
       <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalIncludeDirectories>D:\Github repos\Licenta\LicentaV2\LicentaV2\Dependencies\freetype-2.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
@@ -146,11 +147,16 @@
     <ClCompile Include="Collision\DataStructures\BVHTree.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Collision\DataStructures\ContactData.cpp" />
+    <ClCompile Include="Collision\DataStructures\EdgeEdgeContactData.cpp" />
+    <ClCompile Include="Collision\DataStructures\PointTriangleContactData.cpp" />
     <ClCompile Include="Collision\NarrowSpatialHashing.cpp" />
     <ClCompile Include="Physics\BendConstraint.cpp" />
     <ClCompile Include="Physics\ClothTriangle.cpp" />
+    <ClCompile Include="Physics\CubicSolver.cpp" />
     <ClCompile Include="Physics\DeformableBody.cpp" />
     <ClCompile Include="Physics\ClothNode.cpp" />
+    <ClCompile Include="Physics\DisjointSet.cpp" />
     <ClCompile Include="Physics\PointTriangleSelfConstraint.cpp" />
     <ClCompile Include="Physics\RigidBody.cpp" />
     <ClCompile Include="Physics\CollisionTriangle.cpp" />
@@ -207,6 +213,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Physics\RigidConstraint.cpp" />
+    <ClCompile Include="Physics\RigidImpactZone.cpp" />
     <ClCompile Include="Physics\StretchConstraint.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Collision\DataStructures\BoundingBox.cpp" />
@@ -238,11 +245,16 @@
     <ClInclude Include="Collision\DataStructures\BVHTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Collision\DataStructures\ContactData.h" />
+    <ClInclude Include="Collision\DataStructures\EdgeEdgeContactData.h" />
+    <ClInclude Include="Collision\DataStructures\PointTriangleContactData.h" />
     <ClInclude Include="Collision\NarrowSpatialHashing.h" />
     <ClInclude Include="Physics\BendConstraint.h" />
     <ClInclude Include="Physics\ClothTriangle.h" />
+    <ClInclude Include="Physics\CubicSolver.h" />
     <ClInclude Include="Physics\DeformableBody.h" />
     <ClInclude Include="Physics\ClothNode.h" />
+    <ClInclude Include="Physics\DisjointSet.h" />
     <ClInclude Include="Physics\PointTriangleSelfConstraint.h" />
     <ClInclude Include="Physics\RigidBody.h" />
     <ClInclude Include="Physics\CollisionTriangle.h" />
@@ -303,6 +315,7 @@
     <ClInclude Include="Managers\ISimulationManager.h" />
     <ClInclude Include="Physics\IPhysicsbody.h" />
     <ClInclude Include="Physics\RigidConstraint.h" />
+    <ClInclude Include="Physics\RigidImpactZone.h" />
     <ClInclude Include="Physics\StretchConstraint.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\SceneObject.h" />

@@ -32,11 +32,13 @@ namespace Physics
 		float m_density;
 		float m_groundHeight;
 		int m_solverIterations;
+		int m_collisionIterations;
 		float m_kDamping;
 		float m_kBending;
 		float m_kStretching;
 		float m_averageEdgeLength;
 		float m_clothThickness;
+		float m_vertexMass;
 
 		Collision::NarrowSpatialHashing *m_selfCD;
 	private:
@@ -48,6 +50,10 @@ namespace Physics
 		void ComputeVertexMasses();
 		void AdvanceVertices();
 
+		void SolveCollisions();
+		void SolveCollisionsDiscrete();
+		void SolveCollisionsContinuous();
+
 		void ApplyExternalForces();
 
 		void UpdateTriangles();
@@ -58,6 +64,24 @@ namespace Physics
 		void DampVelocities();
 
 		void CreateBendingConstraint(std::vector<ClothNode*> &t1, std::vector<ClothNode*> &t2);
+
+		void ApplyRepulsionForce(const Collision::DataStructures::PointTriangleContactData &pt);
+		void ApplyRepulsionForce(const Collision::DataStructures::EdgeEdgeContactData &ee);
+
+		void ApplyImpulse(const Collision::DataStructures::PointTriangleContactData &pt, const float impulse);
+		void ApplyImpulse(const Collision::DataStructures::EdgeEdgeContactData &ee, const float impulse);
+
+		void ApplyRepulsionForceProj(const Collision::DataStructures::PointTriangleContactData &pt);
+		void ApplyRepulsionForceProj(const Collision::DataStructures::EdgeEdgeContactData &ee);
+
+		void ApplyImpulseProj(const Collision::DataStructures::PointTriangleContactData &pt, const float impulse);
+		void ApplyImpulseProj(const Collision::DataStructures::EdgeEdgeContactData &ee, const float impulse);
+
+		void ApplyImpulse(Physics::ClothNode *p1, Physics::ClothNode *p2, Physics::ClothNode *p3, Physics::ClothNode *p4,
+			const float w1, const float w2, const float w3, const float w4, float magnitude, glm::vec3 direction);
+
+		void ApplyRepulsionForce(Physics::ClothNode *p1, Physics::ClothNode *p2, Physics::ClothNode *p3, Physics::ClothNode *p4,
+			const float w1, const float w2, const float w3, const float w4, const glm::vec3 direction, const glm::vec3 relativeVel, const float t);
 	};
 
 }
