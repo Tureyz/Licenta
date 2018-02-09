@@ -5,6 +5,11 @@
 #include "../Collision/NarrowBVH.h"
 
 
+namespace Rendering
+{
+	class ParticleSystem;
+}
+
 namespace Managers
 {
 	class MastersSimulationManager : public ISimulationManager
@@ -39,14 +44,17 @@ namespace Managers
 
 		virtual void BreakObject(Rendering::SceneObject *obj, glm::vec3 impactForce) override;
 
+		size_t nextID();
+
 	private:
 
 		std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> GetBroadPhasePairs();
 		Collision::ICollisionMethod *m_broadPhaseMethod;
-
 		std::unordered_map<size_t, Collision::NarrowBVH *> m_narrowMethods;
 		bool m_objectBBsVisible;
 		bool m_broadPhaseDebugDraw;
 		bool m_narrowPhaseDebugDraw;
+
+		Rendering::ParticleSystem *m_ps;
 	};
 }

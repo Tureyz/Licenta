@@ -26,12 +26,14 @@ namespace Rendering
 		glm::vec3 m_position;
 		glm::vec4 m_color;
 		glm::vec3 m_normal;
+		glm::vec2 m_uv;
 
 		VertexFormat()
 		{
 			m_position = glm::vec3(0);
 			m_color = glm::vec4(1);
 			m_normal = glm::vec3(0);
+			m_uv = glm::vec2(0);
 		}
 
 		VertexFormat(const glm::vec3 &pos, const glm::vec4 &color)
@@ -39,6 +41,15 @@ namespace Rendering
 			m_position = pos;
 			m_color = color;
 			m_normal = glm::vec3(0);
+			m_uv = glm::vec2(0);
+		}
+
+		VertexFormat(const glm::vec3 &pos, const glm::vec4 &color, const glm::vec2 &uv)
+		{
+			m_position = pos;
+			m_color = color;
+			m_normal = glm::vec3(0);
+			m_uv = uv;
 		}
 	};
 }

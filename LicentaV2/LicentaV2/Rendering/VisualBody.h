@@ -22,5 +22,7 @@ namespace Rendering
 		std::vector<GLuint> m_indices;
 
 		GLuint m_vao, m_vbo, m_ibo;
+
+		GLuint m_texture;
 	};
 }

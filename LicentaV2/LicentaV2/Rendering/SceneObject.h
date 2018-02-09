@@ -28,7 +28,7 @@ namespace Rendering
 		void Create(const glm::mat4 &mvp);
 		void Draw();
 		void Draw(const glm::mat4& viewProjection);
-		void FixedUpdate();
+		virtual void FixedUpdate();
 		void Update();
 		void Destroy();
 

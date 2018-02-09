@@ -5,6 +5,8 @@
 #include "../Rendering/VisualBodyFactory.h"
 #include "../Physics/DeformableBody.h"
 #include "../Physics/RigidBody.h"
+#include "../Core/ScriptLoader.h"
+#include "../Rendering/ParticleSystem.h"
 
 Managers::MastersSimulationManager::MastersSimulationManager(Managers::ModelManager *modelManager)
 {
@@ -16,6 +18,7 @@ Managers::MastersSimulationManager::MastersSimulationManager(Managers::ModelMana
 	m_narrowPhaseDebugDraw = false;
 
 }
+
 
 void Managers::MastersSimulationManager::Init()
 {
@@ -29,6 +32,7 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(20, 20));
 	meshObj->RotateAbsolute(glm::vec3(0, 0, 1), 3.14159);
 	meshObj->TranslateAbsolute(glm::vec3(5.25f, 7.25f, 1));
+	//meshObj->TranslateAbsolute(ScriptLoader::GetVec3("Scripts/randomPos.py", "RandomPosition"));
 	meshObj->Update();	
 	meshObj->SetPhysicsBody(new Physics::DeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices));
 	//meshObj->RotateAbsolute(glm::vec3(1, 0, 0), 90);
@@ -38,6 +42,9 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->ObjectMoved();
 	m_modelManager->RegisterObject(m_objectIDCounter++, meshObj);
 
+  	m_ps = new ParticleSystem(glm::vec3(10, 10, 10), glm::vec2(0.1, 0.1), glm::vec2(0.2, 1), 200);
+  	m_ps->m_modelManager = m_modelManager;
+  	m_ps->m_simManager = this;
 
 // 	Rendering::SceneObject *sphereObj = new Rendering::SceneObject();
 // 	sphereObj->SetID(m_objectIDCounter);
@@ -62,6 +69,7 @@ void Managers::MastersSimulationManager::Init()
 
 void Managers::MastersSimulationManager::FixedUpdate()
 {
+	m_ps->FixedUpdate();
 	m_broadPhaseMethod->Update();
 
 
@@ -134,6 +142,21 @@ void Managers::MastersSimulationManager::ObjectRemoved(Rendering::SceneObject *o
 
 void Managers::MastersSimulationManager::KeyPressed(unsigned char key)
 {
+	switch (key)
+	{
+	case 'r':
+		m_broadPhaseDebugDraw = !m_broadPhaseDebugDraw;
+		//(*m_activeMethod).second->SetShowDebug(m_collisionDebug);
+		
+		m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
+		std::wcout << "Broad Phase Debug " << (m_broadPhaseDebugDraw? "ON" : "OFF") << std::endl;
+		break;
+	case 't':
+		m_objectBBsVisible = !m_objectBBsVisible;
+		m_modelManager->SetBoundingBoxesVisibile(m_objectBBsVisible);
+		std::wcout << "Bounding Volumes " << (m_objectBBsVisible ? "ON" : "OFF") << std::endl;
+		break;
+	}
 }
 
 void Managers::MastersSimulationManager::KeyReleased(unsigned char key)
@@ -150,6 +173,11 @@ void Managers::MastersSimulationManager::MouseMove(int x, int y, int width, int 
 
 void Managers::MastersSimulationManager::BreakObject(Rendering::SceneObject *obj, glm::vec3 impactForce)
 {
+}
+
+size_t Managers::MastersSimulationManager::nextID()
+{
+	return m_objectIDCounter++;
 }
 
 std::unordered_set<std::pair<Rendering::SceneObject *, Rendering::SceneObject *>> Managers::MastersSimulationManager::GetBroadPhasePairs()

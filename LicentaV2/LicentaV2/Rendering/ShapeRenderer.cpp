@@ -21,6 +21,8 @@ void Rendering::ShapeRenderer::CreateBufferObjects(GLuint &vao, GLuint &vbo, GLu
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_color)));
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_normal)));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Rendering::VertexFormat), (void *)(offsetof(Rendering::VertexFormat, Rendering::VertexFormat::m_uv)));
 
 	glBindVertexArray(0);
 }

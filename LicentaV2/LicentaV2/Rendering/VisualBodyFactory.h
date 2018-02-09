@@ -29,7 +29,9 @@ namespace Rendering
 		void CreateTetrahedronBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
 		void CreateConeBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
 		void CreateCylinderBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
-		void CreateSphereBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);		
+		void CreateSphereBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo);
+
+		void ToNFG(std::vector<glm::vec3> verts, std::vector<unsigned int> indices, std::string path);
 
 		std::vector<Rendering::VertexFormat> m_cubeVerts, m_sphereVerts, m_tetraVerts, m_cylinderVerts, m_coneVerts;
 		//care

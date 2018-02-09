@@ -15,7 +15,7 @@ void Physics::RigidImpactZone::SolveRigidImpactZones(Collision::NarrowSpatialHas
 
 	int cnt = 0;
 
-	size_t maxIterations = 10;
+	static size_t maxIterations = 10;
 
 	for (size_t i = 0; i < maxIterations; ++i)
 	{

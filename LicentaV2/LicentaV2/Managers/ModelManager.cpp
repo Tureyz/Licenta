@@ -16,11 +16,22 @@ Managers::ModelManager::~ModelManager()
 		delete model;
 	}
 	m_objectList.clear();
+
+	for (auto model : m_sfxObjectList)
+	{
+		delete model;
+	}
+	m_sfxObjectList.clear();
 }
 
 void Managers::ModelManager::FixedUpdate()
 {
 	for (auto model : m_objectList)
+	{
+		model->FixedUpdate();
+	}
+
+	for (auto model : m_sfxObjectList)
 	{
 		model->FixedUpdate();
 	}
@@ -34,11 +45,23 @@ void Managers::ModelManager::Draw(const glm::mat4& viewProjection)
 		//std::wcout << model->GetPosition().x << L" " << model->GetPosition().y << L" " << model->GetPosition().z << std::endl;
 
 	}
+
+	for (auto model : m_sfxObjectList)
+	{
+		model->Draw(viewProjection);
+		//std::wcout << model->GetPosition().x << L" " << model->GetPosition().y << L" " << model->GetPosition().z << std::endl;
+
+	}
 }
 
 void Managers::ModelManager::Update()
 {
 	for (auto model : m_objectList)
+	{
+		model->Update();
+	}
+
+	for (auto model : m_sfxObjectList)
 	{
 		model->Update();
 	}
@@ -55,6 +78,16 @@ void Managers::ModelManager::DeleteAllModels()
 
 		m_objectList.clear();
 	}
+
+	if (!m_sfxObjectList.empty())
+	{
+		for (auto model : m_sfxObjectList)
+		{
+			delete model;
+		}
+
+		m_sfxObjectList.clear();
+	}
 }
 
 void Managers::ModelManager::DeleteModel(std::size_t id)
@@ -69,11 +102,29 @@ void Managers::ModelManager::DeleteModel(std::size_t id)
 			break;
 		}
 	}
+
+	for (auto it = m_sfxObjectList.begin(); it != m_sfxObjectList.end(); ++it)
+	{
+		if ((*it)->GetID() == id)
+		{
+			(*it)->Destroy();
+			m_sfxObjectList.erase(it);
+			break;
+		}
+	}
 }
 
 const Rendering::SceneObject* Managers::ModelManager::GetModel(unsigned long id) const
 {
 	for (auto mod : m_objectList)
+	{
+		if (mod->GetID() == id)
+		{
+			return mod;
+		}
+	}
+
+	for (auto mod : m_sfxObjectList)
 	{
 		if (mod->GetID() == id)
 		{
@@ -97,9 +148,30 @@ void Managers::ModelManager::RegisterObject(size_t id, Rendering::SceneObject *g
 		}
 	}
 
-	if (!found) {
+	if (!found)
+	{
 		gameObject->SetID(id);
 		m_objectList.push_back(gameObject);
+	}
+}
+
+void Managers::ModelManager::RegisterSFXObject(size_t id, Rendering::SceneObject *gameObject)
+{
+	bool found = false;
+	for (auto mod : m_sfxObjectList)
+	{
+		if (mod->GetID() == id)
+		{
+			mod = gameObject;
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+	{
+		gameObject->SetID(id);
+		m_sfxObjectList.push_back(gameObject);
 	}
 }
 

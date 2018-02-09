@@ -45,12 +45,12 @@ Physics::DeformableBody::DeformableBody(std::vector<Rendering::VertexFormat> *ve
 	m_density = 100;
 	m_verts = verts;
 	m_indices = indices;
-	m_solverIterations = 10;
-	m_collisionIterations = 5;
+	m_solverIterations = 5;
+	m_collisionIterations = 3;
 	m_groundHeight = 4.f;
 	m_kStretching = 1.0f;
 	m_kBending = 0.03f;
-	m_kDamping = 0.2f;
+	m_kDamping = 0.3f;
 	m_averageEdgeLength = 0;
 	m_vertexMass = 1.f;
 
@@ -64,13 +64,21 @@ Physics::DeformableBody::DeformableBody(std::vector<Rendering::VertexFormat> *ve
 	m_selfCD = new Collision::NarrowSpatialHashing(m_averageEdgeLength * 1.5, 1999, m_clothThickness);
 	ComputeVertexMasses();
 
-	for (int i = 0; i < m_nodes.size(); i += 380)
+	for (int i = 0; i < m_nodes.size(); i += 870)
 	{
 		m_nodes[i]->m_invMass = 0;
 		m_nodes[i]->m_mass = 50000000;
 		m_nodes[i]->m_isFixed = true;
 		break;
 	}
+
+// 	for (int i = 0; i < 10; i ++)
+// 	{
+// 		m_nodes[i]->m_invMass = 0;
+// 		m_nodes[i]->m_mass = 50000000;
+// 		m_nodes[i]->m_isFixed = true;
+// 		
+// 	}
 
 }
 

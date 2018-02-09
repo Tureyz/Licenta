@@ -3,6 +3,7 @@
 #include "VisualBodyFactory.h"
 #include "ShapeRenderer.h"
 #include "../Core/Utils.hpp"
+#include "Texture.h"
 
 Rendering::VisualBodyFactory &Rendering::VisualBodyFactory::GetInstance()
 {
@@ -52,6 +53,7 @@ Rendering::VisualBody *Rendering::VisualBodyFactory::CreateMeshVisualBody(const 
 	//	result.m_initialVerts = props.first;
 	result->m_verts = props.first;
 	result->m_indices = props.second;
+	result->m_texture = Texture::LoadFromBMP("Textures/clothLarge.bmp");
 
 	return result;
 }
@@ -251,6 +253,9 @@ void Rendering::VisualBodyFactory::CreateCylinderProps()
 	m_cylinderIndices.pop_back();
 }
 
+
+#include <fstream>
+
 void Rendering::VisualBodyFactory::CreateSphereProps()
 {
 	const float X = .525731112119133606f;
@@ -270,6 +275,8 @@ void Rendering::VisualBodyFactory::CreateSphereProps()
 		6, 1, 10, 9, 0, 11, 9, 11 ,2, 9, 2, 5, 7, 2, 11
 	};
 
+	
+
 	for (int i = 0; i < divisionDepth; ++i)
 	{
 		std::vector<glm::vec3> newVerts;
@@ -281,6 +288,11 @@ void Rendering::VisualBodyFactory::CreateSphereProps()
 
 		icoVerts = newVerts;
 		icoIndices = newIndices;
+
+		if (i == 0)
+		{
+			ToNFG(icoVerts, icoIndices, "DebugSphere.nfg");
+		}
 	}
 
 	for (auto vert : icoVerts)
@@ -342,7 +354,7 @@ std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> Rendering::
 	{
 		for (int j = 0; j < cols; ++j)
 		{
-			verts.push_back(Rendering::VertexFormat(glm::vec3(hStep * i, wStep * j, 0), Core::DEFAULT_OBJECT_COLOR));
+			verts.push_back(Rendering::VertexFormat(glm::vec3(hStep * i, wStep * j, 0), Core::DEFAULT_OBJECT_COLOR, glm::vec2(hStep * i, wStep * j) / 2.f));
 		}
 	}
 
@@ -406,4 +418,26 @@ void Rendering::VisualBodyFactory::CreateCylinderBufferObjects(GLuint &vao, GLui
 void Rendering::VisualBodyFactory::CreateSphereBufferObjects(GLuint &vao, GLuint &vbo, GLuint &ibo)
 {
 	Rendering::ShapeRenderer::CreateBufferObjects(vao, vbo, ibo, m_sphereVerts, m_sphereIndices);
+}
+
+void Rendering::VisualBodyFactory::ToNFG(std::vector<glm::vec3> verts, std::vector<unsigned int> indices, std::string path)
+{
+	std::ofstream testNFG(path);
+
+	testNFG << "NrVertices: " << verts.size() << std::endl;
+
+	for (int i = 0; i < verts.size(); ++i)
+	{
+		std::string emptyNorms = "norm:[0.000000, 0.000000, 0.000000]; binorm:[0.000000, 0.000000, 0.000000]; tgt:[0.000000, 0.000000, 0.000000]; uv:[0.000000, 0.000000];";
+		testNFG << "   " << i << ". " << "pos:[" << verts[i].x << ", " << verts[i].y << ", " << verts[i].z << "]; " << emptyNorms << std::endl;
+	}
+
+	testNFG << "NrIndices: " << indices.size() << std::endl;
+
+	for (int i = 0; i < indices.size() - 2; i += 3)
+	{
+		testNFG << "   " << i / 3 << ".   " << indices[i] << ", " << indices[i + 1] << ", " << indices[i + 2] << std::endl;
+	}
+
+	testNFG.close();
 }

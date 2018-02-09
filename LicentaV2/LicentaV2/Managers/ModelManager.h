@@ -20,6 +20,7 @@ namespace Managers
 		const Rendering::SceneObject* GetModel(unsigned long id) const;
 
 		void RegisterObject(size_t id, Rendering::SceneObject *gameObject);
+		void RegisterSFXObject(size_t id, Rendering::SceneObject *gameObject);
 
 		void SetBoundingBoxesVisibile(bool value);
 
@@ -31,6 +32,7 @@ namespace Managers
 	private:
 
 		std::vector<Rendering::SceneObject*> m_objectList;
+		std::vector<Rendering::SceneObject*> m_sfxObjectList;
 
 		float m_dt;
 	};

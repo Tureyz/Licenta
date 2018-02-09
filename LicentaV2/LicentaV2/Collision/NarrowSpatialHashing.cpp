@@ -309,7 +309,7 @@ bool Collision::NarrowSpatialHashing::TestIntersection(DeformingPoint node, Defo
 
 	glm::vec3 n = glm::normalize(crs);
 
-	if (std::abs(glm::dot(x43, n)) < m_h)
+	if (std::abs(glm::dot(x43, n)) < 2 * m_h)
 	{
 
 		// 		glm::mat2 m1(glm::dot(x13, x13), dTemp, dTemp, glm::dot(x23, x23));
@@ -352,7 +352,7 @@ bool Collision::NarrowSpatialHashing::TestIntersection(DeformingPoint node, Defo
 // 		}
 
 		float triangleArea = glm::length(crs) / 2.f;
-		float delta = m_h / std::sqrt(triangleArea);
+		float delta = 2 * m_h / std::sqrt(triangleArea);
 
 		if ((w1 >= -delta && w1 <= 1 + delta) && (w2 >= -delta && w2 <= 1 + delta) && (w3 >= -delta && w3 <= 1 + delta))
 		{
@@ -384,7 +384,7 @@ bool Collision::NarrowSpatialHashing::TestEdgeDegenerate(const glm::vec3 &x1, co
 	glm::vec3 mid1 = (x1 + x2) / 2.f;
 	glm::vec3 mid2 = (x3 + x4) / 2.f;
 
-	if (glm::distance(mid1, mid2) < m_h)
+	if (glm::distance(mid1, mid2) < 2 * m_h)
 	{
 		result.m_a = 0.5;
 		result.m_b = 0.5;
@@ -489,7 +489,7 @@ bool Collision::NarrowSpatialHashing::TestIntersection(DeformingEdge e1, Deformi
 		glm::vec3 p2 = x3 + b * x43;
 
 		float dist = glm::distance(p1, p2);
-		if (dist < m_h)
+		if (dist < 2 * m_h)
 		{
 			result.m_e1 = e1.m_edge;
 			result.m_e2 = e2.m_edge;
@@ -559,7 +559,7 @@ bool Collision::NarrowSpatialHashing::TestIntersection(DeformingEdge e1, Deformi
 			}
 		}
 
-		if (glm::distance(p1, p2) < m_h)
+		if (glm::distance(p1, p2) < 2 * m_h)
 		{
 			result.m_a = a;
 			result.m_b = b;
