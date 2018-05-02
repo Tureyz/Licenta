@@ -4,6 +4,7 @@
 
 #include "../Rendering/VisualBodyFactory.h"
 #include "../Physics/DeformableBody.h"
+#include "../Physics/CudaDeformableBody.cuh"
 #include "../Physics/RigidBody.h"
 #include "../Core/ScriptLoader.h"
 #include "../Rendering/ParticleSystem.h"
@@ -25,16 +26,21 @@ void Managers::MastersSimulationManager::Init()
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
 
+
+	int dim = 150;
+	std::pair<int, int> dims(dim, dim);
+
 	Rendering::SceneObject *meshObj = new Rendering::SceneObject();
 	meshObj->SetID(m_objectIDCounter);
 	meshObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
 	meshObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
-	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(20, 20));
+	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(dims.first, dims.second));
 	meshObj->RotateAbsolute(glm::vec3(0, 0, 1), 3.14159);
-	meshObj->TranslateAbsolute(glm::vec3(5.25f, 7.25f, 1));
+	meshObj->TranslateAbsolute(glm::vec3(500.f, 500.f, 500.f));
+	meshObj->ScaleAbsolute(glm::vec3(100.f, 100.f, 100.f));
 	//meshObj->TranslateAbsolute(ScriptLoader::GetVec3("Scripts/randomPos.py", "RandomPosition"));
 	meshObj->Update();	
-	meshObj->SetPhysicsBody(new Physics::DeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices));
+	meshObj->SetPhysicsBody(new Physics::CudaDeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices, dims));
 	//meshObj->RotateAbsolute(glm::vec3(1, 0, 0), 90);
 
 	ObjectAdded(meshObj);
@@ -42,9 +48,9 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->ObjectMoved();
 	m_modelManager->RegisterObject(m_objectIDCounter++, meshObj);
 
-  	m_ps = new ParticleSystem(glm::vec3(10, 10, 10), glm::vec2(0.1, 0.1), glm::vec2(0.2, 1), 200);
-  	m_ps->m_modelManager = m_modelManager;
-  	m_ps->m_simManager = this;
+//   	m_ps = new ParticleSystem(glm::vec3(10, 10, 10), glm::vec2(0.1, 0.1), glm::vec2(0.2, 1), 200);
+//   	m_ps->m_modelManager = m_modelManager;
+//   	m_ps->m_simManager = this;
 
 // 	Rendering::SceneObject *sphereObj = new Rendering::SceneObject();
 // 	sphereObj->SetID(m_objectIDCounter);
@@ -69,7 +75,7 @@ void Managers::MastersSimulationManager::Init()
 
 void Managers::MastersSimulationManager::FixedUpdate()
 {
-	m_ps->FixedUpdate();
+	/*m_ps->FixedUpdate();*/
 	m_broadPhaseMethod->Update();
 
 

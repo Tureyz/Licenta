@@ -23,6 +23,7 @@ namespace Collision
 			size_t m_numObjects;
 			NodeType m_type;
 		private:
+
 		};
 
 		template <typename T>
@@ -34,8 +35,16 @@ namespace Collision
 		template <typename T>
 		Collision::DataStructures::BVHTree<T>::~BVHTree()
 		{
-			delete m_left;
-			delete m_right;
+			if (m_left)
+			{
+				delete m_left;
+				m_left = NULL;
+			}
+			if (m_right)
+			{
+				delete m_right;
+				m_right = NULL;
+			}
 		}
 
 		template <typename T>

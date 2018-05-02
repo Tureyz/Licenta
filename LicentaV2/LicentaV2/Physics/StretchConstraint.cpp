@@ -51,6 +51,8 @@ glm::vec3 Physics::StretchConstraint::ComputeDerivative(size_t index)
 
 	std::cout << "CSF";
 	//return m_derivativeFunctions[index](*this, m_points);
+
+	return glm::vec3(0);
 }
 
 float Physics::StretchConstraint::ComputeScalingFactor()

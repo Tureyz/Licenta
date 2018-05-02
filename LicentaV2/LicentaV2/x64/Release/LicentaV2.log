@@ -1,1 +1,14 @@
-﻿  LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Release\LicentaV2.exe
+﻿  Compiling CUDA source file Physics\CudaDeformableBody.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_70,code=\"sm_70,compute_70\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"     --keep-dir x64\Release -maxrregcount=0  --machine 64 --compile -cudart static     -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -D_UNICODE -DUNICODE -Xcompiler "/EHsc /W3 /nologo /O2 /FS /Zi  /MT " -o x64\Release\CudaDeformableBody.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaDeformableBody.cu" 
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
+  CudaDeformableBody.cu
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(141): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(166): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(167): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(177): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(219): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(226): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data

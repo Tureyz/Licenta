@@ -80,6 +80,7 @@ Physics::DeformableBody::DeformableBody(std::vector<Rendering::VertexFormat> *ve
 // 		
 // 	}
 
+	
 }
 
 void Physics::DeformableBody::FixedUpdate()

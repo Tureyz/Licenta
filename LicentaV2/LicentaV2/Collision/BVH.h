@@ -36,5 +36,7 @@ namespace Collision
 
 		// TODO see if performance is better if tree is kept as an array (left = 2 * i, right = 2 * i + 1)
 		DataStructures::BVHTree<Rendering::SceneObject *> *m_root;
+
+		void _DeleteTree();
 	};
 }

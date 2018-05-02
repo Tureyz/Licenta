@@ -443,6 +443,7 @@
     <ClInclude Include="Rendering\ParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Core\CudaUtils.cuh" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
@@ -452,5 +453,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\glm\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="Physics\CudaDeformableBody.cu" />
+    <CudaCompile Include="Physics\CudaDeformableBody.cuh" />
+    <CudaCompile Include="Core\CudaUtils.cu" />
   </ItemGroup>
 </Project>

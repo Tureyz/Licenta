@@ -56,11 +56,22 @@ void Managers::SceneManager::notifyBeginFrame()
 
 	if (crtTime - m_lastFixedTime >= Core::TIME_STEP_MS)
 	{
+
 		m_modelManager->FixedUpdate();
 		m_simulationManager->FixedUpdate();
 		//m_FPSCounter.FixedUpdate();
 
-		m_lastFixedTime = crtTime;	
+		int substeps = Core::TIME_STEP_MS / Core::PHYSICS_TIME_STEP_MS;
+		for (int i = 1; i < substeps; ++i)
+		{
+			m_modelManager->FixedUpdate();
+			m_simulationManager->FixedUpdate();
+			//m_FPSCounter.FixedUpdate();
+
+		}
+
+
+		m_lastFixedTime = crtTime;
 		//std::cout << "tick\n";
 	}
 	Core::DeltaTime::SetDt(crtTime - m_lastFrameTime);

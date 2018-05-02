@@ -9,12 +9,17 @@
 #include "../Dependencies/freeglut/freeglut.h"
 #include <../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h>
 
+
 namespace Core
 {
 
 	const float TIME_STEP_MS = 1000.f / 60.f;
 	const float TIME_STEP = TIME_STEP_MS / 1000.f;
+	const float PHYSICS_TIME_STEP_MS = 1000.f / 1000.f;
+	const float PHYSICS_TIME_STEP = PHYSICS_TIME_STEP_MS / 1000.f;
+
 	const glm::vec3 GRAVITY_ACCEL(0, -9.81f, 0);
+	
 
 	const glm::vec4 DEFAULT_OBJECT_COLOR(0.3f, 0.3f, 0.3f, 1.f);
 	const glm::vec4 COLLIDING_OBJECT_COLOR(1.f, 0.f, 0.f, 1.f);

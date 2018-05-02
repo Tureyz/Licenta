@@ -9,6 +9,7 @@ namespace TimeUtils
 
 	TimePointNano Now();
 	long long DurationNano(TimePointNano lhs, TimePointNano rhs);
-	inline float NToS(long long nanos);
-	inline float Duration(TimePointNano lhs, TimePointNano rhs);
+	float NToS(long long nanos);
+	float NToMs(long long nanos);
+	float Duration(TimePointNano lhs, TimePointNano rhs);
 }

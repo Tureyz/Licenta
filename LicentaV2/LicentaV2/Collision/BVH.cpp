@@ -20,6 +20,7 @@ void Collision::BVH::_Update()
 	if (m_root)
 	{
 		delete m_root;
+		m_root = NULL;
 	}
 	m_memoryUsed = sizeof(Collision::BVH);
 
@@ -283,6 +284,11 @@ void Collision::BVH::ObjectAdded(Rendering::SceneObject *object)
 
 void Collision::BVH::ObjectRemoved(Rendering::SceneObject *object)
 {
+}
+
+void Collision::BVH::_DeleteTree()
+{
+	
 }
 
 std::unordered_set<std::pair<SceneObject *, SceneObject *>> Collision::BVH::_TestCollision()

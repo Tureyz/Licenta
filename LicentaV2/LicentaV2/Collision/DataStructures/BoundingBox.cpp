@@ -10,6 +10,11 @@ Collision::DataStructures::BoundingBox::BoundingBox()
 
 Collision::DataStructures::BoundingBox::~BoundingBox()
 {
+	if (m_visualBody)
+	{
+		delete m_visualBody;
+		m_visualBody = NULL;
+	}
 }
 
 void Collision::DataStructures::BoundingBox::CreateVisualBody(Rendering::VisualBody *visualBody)
