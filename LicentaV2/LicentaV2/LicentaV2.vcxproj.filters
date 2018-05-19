@@ -443,7 +443,94 @@
     <ClInclude Include="Rendering\ParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\CudaUtils.cuh" />
+    <ClInclude Include="Physics\Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\cub\util_allocator.cuh" />
+    <ClInclude Include="Dependencies\cub\util_arch.cuh" />
+    <ClInclude Include="Dependencies\cub\util_debug.cuh" />
+    <ClInclude Include="Dependencies\cub\util_device.cuh" />
+    <ClInclude Include="Dependencies\cub\util_macro.cuh" />
+    <ClInclude Include="Dependencies\cub\util_namespace.cuh" />
+    <ClInclude Include="Dependencies\cub\util_ptx.cuh" />
+    <ClInclude Include="Dependencies\cub\util_type.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_partition.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_run_length_encode.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_segmented_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_segmented_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_select.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_spmv.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_radix_sort_downsweep.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_radix_sort_upsweep.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_reduce_by_key.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_rle.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_segment_fixup.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_select_if.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_spmv_orig.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\single_pass_scan_operators.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_histogram_atomic.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_histogram_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_reduce_raking.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_reduce_raking_commutative_only.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_reduce_warp_reductions.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_raking.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_warp_scans.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_warp_scans2.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_warp_scans3.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_adjacent_difference.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_discontinuity.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_exchange.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_load.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_radix_rank.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_raking_layout.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_shuffle.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_store.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_reduce_by_key.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_rle.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_select_if.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_spmv_orig.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_barrier.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_even_share.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_mapping.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_queue.cuh" />
+    <ClInclude Include="Dependencies\cub\host\mutex.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\arg_index_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\cache_modified_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\cache_modified_output_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\constant_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\counting_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\discard_output_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\tex_obj_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\tex_ref_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\transform_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_load.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_operators.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_search.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_store.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\warp_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\warp_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_reduce_shfl.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_reduce_smem.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_scan_shfl.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_scan_smem.cuh" />
+    <ClInclude Include="Dependencies\cub\cub.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_scan.cuh" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
@@ -455,8 +542,19 @@
     <Text Include="Dependencies\glm\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Physics\CudaDeformableBody.cu" />
-    <CudaCompile Include="Physics\CudaDeformableBody.cuh" />
     <CudaCompile Include="Core\CudaUtils.cu" />
+    <CudaCompile Include="Physics\CudaMassSpring.cu" />
+    <CudaCompile Include="Collision\CudaBVH.cu" />
+    <CudaCompile Include="Physics\CudaDeformableUtils.cu" />
+    <CudaCompile Include="Core\CudaUtils.cuh" />
+    <CudaCompile Include="Collision\CudaBVH.cuh" />
+    <CudaCompile Include="Physics\CudaDeformableUtils.cuh" />
+    <CudaCompile Include="Physics\CudaMassSpring.cuh" />
+    <CudaCompile Include="Physics\CudaDeformableBody.h" />
+    <CudaCompile Include="Physics\CudaDeformableBody.cpp" />
+    <CudaCompile Include="Core\CubWrappers.cu" />
+    <CudaCompile Include="Core\CubWrappers.cuh" />
+    <CudaCompile Include="Collision\CudaPrimitiveTests.cu" />
+    <CudaCompile Include="Collision\CudaPrimitiveTests.cuh" />
   </ItemGroup>
 </Project>

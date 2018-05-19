@@ -4,7 +4,7 @@
 
 #include "../Rendering/VisualBodyFactory.h"
 #include "../Physics/DeformableBody.h"
-#include "../Physics/CudaDeformableBody.cuh"
+#include "../Physics/CudaDeformableBody.h"
 #include "../Physics/RigidBody.h"
 #include "../Core/ScriptLoader.h"
 #include "../Rendering/ParticleSystem.h"
@@ -25,9 +25,8 @@ void Managers::MastersSimulationManager::Init()
 {
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
-
-
-	int dim = 150;
+	
+	int dim = 33;
 	std::pair<int, int> dims(dim, dim);
 
 	Rendering::SceneObject *meshObj = new Rendering::SceneObject();
@@ -36,8 +35,8 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
 	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(dims.first, dims.second));
 	meshObj->RotateAbsolute(glm::vec3(0, 0, 1), 3.14159);
-	meshObj->TranslateAbsolute(glm::vec3(500.f, 500.f, 500.f));
-	meshObj->ScaleAbsolute(glm::vec3(100.f, 100.f, 100.f));
+	meshObj->TranslateAbsolute(glm::vec3(0.5f, 0.5f, 0.5f));
+	meshObj->ScaleAbsolute(glm::vec3(0.25f, 0.25f, 0.25f));
 	//meshObj->TranslateAbsolute(ScriptLoader::GetVec3("Scripts/randomPos.py", "RandomPosition"));
 	meshObj->Update();	
 	meshObj->SetPhysicsBody(new Physics::CudaDeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices, dims));

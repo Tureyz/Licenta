@@ -6,8 +6,6 @@
 #include "../Simulation/Scenario.h"
 #include "../Core/Utils.hpp"
 #include "../Simulation/ScenarioGenerator.h"
-#include "../Rendering/Models/Cylinder.h"
-#include "../Rendering/Models/Cone.h"
 #include "../Collision/SeparatingAxisTheorem.h"
 #include "../Collision/SphereToSphereTest.h"
 

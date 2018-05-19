@@ -1,28 +1,40 @@
-﻿  Compiling CUDA source file Physics\CudaDeformableBody.cuh...
-  
-  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" -gencode=arch=compute_35,code=\"sm_35,compute_35\" -gencode=arch=compute_37,code=\"sm_37,compute_37\" -gencode=arch=compute_50,code=\"sm_50,compute_50\" -gencode=arch=compute_52,code=\"sm_52,compute_52\" -gencode=arch=compute_60,code=\"sm_60,compute_60\" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_70,code=\"sm_70,compute_70\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"Dependencies\freetype-2.7\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DWIN32 -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MDd " -o x64\Debug\CudaDeformableBody.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaDeformableBody.cuh" 
-  Compiling CUDA source file Physics\CudaDeformableBody.cu...
-  
-  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" -gencode=arch=compute_35,code=\"sm_35,compute_35\" -gencode=arch=compute_37,code=\"sm_37,compute_37\" -gencode=arch=compute_50,code=\"sm_50,compute_50\" -gencode=arch=compute_52,code=\"sm_52,compute_52\" -gencode=arch=compute_60,code=\"sm_60,compute_60\" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_70,code=\"sm_70,compute_70\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"Dependencies\freetype-2.7\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DWIN32 -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MDd " -o x64\Debug\CudaDeformableBody.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaDeformableBody.cu" 
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-  CudaDeformableBody.cuh
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h(643): warning : expression has no effect
-  CudaDeformableBody.cu
-D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(135): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(160): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(161): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(171): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(213): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
-D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cu(220): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
-cl : Command line warning D9007: '/Gm' requires '/Zi or /ZI'; option ignored
+﻿cl : Command line warning D9007: '/Gm' requires '/Zi or /ZI'; option ignored
   MastersSimulationManager.cpp
-Managers\MastersSimulationManager.cpp(38): warning C4305: 'argument': truncation from 'double' to 'const float'
+Managers\MastersSimulationManager.cpp(37): warning C4305: 'argument': truncation from 'double' to 'const float'
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -dlink -o x64\Debug\LicentaV2.device-link.obj -Xcompiler "/EHsc /W3 /nologo /Od /Zi  /MTd " -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\lib\x64" -LDependencies\freeglut -LDependencies\glew -LDependencies\glm cudart.lib cudadevrt.lib opengl32.lib freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib msvcrtd.lib msvcmrtd.lib  -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_30,code=sm_30 -G --machine 64 x64\Debug\CudaBVH.cuh.obj x64\Debug\CudaPrimitiveTests.cuh.obj x64\Debug\CudaPrimitiveTests.cu.obj x64\Debug\CubWrappers.cu.obj x64\Debug\CudaUtils.cuh.obj x64\Debug\CubWrappers.cuh.obj x64\Debug\CudaBVH.cu.obj x64\Debug\CudaUtils.cu.obj x64\Debug\CudaDeformableBody.h.obj x64\Debug\CudaDeformableUtils.cuh.obj x64\Debug\CudaMassSpring.cuh.obj x64\Debug\CudaDeformableUtils.cu.obj x64\Debug\CudaMassSpring.cu.obj x64\Debug\CudaDeformableBody.cpp.obj 
+  cudart.lib
+  cudadevrt.lib
+  opengl32.lib
+  freeglut.lib
+  glew32.lib
+  kernel32.lib
+  user32.lib
+  gdi32.lib
+  winspool.lib
+  comdlg32.lib
+  advapi32.lib
+  shell32.lib
+  ole32.lib
+  oleaut32.lib
+  uuid.lib
+  odbc32.lib
+  odbccp32.lib
+  msvcrtd.lib
+  msvcmrtd.lib
+  CudaBVH.cuh.obj
+  CudaPrimitiveTests.cuh.obj
+  CudaPrimitiveTests.cu.obj
+  CubWrappers.cu.obj
+  CudaUtils.cuh.obj
+  CubWrappers.cuh.obj
+  CudaBVH.cu.obj
+  CudaUtils.cu.obj
+  CudaDeformableBody.h.obj
+  CudaDeformableUtils.cuh.obj
+  CudaMassSpring.cuh.obj
+  CudaDeformableUtils.cu.obj
+  CudaMassSpring.cu.obj
+  CudaDeformableBody.cpp.obj
   LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe
   LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.pdb (Full PDB)

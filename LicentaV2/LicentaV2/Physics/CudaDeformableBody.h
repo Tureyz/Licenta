@@ -1,61 +1,15 @@
 #pragma once
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
 
-#include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
-
 #include "IPhysicsbody.h"
 
-struct CudaSpring
-{
-	int m_aID;
-	int m_bID;
-	float m_stiffness;
-	float m_initialLength;
-};
+#include "Structs.h"
+
 
 namespace Physics
 {
 
-	struct SpringInfo
-	{
-		int *m_springIds;
-		int m_count;
-	};
-
-
-	struct ParticleInfoList
-	{
-		float3 *m_pos;
-		float3 *m_prevPos;
-		float3 *m_vel;
-		float *m_mass;
-		int m_count;
-	};
-
-	struct SpringInfoList
-	{
-		int *m_a;
-		int *m_b;
-		int *m_springInfo;
-		int *m_springIDs;
-
-		float *m_k;
-		float *m_l0;
-
-		int m_count;
-	};
-
-	struct SimulationInfo
-	{
-		float3 m_gravity;
-		float m_damping;
-		float m_timeStep;
-		float m_bend;
-	};
-
+	
 
 	class CudaDeformableBody : public IPhysicsbody
 	{
@@ -83,6 +37,8 @@ namespace Physics
 
 		std::pair<int, int> m_dims;
 
+		float m_thickness;
+
 		/*thrust::host_vector<float3> m_vertexPositions;
 		thrust::host_vector<float3> m_vertexVelocities;
 		thrust::host_vector<float> m_particleMasses;
@@ -91,6 +47,8 @@ namespace Physics
 		thrust::host_vector<thrust::host_vector<int>> m_springInfo;
 		thrust::host_vector<int> m_springIDs;*/
 
+
+		thrust::device_vector<Rendering::VertexFormat> m_dVerts;
 
 		int m_particleCount;
 		thrust::device_vector<bool> m_fixedVerts;
@@ -112,15 +70,46 @@ namespace Physics
 
 
 		int m_triangleCount;
-		thrust::device_vector<int> m_dTriangleIDs;
-		thrust::device_vector<int> m_dTriV1s;
-		thrust::device_vector<int> m_dTriV2s;
-		thrust::device_vector<int> m_dTriV3s;
-		thrust::device_vector<float3> m_dFaceNormals;
-		thrust::device_vector<unsigned int> m_dMortonCodes;
-		thrust::device_vector<float3> m_dAABBMins;
-		thrust::device_vector<float3> m_dAABBMaxs;		
+		//thrust::device_vector<int> m_dTriangleIDs;
+		//thrust::device_vector<int> m_dTriV1s;
+		//thrust::device_vector<int> m_dTriV2s;
+		//thrust::device_vector<int> m_dTriV3s;
+		//thrust::device_vector<float3> m_dFaceNormals;
 
+
+		thrust::device_vector<CudaTriangle> m_dTriangles;
+		thrust::device_vector<uint64_t> m_dMortonCodes;
+		thrust::device_vector<float3> m_dAABBMins;
+		thrust::device_vector<float3> m_dAABBMaxs;
+		void *m_dTempStorage;
+		uint64_t m_dTempStorageSize;
+
+		int m_internalNodeCount;
+		thrust::device_vector<int> m_dNodesVisited;
+		thrust::device_vector<int> m_dTreeLefts;
+		thrust::device_vector<int> m_dTreeRights;
+		thrust::device_vector<int> m_dTreeParents;
+		thrust::device_vector<int> m_dRightMostLeafLefts;
+		thrust::device_vector<int> m_dRightMostLeafRights;
+		//thrust::device_vector<float3> m_dTreeAABBMins;
+		//thrust::device_vector<float3> m_dTreeAABBMaxs;
+		//thrust::device_vector<int> m_dTreeBeginIDs;
+		//thrust::device_vector<int> m_dTreeEndIDs;
+
+		thrust::device_vector<Physics::AABBCollision> m_dAABBCollisions;
+		thrust::device_vector<Physics::AABBCollision> m_dFilteredAABBCollisions;
+		uint64_t m_filteredAABBCollisionsSize;
+		
+		//thrust::device_vector<int> m_dAABBCollisionSizes;
+
+		thrust::device_vector<Physics::PrimitiveContact> m_vfContacts;
+		uint64_t m_vfContactsSize;
+		thrust::device_vector<Physics::PrimitiveContact> m_eeContacts;
+		uint64_t m_eeContactsSize;
+
+
+		uint64_t m_timeStamp;
+		int m_AABBColChunkSize;
 
 		ParticleInfoList m_particleInfos;
 		SpringInfoList m_springInfos;

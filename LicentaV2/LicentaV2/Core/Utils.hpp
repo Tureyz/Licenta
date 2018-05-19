@@ -7,7 +7,7 @@
 #include "../Dependencies/glew/glew.h"
 #include "../Dependencies/glm/glm.hpp"
 #include "../Dependencies/freeglut/freeglut.h"
-#include <../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h>
+/*#include <../../../../../../../../Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt/tchar.h>*/
 
 
 namespace Core
@@ -15,7 +15,7 @@ namespace Core
 
 	const float TIME_STEP_MS = 1000.f / 60.f;
 	const float TIME_STEP = TIME_STEP_MS / 1000.f;
-	const float PHYSICS_TIME_STEP_MS = 1000.f / 1000.f;
+	const float PHYSICS_TIME_STEP_MS = 1000.f / 500.f;
 	const float PHYSICS_TIME_STEP = PHYSICS_TIME_STEP_MS / 1000.f;
 
 	const glm::vec3 GRAVITY_ACCEL(0, -9.81f, 0);
@@ -27,11 +27,11 @@ namespace Core
 	const glm::vec4 BOUNDING_VOLUME_COLOR(0.f, 0.f, 1.f, 1.f);
 	//const glm::vec4 BACKGROUND_COLOR(0.2f, 0.2f, 0.2f, 1.0f);
 	const glm::vec4 BACKGROUND_COLOR(0.8f, 0.8f, 0.8f, 1.f);
-	const std::wstring  BENCHMARK_FOLDER(L"BenchmarkResults/");
-	const std::wstring  RAW_RESULT_FOLDER(BENCHMARK_FOLDER + L"RawResults/");
-	const std::wstring  PLOTS_FOLDER(BENCHMARK_FOLDER + L"Plots/");
-	const std::wstring  PER_FRAME_PLOTS_FOLDER(PLOTS_FOLDER + L"PerFrame/");
-	const std::wstring  PER_SCENARIO_PLOTS_FOLDER(PLOTS_FOLDER + L"PerScenario/");
+	const std::string  BENCHMARK_FOLDER("BenchmarkResults/");
+	const std::string  RAW_RESULT_FOLDER(BENCHMARK_FOLDER + "RawResults/");
+	const std::string  PLOTS_FOLDER(BENCHMARK_FOLDER + "Plots/");
+	const std::string  PER_FRAME_PLOTS_FOLDER(PLOTS_FOLDER + "PerFrame/");
+	const std::string  PER_SCENARIO_PLOTS_FOLDER(PLOTS_FOLDER + "PerScenario/");
 
 	const size_t SCENARIO_CLASSES = 5;
 	const size_t FRAMES_NUM = 300;
@@ -39,20 +39,20 @@ namespace Core
 	const size_t MAX_NUMBER_OBJECTS = OBJECT_INCREMENT * 2;
 	const bool REPLAY_SCENARIO = false;
 
-	const std::wstring  STRUCTURE_TIME(L"Time Spent - Structure Update");
-	const std::wstring  COLLISION_TIME(L"Time Spent - Collisions");
-	const std::wstring  TOTAL_TIME(L"Time Spent - Total");
-	const std::wstring  INTERSECTION_TESTS(L"Intersection Tests");
-	const std::wstring  MEMORY(L"Memory Used (KB)");
+	const std::string  STRUCTURE_TIME("Time Spent - Structure Update");
+	const std::string  COLLISION_TIME("Time Spent - Collisions");
+	const std::string  TOTAL_TIME("Time Spent - Total");
+	const std::string  INTERSECTION_TESTS("Intersection Tests");
+	const std::string  MEMORY("Memory Used (KB)");
 
-	const std::wstring  METHOD_NONE(L"None");
-	const std::wstring  METHOD_BVH(L"BVH");
-	const std::wstring  METHOD_OCTREE(L"Octree");
-	const std::wstring  METHOD_SPATIAL_GRID(L"Spatial-Grid");
-	const std::wstring  METHOD_SPATIAL_GRID_OPTIMIZED(L"Spatial-Grid-Optimized");
-	const std::wstring  METHOD_SPATIAL_HASHING(L"Spatial-Hashing");
-	const std::wstring  METHOD_SAP(L"Sweep-and-Prune");
-	const std::wstring  METHOD_S2S(L"Sphere-to-Sphere");
+	const std::string  METHOD_NONE("None");
+	const std::string  METHOD_BVH("BVH");
+	const std::string  METHOD_OCTREE("Octree");
+	const std::string  METHOD_SPATIAL_GRID("Spatial-Grid");
+	const std::string  METHOD_SPATIAL_GRID_OPTIMIZED("Spatial-Grid-Optimized");
+	const std::string  METHOD_SPATIAL_HASHING("Spatial-Hashing");
+	const std::string  METHOD_SAP("Sweep-and-Prune");
+	const std::string  METHOD_S2S("Sphere-to-Sphere");
 
 
 
@@ -64,10 +64,10 @@ namespace Core
 
 		static void GeneratePlotsFromRawData()
 		{
-			SetCurrentDirectory((LPCWSTR)Core::BENCHMARK_FOLDER.c_str());
+			SetCurrentDirectory(Core::BENCHMARK_FOLDER.c_str());
 			system("gnuplot script.plt");
 			system("gnuplot script2.plt");
-			SetCurrentDirectory((LPCWSTR)"..\\");
+			SetCurrentDirectory("..\\");
 		}
 
 		static void printToScreen(glm::vec2 pos, std::wstring  str)
@@ -104,11 +104,11 @@ namespace Core
 			return wString;
 		}
 
-		static std::vector<std::wstring> GetAllFilesInFolder(std::wstring  folder)
+		static std::vector<std::string> GetAllFilesInFolder(std::string folder)
 		{
-			std::vector<std::wstring> names;
+			std::vector<std::string> names;
 			//TCHAR search_path[200];
-			std::wstring  searchPath = folder + L"\\*.txt";
+			std::string  searchPath = folder + "\\*.txt";
 			//_tprintf(search_path, 200, "%s/*.txt", folder.c_str());
 			WIN32_FIND_DATA fd;
 
@@ -117,7 +117,7 @@ namespace Core
 			if (hFind != INVALID_HANDLE_VALUE) {
 				do {
 					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-						names.push_back(std::wstring(fd.cFileName));
+						names.push_back(std::string(fd.cFileName));
 					}
 				} while (::FindNextFile(hFind, &fd));
 				::FindClose(hFind);

@@ -73,11 +73,11 @@ namespace Managers
 		void DisplayHelp();
 
 		void CreateWorldBounds();
-		std::wstring  PercentFinished();
+		std::string  PercentFinished();
 
 
-		std::unordered_map<std::wstring , Collision::ICollisionMethod *> m_collisionMethods;
-		std::unordered_map<std::wstring , Collision::ICollisionMethod *>::iterator m_activeMethod;
+		std::unordered_map<std::string , Collision::ICollisionMethod *> m_collisionMethods;
+		std::unordered_map<std::string , Collision::ICollisionMethod *>::iterator m_activeMethod;
 		
 		
 
@@ -111,13 +111,13 @@ namespace Managers
 // 		std::vector<MethodFrameResult> m_benchmarkPerScenarioResults;
 
 		Managers::BenchmarkResultManager m_resultManager;
-		std::wstring  m_lastActiveMethodName;
+		std::string  m_lastActiveMethodName;
 
-		const std::wstring  m_defaultMethodName = Core::METHOD_OCTREE;
+		const std::string  m_defaultMethodName = Core::METHOD_OCTREE;
 
 		std::chrono::time_point<std::chrono::steady_clock> m_benchmarkStartTime;
 
-		std::wstring  m_benchmarkTimeInfo;
+		std::string  m_benchmarkTimeInfo;
 
 		std::unordered_set<std::pair<SceneObject *, SceneObject *>> m_currentCollisionPairs;
 

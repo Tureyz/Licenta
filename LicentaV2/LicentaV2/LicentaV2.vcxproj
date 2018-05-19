@@ -41,16 +41,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>Static</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -92,20 +89,24 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <AdditionalIncludeDirectories>$(CudaToolkitDir)/include;$(CudaToolkitIncludeDir);Dependencies\freetype-2.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CudaToolkitDir)/include;$(CudaToolkitIncludeDir);Dependencies/cub;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(CudaToolkitLibDir);Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
       <AdditionalDependencies>cudart.lib;cudadevrt.lib;opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrtd.lib;msvcmrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <StackReserveSize>500000000</StackReserveSize>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_30,sm_30;compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;compute_61,sm_61;compute_70,sm_70;%(CodeGeneration)</CodeGeneration>
-      <Defines>WIN32</Defines>
-      <Runtime>MDd</Runtime>
+      <CodeGeneration>compute_61,sm_61;%(CodeGeneration)</CodeGeneration>
+      <Runtime>InheritFromHost</Runtime>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
+      <Defines>CUB_STDERR</Defines>
+      <Include>Dependencies/cub;</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,34 +126,43 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/openmp %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(CudaToolkitDir)/include;$(CudaToolkitIncludeDir)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(CudaToolkitDir)/include;$(CudaToolkitIncludeDir);Dependencies/cub;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(CudaToolkitLibDir);Dependencies\freeglut;Dependencies\glew;Dependencies\glm</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cudart.lib;cudadevrt.lib;opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrt.lib;msvcmrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CudaToolkitLibDir);Dependencies\freeglut;Dependencies\glew;Dependencies\glm;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cuda.lib;cudart_static.lib;cudadevrt.lib;opengl32.lib;freeglut.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrt.lib;msvcmrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>No</GenerateDebugInformation>
+      <StackReserveSize>500000000</StackReserveSize>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <CudaCompile>
-      <CodeGeneration>compute_61,sm_61;compute_70,sm_70;%(CodeGeneration)</CodeGeneration>
-      <Defines>%(Defines)</Defines>
-      <Runtime>MT</Runtime>
+      <CodeGeneration>compute_61,sm_61;%(CodeGeneration)</CodeGeneration>
+      <Runtime>InheritFromHost</Runtime>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <Include>Dependencies/cub;</Include>
     </CudaCompile>
+    <CudaLink>
+      <GPUDebugInfo>false</GPUDebugInfo>
+    </CudaLink>
+    <CudaLink>
+      <Optimization>O2</Optimization>
+    </CudaLink>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Benchmark\FPSCounter.cpp">
@@ -270,6 +280,8 @@
     <ClInclude Include="Collision\BVH.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <CudaCompile Include="Collision\CudaBVH.cuh" />
+    <CudaCompile Include="Collision\CudaPrimitiveTests.cuh" />
     <ClInclude Include="Collision\DataStructures\BVHTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -277,18 +289,107 @@
     <ClInclude Include="Collision\DataStructures\EdgeEdgeContactData.h" />
     <ClInclude Include="Collision\DataStructures\PointTriangleContactData.h" />
     <ClInclude Include="Collision\NarrowSpatialHashing.h" />
-    <ClInclude Include="Core\CudaUtils.cuh" />
+    <CudaCompile Include="Collision\CudaPrimitiveTests.cu" />
+    <CudaCompile Include="Core\CubWrappers.cu" />
+    <CudaCompile Include="Core\CudaUtils.cuh" />
+    <CudaCompile Include="Core\CubWrappers.cuh" />
     <ClInclude Include="Core\ScriptLoader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Core\TimeUtils.h" />
+    <ClInclude Include="Dependencies\cub\agent\agent_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_radix_sort_downsweep.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_radix_sort_upsweep.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_reduce_by_key.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_rle.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_segment_fixup.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_select_if.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\agent_spmv_orig.cuh" />
+    <ClInclude Include="Dependencies\cub\agent\single_pass_scan_operators.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_adjacent_difference.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_discontinuity.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_exchange.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_load.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_radix_rank.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_raking_layout.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_shuffle.cuh" />
+    <ClInclude Include="Dependencies\cub\block\block_store.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_histogram_atomic.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_histogram_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_reduce_raking.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_reduce_raking_commutative_only.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_reduce_warp_reductions.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_raking.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_warp_scans.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_warp_scans2.cuh" />
+    <ClInclude Include="Dependencies\cub\block\specializations\block_scan_warp_scans3.cuh" />
+    <ClInclude Include="Dependencies\cub\cub.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_partition.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_run_length_encode.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_segmented_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_segmented_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_select.cuh" />
+    <ClInclude Include="Dependencies\cub\device\device_spmv.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_histogram.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_radix_sort.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_reduce_by_key.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_rle.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_select_if.cuh" />
+    <ClInclude Include="Dependencies\cub\device\dispatch\dispatch_spmv_orig.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_barrier.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_even_share.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_mapping.cuh" />
+    <ClInclude Include="Dependencies\cub\grid\grid_queue.cuh" />
+    <ClInclude Include="Dependencies\cub\host\mutex.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\arg_index_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\cache_modified_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\cache_modified_output_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\constant_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\counting_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\discard_output_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\tex_obj_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\tex_ref_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\iterator\transform_input_iterator.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_load.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_operators.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_scan.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_search.cuh" />
+    <ClInclude Include="Dependencies\cub\thread\thread_store.cuh" />
+    <ClInclude Include="Dependencies\cub\util_allocator.cuh" />
+    <ClInclude Include="Dependencies\cub\util_arch.cuh" />
+    <ClInclude Include="Dependencies\cub\util_debug.cuh" />
+    <ClInclude Include="Dependencies\cub\util_device.cuh" />
+    <ClInclude Include="Dependencies\cub\util_macro.cuh" />
+    <ClInclude Include="Dependencies\cub\util_namespace.cuh" />
+    <ClInclude Include="Dependencies\cub\util_ptx.cuh" />
+    <ClInclude Include="Dependencies\cub\util_type.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_reduce_shfl.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_reduce_smem.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_scan_shfl.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\specializations\warp_scan_smem.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\warp_reduce.cuh" />
+    <ClInclude Include="Dependencies\cub\warp\warp_scan.cuh" />
     <ClInclude Include="Physics\BendConstraint.h" />
     <ClInclude Include="Physics\ClothTriangle.h" />
     <ClInclude Include="Physics\CubicSolver.h" />
+    <CudaCompile Include="Collision\CudaBVH.cu" />
     <CudaCompile Include="Core\CudaUtils.cu" />
-    <CudaCompile Include="Physics\CudaDeformableBody.cuh">
-      <CudaRuntime Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Static</CudaRuntime>
-    </CudaCompile>
+    <CudaCompile Include="Physics\CudaDeformableBody.h" />
+    <CudaCompile Include="Physics\CudaDeformableUtils.cuh" />
+    <CudaCompile Include="Physics\CudaMassSpring.cuh" />
     <ClInclude Include="Physics\DeformableBody.h" />
     <ClInclude Include="Physics\ClothNode.h" />
     <ClInclude Include="Physics\DisjointSet.h" />
@@ -354,6 +455,7 @@
     <ClInclude Include="Physics\RigidConstraint.h" />
     <ClInclude Include="Physics\RigidImpactZone.h" />
     <ClInclude Include="Physics\StretchConstraint.h" />
+    <ClInclude Include="Physics\Structs.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="Rendering\ParticleSystem.h" />
     <ClInclude Include="Rendering\SceneObject.h" />
@@ -396,6 +498,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <CudaCompile Include="Physics\CudaDeformableUtils.cu" />
+    <CudaCompile Include="Physics\CudaMassSpring.cu" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
@@ -407,7 +511,7 @@
     <Text Include="Dependencies\glm\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Physics\CudaDeformableBody.cu" />
+    <CudaCompile Include="Physics\CudaDeformableBody.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

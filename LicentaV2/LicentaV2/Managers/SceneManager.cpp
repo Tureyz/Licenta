@@ -133,7 +133,7 @@ void Managers::SceneManager::notifyEndFrame()
 void Managers::SceneManager::notifyReshape(int width, int height, int previousWidth, int previousHeight)
 {
 	float ar = (float)glutGet(GLUT_WINDOW_WIDTH) / (float)glutGet(GLUT_WINDOW_HEIGHT);
-	float angle = 45.0f, near1 = 0.001f, far1 = 2000.0f;
+	float angle = 45.0f, near1 = 0.00001f, far1 = 2000.0f;
 
 	m_projectionMatrix[0][0] = 1.0f / (ar * tan(angle / 2.0f));
 	m_projectionMatrix[1][1] = 1.0f / tan(angle / 2.0f);

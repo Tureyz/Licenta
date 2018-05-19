@@ -33,8 +33,8 @@ namespace Collision
 		bool GetShowDebug() const { return m_showDebug; }
 		void SetShowDebug(bool val) { m_showDebug = val; }
 
-		std::unordered_map<std::wstring , float> GetLastFrameCriteria() const { return m_lastFrameCriteria; }
-		void SetLastFrameCriteria(std::unordered_map<std::wstring , float> val) { m_lastFrameCriteria = val; }
+		std::unordered_map<std::string , float> GetLastFrameCriteria() const { return m_lastFrameCriteria; }
+		void SetLastFrameCriteria(std::unordered_map<std::string , float> val) { m_lastFrameCriteria = val; }
 
 	protected:
 
@@ -46,7 +46,7 @@ namespace Collision
 		GLuint m_vao, m_vbo, m_ibo;
 		std::vector<GLuint> *m_indices;
 		std::vector<Rendering::VertexFormat> *m_verts;
-		std::unordered_map<std::wstring , float> m_lastFrameCriteria;
+		std::unordered_map<std::string , float> m_lastFrameCriteria;
 
 		size_t m_lastFrameTests;
 		size_t m_memoryUsed;

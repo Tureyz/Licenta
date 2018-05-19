@@ -347,14 +347,14 @@ std::pair<std::vector<Rendering::VertexFormat>, std::vector<GLuint>> Rendering::
 	std::vector<Rendering::VertexFormat> verts;
 	std::vector<GLuint> indices;
 
-	float wStep = 2.0f / cols;
-	float hStep = 2.0f / rows;
+	float wStep = 1.0f / cols;
+	float hStep = 1.0f / rows;
 
 	for (int i = 0; i < rows; ++i)
 	{
 		for (int j = 0; j < cols; ++j)
 		{
-			verts.push_back(Rendering::VertexFormat(glm::vec3(hStep * i, wStep * j, 0), Core::DEFAULT_OBJECT_COLOR, glm::vec2(hStep * i, wStep * j) / 2.f));
+			verts.push_back(Rendering::VertexFormat(glm::vec3(hStep * i, wStep * j, 0), Core::DEFAULT_OBJECT_COLOR, glm::vec2(hStep * i, wStep * j) / 1.f));
 		}
 	}
 

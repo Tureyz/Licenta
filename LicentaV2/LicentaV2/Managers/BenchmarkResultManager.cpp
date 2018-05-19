@@ -95,7 +95,7 @@ void Managers::BenchmarkResultManager::ResetFrame()
 	m_frameIndex = 0;
 }
 
-void Managers::BenchmarkResultManager::RecordCriterion(std::wstring  methodName, std::wstring  criterionName, float value)
+void Managers::BenchmarkResultManager::RecordCriterion(std::string  methodName, std::string  criterionName, float value)
 {
 	//0 4 0 1 1
 	m_results[m_scenarioClassIndex][m_scenarioIndex][m_frameIndex][m_nameToIndexTable.at(methodName)][m_nameToIndexTable.at(criterionName) - METHOD_NUM - 1] = value;
@@ -182,27 +182,27 @@ void Managers::BenchmarkResultManager::DumpToDisk()
 	ReserveSpace();
 }
 
-std::ofstream Managers::BenchmarkResultManager::OpenScenarioFile(int index, std::wstring  methodName)
+std::ofstream Managers::BenchmarkResultManager::OpenScenarioFile(int index, std::string  methodName)
 {
 	//std::wstring, wchar_t, std::char_traits<wchar_t>
 	std::ofstream file;
 
-	file.open(Core::RAW_RESULT_FOLDER + L"Scenario_" + std::to_wstring(index) + L"_" + methodName + L".txt", std::ios::out | std::ios::trunc);
+	file.open(Core::RAW_RESULT_FOLDER + "Scenario_" + std::to_string(index) + "_" + methodName + ".txt", std::ios::out | std::ios::trunc);
 
 
 	if (!file.is_open())
 	{
-		std::wcout << L"ERROR opening file\n";
+		std::wcout << "ERROR opening file\n";
 	}
 
 	return file;
 }
 
-std::ofstream Managers::BenchmarkResultManager::OpenAverageScenarioFile(int index, std::wstring  methodName)
+std::ofstream Managers::BenchmarkResultManager::OpenAverageScenarioFile(int index, std::string  methodName)
 {
 	std::ofstream file;
 
-	file.open(Core::RAW_RESULT_FOLDER + L"Scenario_" + std::to_wstring(index) + L"_average_" + methodName + L".txt", std::ios::out | std::ios::trunc);
+	file.open(Core::RAW_RESULT_FOLDER + "Scenario_" + std::to_string(index) + "_average_" + methodName + ".txt", std::ios::out | std::ios::trunc);
 
 
 	if (!file.is_open())

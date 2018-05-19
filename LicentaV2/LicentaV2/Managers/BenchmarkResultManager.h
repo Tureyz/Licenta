@@ -15,7 +15,7 @@ namespace Managers
 		enum methodIndices { INDEX_BVH = 0, INDEX_OCTREE = 1, INDEX_SPATIAL_GRID = 2, INDEX_SPATIAL_GRID_OPTIMIZED = 3, INDEX_SPATIAL_HASHING = 4, INDEX_SAP = 5, INDEX_NONE = 6, METHOD_NUM = 7 };
 		enum criteriaIndices { INDEX_COLLISION_TIME = 8, INDEX_UPDATE_TIME = 9, INDEX_TOTAL_TIME = 10, INDEX_TESTS = 11, INDEX_MEMORY = 12, CRITERIA_NUM = 5 };
 
-		const std::unordered_map<std::wstring , int> m_nameToIndexTable = {
+		const std::unordered_map<std::string , int> m_nameToIndexTable = {
 			{ Core::METHOD_NONE, INDEX_NONE },
 			{ Core::METHOD_BVH, INDEX_BVH },
 			{ Core::METHOD_OCTREE, INDEX_OCTREE },
@@ -30,7 +30,7 @@ namespace Managers
 			{ Core::MEMORY, INDEX_MEMORY }
 		};
 
-		const std::unordered_map<int, std::wstring > m_indexToNameTable = {
+		const std::unordered_map<int, std::string > m_indexToNameTable = {
 			{ INDEX_NONE, Core::METHOD_NONE },
 			{ INDEX_BVH, Core::METHOD_BVH },
 			{ INDEX_OCTREE, Core::METHOD_OCTREE },
@@ -68,11 +68,11 @@ namespace Managers
 		void ResetScenario();
 		void ResetFrame();
 
-		void RecordCriterion(std::wstring  methodName, std::wstring  criterionName, float value);
+		void RecordCriterion(std::string  methodName, std::string  criterionName, float value);
 		void DumpToDisk();
 
-		std::ofstream OpenScenarioFile(int index, std::wstring  methodName);
-		std::ofstream OpenAverageScenarioFile(int index, std::wstring  methodName);
+		std::ofstream OpenScenarioFile(int index, std::string  methodName);
+		std::ofstream OpenAverageScenarioFile(int index, std::string  methodName);
 		size_t m_objectIncrementStep;
 		size_t m_maximumObjects;
 		size_t m_numberOfScenarioClasses;

@@ -8,6 +8,9 @@
 #include <thrust/device_vector.h>
 #include "../Dependencies/glm/glm.hpp"
 
+#include "../Physics/Structs.h"
+
+
 #define cudaCheckError() {                                          \
  cudaError_t e=cudaGetLastError();                                 \
  if(e!=cudaSuccess) {                                              \
@@ -16,162 +19,100 @@
  }                                                                 \
 }
 
-inline __host__ __device__ float3 operator*(const float s, const float3 a)
-{
-	return make_float3(a.x * s, a.y * s, a.z * s);
-}
 
-inline __host__ __device__ float3 operator*(const float3 a, const float s)
-{
-	return make_float3(a.x * s, a.y * s, a.z * s);
-}
+__host__ __device__ float3 operator*(const float s, const float3 &a);
+__host__ __device__ float3 operator*(const float3 &a, const float s);
+__host__ __device__ float3 operator/(const float3 &a, const float b);
+__host__ __device__ float3 operator-(const float3 &a, const float3 &b);
+__host__ __device__ float3 operator-(const float3 &a, const float b);
+__host__ __device__ float3 operator+(const float3 &a, const float b);
+__host__ __device__ void operator*=(float3 &a, float s);
+__host__ __device__ float3 operator+(const float3 &a, const float3 &b);
+__host__ __device__ float3 operator/(const float3 &a, const float3 &b);
 
-inline __host__ __device__ float3 operator/(const float3 a, const float b)
-{
-	return make_float3(a.x / b, a.y / b, a.z / b);
-}
-
-inline __host__ __device__ float3 operator-(const float3 a, const float3 b)
-{
-	return make_float3(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-
-inline __host__ __device__ void operator*=(float3 &a, float s)
-{
-	a.x *= s; a.y *= s; a.z *= s;
-}
-
-inline __host__ __device__ float3 operator+(const float3 &a, const float3 &b)
-{
-	return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-inline __host__ __device__ float3 operator/(const float3 &a, const float3 &b)
-{
-	return make_float3(a.x / b.x, a.y / b.y, a.z / b.z);
-}
-
+__host__ __device__ bool operator==(const float3 &a, const float3 &b);
+__host__ __device__ bool operator!=(const float3 &a, const float3 &b);
 
 
 namespace CudaUtils
 {
-	const float3 CUDA_GRAVITY_ACCEL = make_float3(0, -9.81f * 1.7f, -10.1f);
-	const int THREADS_PER_BLOCK = 32;
 
-
-
-	template<typename T>
-	struct CudaVec
+	struct CudaTimer
 	{
-		T *m_data;
-		size_t m_count;
+		cudaEvent_t m_start;
+		cudaEvent_t m_end;
 
-		T& operator[] (const size_t x) const
-		{
-			return m_data[x];
-		}
+		~CudaTimer();
+		CudaTimer();
+		void Start();
+		float End();
 	};
 
-	inline glm::vec3 MakeVec(const float3 a)
-	{
-		return glm::vec3(a.x, a.y, a.z);
-	}
-
-	inline __device__ size_t MyID()
-	{
-		return blockIdx.x * blockDim.x + threadIdx.x;
-	}
-
-	inline __device__ float3 normalize(const float3 a)
-	{
-		if (norm3df(a.x, a.y, a.z) == 0.f)
-			printf("WAAAAAT (%f, %f, %f)\n", a.x, a.y, a.z);
-		return a / norm3df(a.x, a.y, a.z);
-	}
-
-	inline __device__ float distance(const float3 a, const float3 b)
-	{
-		return norm3df(a.x - b.x, a.y - b.y, a.z - b.z);
-	}
-
-	inline __device__ float min3(const float a, const float b, const float c)
-	{
-		return fminf(a, fminf(b, c));
-	}
-
-	inline __device__ float3 minf3(const float3 a, const float3 b)
-	{
-		return make_float3(fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z));
-	}
-
-	inline __device__ float3 min3(const float3 a, const float3 b, const float3 c)
-	{
-		return minf3(a, minf3(b, c));
-	}
-
-	inline __device__ float max3(const float a, const float b, const float c)
-	{
-		return fmaxf(a, fmaxf(b, c));
-	}
-
-	inline __device__ float3 maxf3(const float3 a, const float3 b)
-	{
-		return make_float3(fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z));
-	}
-
-	inline __device__ float3 max3(const float3 a, const float3 b, const float3 c)
-	{
-		return maxf3(a, maxf3(b, c));
-	}
-
-	inline __device__ float3 cross(const float3 a, const float3 b)
-	{
-		return make_float3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
-	}
-
-	inline __device__ float dot(const float3 a, const float3 b)
-	{
-		return a.x * b.x + a.y * b.y + a.z * b.z;
-	}
-
-	inline __device__ float3 FaceNormal(const float3 a, const float3 b, const float3 c)
-	{
-		return CudaUtils::cross(b - a, c - a);
-	}
-
-	inline __device__ uint32_t ExpandBy2(uint32_t v)
-	{
-		/*x &= 0x000003ff;
-		x = (x ^ (x << 16)) & 0xff0000ff;
-		x = (x ^ (x << 8)) & 0x0300f00f;
-		x = (x ^ (x << 4)) & 0x030c30c3;
-		x = (x ^ (x << 2)) & 0x09249249;
-		return x;*/
-
-		v = (v * 0x00010001u) & 0xFF0000FFu;
-		v = (v * 0x00000101u) & 0x0F00F00Fu;
-		v = (v * 0x00000011u) & 0xC30C30C3u;
-		v = (v * 0x00000005u) & 0x49249249u;
-		return v;
-	}
-
-	inline __device__ uint32_t Morton3D(const uint32_t x, const uint32_t y, const uint32_t z)
-	{
-		return (ExpandBy2(x) << 2) + (ExpandBy2(y) << 1) + ExpandBy2(z);
-	}
-
-	inline __device__ uint32_t Morton3D(const float3 position)
-	{
-		return Morton3D((uint32_t)position.x, (uint32_t)position.y, (uint32_t)position.z);
-	}
+	const float3 CUDA_GRAVITY_ACCEL = make_float3(0, -0.981f, -0.1f);
+	const int THREADS_PER_BLOCK = 256;
 
 
+	std::string MemUsage();
+
+	glm::vec3 MakeVec(const float3 &a);
+
+	__device__ float clamp(const float value, const float min, const float max);
+
+	__device__ bool isNan(const float3 &a);
+
+	__device__ size_t MyID();
+
+	__device__ float3 normalize(const float3 &a);
+
+	__device__ float len(const float3 &a);
+
+	__device__ float distance(const float3 &a, const float3 &b);
+
+	__device__ float min3(const float a, const float b, const float c);
+
+	__device__ float3 minf3(const float3 &a, const float3 &b);
+
+	__device__ float3 min3(const float3 &a, const float3 &b, const float3 &c);
+
+	__device__ float max3(const float a, const float b, const float c);
+
+	__device__ float3 maxf3(const float3 &a, const float3 &b);
+
+	__device__ float3 max3(const float3 &a, const float3 &b, const float3 &c);
+
+	__device__ float3 cross(const float3 &a, const float3 &b);
+
+	__device__ float dot(const float3 &a, const float3 &b);
+
+	__device__ float3 FaceNormal(const float3 &a, const float3 &b, const float3 &c);
+
+	__device__ uint64_t ExpandBy2(uint64_t v);
+
+	//__device__ uint32_t ExpandBy2(uint32_t v);
+
+	//__device__ uint32_t Morton3D(const uint32_t x, const uint32_t y, const uint32_t z);
+
+	__device__ uint64_t Morton3D(const float x, const float y, const float z);
+
+	//__device__ uint32_t Morton3D(const float3 position);
+
+	__device__ uint64_t Morton3D64(const float3 position);
+
+	__device__ int ComPref(const unsigned int mortonA, const unsigned int mortonB, const int indexA, const int indexB, const int max);
+
+	__device__ int Delta(const uint64_t *mortonCodes, const int i, const int j, const int max);
+
+	__host__ __device__ int sgn(int a);
+
+	__device__ bool AABBOverlap(const float3 aMin, const float3 aMax, const float3 bMin, const float3 bMax);
 
 
-	template<typename T>
-	inline T *ToRaw(thrust::device_vector<T> &vec)
-	{
-		return thrust::raw_pointer_cast(&vec[0]);
-	}
+	__device__ void PushBack(const Physics::AABBCollision &element, Physics::AABBCollision *&array, const int crtId, int &size);
+
+	__device__ void CheckResize(Physics::AABBCollision *&array, const int crtId, int &size);
+
+
+	void TempStorageGrow(void *&storage, uint64_t &size, const uint64_t requiredSize);
+	//template<typename T>
+	//T *ToRaw(thrust::device_vector<T> &vec);
 }

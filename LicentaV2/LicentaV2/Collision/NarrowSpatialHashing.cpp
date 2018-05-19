@@ -308,7 +308,7 @@ bool Collision::NarrowSpatialHashing::TestIntersection(DeformingPoint node, Defo
 	glm::vec3 crs = glm::cross(x2 - x1, x3 - x1);
 
 	glm::vec3 n = glm::normalize(crs);
-
+	
 	if (std::abs(glm::dot(x43, n)) < 2 * m_h)
 	{
 
