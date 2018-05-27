@@ -390,6 +390,7 @@
     <CudaCompile Include="Physics\CudaDeformableBody.h" />
     <CudaCompile Include="Physics\CudaDeformableUtils.cuh" />
     <CudaCompile Include="Physics\CudaMassSpring.cuh" />
+    <CudaCompile Include="Physics\CudaPBD.cuh" />
     <ClInclude Include="Physics\DeformableBody.h" />
     <ClInclude Include="Physics\ClothNode.h" />
     <ClInclude Include="Physics\DisjointSet.h" />
@@ -500,6 +501,7 @@
     </ClInclude>
     <CudaCompile Include="Physics\CudaDeformableUtils.cu" />
     <CudaCompile Include="Physics\CudaMassSpring.cu" />
+    <CudaCompile Include="Physics\CudaPBD.cu" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />

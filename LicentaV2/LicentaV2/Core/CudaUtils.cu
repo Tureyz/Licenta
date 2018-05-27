@@ -1,6 +1,8 @@
 #include "CudaUtils.cuh"
 
 
+__device__ static const float EPS = 0.00000001f;
+
 void CudaUtils::CudaTimer::Start()
 {
 	cudaEventRecord(m_start, 0);
@@ -72,6 +74,11 @@ __host__ __device__ float3 operator/(const float3 &a, const float3 &b)
 	return make_float3(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 
+__host__ __device__ void operator+=(float3 & a, const float3 & b)
+{
+	a.x += b.x; a.y += b.y; a.z += b.z;
+}
+
 __host__ __device__ bool operator==(const float3 &a, const float3 &b)
 {
 	return a.x == b.x && a.y == b.y && a.z == b.z;
@@ -82,8 +89,12 @@ __host__ __device__ bool operator!=(const float3 &a, const float3 &b)
 	return !(a == b);
 }
 
+__host__ __device__ float3 operator-(const float3 & a)
+{
+	return make_float3(-a.x, -a.y, -a.z);
+}
 
-std::string CudaUtils::MemUsage()
+std::string CudaUtils::MemUsage(const double freeInit)
 {
 	uint64_t freeVRAM, totalVRAM;
 
@@ -91,12 +102,67 @@ std::string CudaUtils::MemUsage()
 	
 	double free = (double) freeVRAM, total = (double) totalVRAM, used = total - free;
 
-	return "GPU memory usage: " + std::to_string(free / 1024.0 / 1024.0) + " MB free / " + std::to_string(total / 1024.0 / 1024.0) + " MB total";
+	if (freeInit == -1)
+		return "GPU memory usage: " + std::to_string(free / 1024.0 / 1024.0) + " MB free / " + std::to_string(total / 1024.0 / 1024.0) + " MB total";
+	
+	return "GPU memory usage: " + std::to_string((freeInit - free) / 1024.0 / 1024.0) + " MB used / " + std::to_string(freeInit / 1024.0 / 1024.0) + " MB total";
 }
+
+double CudaUtils::VRAMUsage()
+{
+	uint64_t freeVRAM, totalVRAM;
+
+	cudaMemGetInfo(&freeVRAM, &totalVRAM);
+
+	return (double)freeVRAM;
+}
+
+
 
 glm::vec3 CudaUtils::MakeVec(const float3 &a)
 {
 	return glm::vec3(a.x, a.y, a.z);
+}
+
+__device__ bool CudaUtils::isZero(const float3 & vec)
+{
+	return vec.x == 0.f && vec.y == 0.f && vec.z == 0.f;
+}
+
+__device__ float3 CudaUtils::ProjectOnPlane(const float3 & point, const float3 & planePoint, const float3 & planeNormal)
+{
+	return point + ((dot(planePoint, planeNormal) - dot(point, planeNormal)) / dot(planeNormal, planeNormal)) * planeNormal;
+}
+
+__device__ float3 CudaUtils::ProjectOnLine(const float3 & point, const float3 & edgeP1, const float3 & edgeP2)
+{
+	float3 ab = edgeP2 - edgeP1;
+	float3 ap = point - edgeP1;
+
+	return edgeP1 + CudaUtils::dot(ap, ab) / CudaUtils::dot(ab, ab) * ab;
+}
+
+__device__ float3 CudaUtils::ClampOnLine(const float3 & point, const float3 & edgeP1, const float3 & edgeP2)
+{
+	float distP1 = CudaUtils::distance(point, edgeP1);
+	float distP2 = CudaUtils::distance(point, edgeP2);
+
+	if (fabsf(distP1 + distP2 - CudaUtils::distance(edgeP1, edgeP2)) < EPS)
+	{
+		return point;
+	}
+
+	return distP1 < distP2 ? edgeP1 : edgeP2;
+}
+
+__device__ bool CudaUtils::isBetween(const float value, const float min, const float max)
+{
+	return value >= min && value <= max;
+}
+
+__device__ bool CudaUtils::isBetweenExclusive(const float value, const float min, const float max)
+{
+	return value > min && value < max;
 }
 
 __device__ float CudaUtils::clamp(const float value, const float min, const float max)

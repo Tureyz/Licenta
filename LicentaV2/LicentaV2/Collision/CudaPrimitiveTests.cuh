@@ -26,6 +26,15 @@ namespace CudaPrimitiveTests
 	__device__ void DCDTestVFs(const int id, const Physics::CudaTriangle * __restrict__ triangles, const float3 * __restrict__ positions,
 		Physics::PrimitiveContact * __restrict__ vfContacts, const float thickness);
 
+	__device__ void DCDTestVFs2(const int id, const Physics::CudaTriangle * __restrict__ triangles, const float3 * __restrict__ positions,
+		Physics::PrimitiveContact * __restrict__ vfContacts, const float thickness);
+
+
 	__device__ void DCDTestEEs(const int id, const Physics::CudaTriangle * __restrict__ triangles, const float3 * __restrict__ positions,
 		Physics::PrimitiveContact * __restrict__ eeContacts, const float thickness);
+
+	__device__ void DCDTestEEsBridson(const int id, const Physics::CudaTriangle * __restrict__ triangles, const float3 * __restrict__ positions,
+		Physics::PrimitiveContact * __restrict__ eeContacts, const float thickness, const float eps);
+
+	__device__ bool TestEdgeDegenerate(const float3 * __restrict__ positions, Physics::PrimitiveContact &contact, const float thickness);
 }

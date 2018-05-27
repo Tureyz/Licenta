@@ -4,8 +4,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 //#include <math_functions.h>
-#include <thrust/host_vector.h>
-#include <thrust/device_vector.h>
 #include "../Dependencies/glm/glm.hpp"
 
 #include "../Physics/Structs.h"
@@ -30,9 +28,24 @@ __host__ __device__ void operator*=(float3 &a, float s);
 __host__ __device__ float3 operator+(const float3 &a, const float3 &b);
 __host__ __device__ float3 operator/(const float3 &a, const float3 &b);
 
+__host__ __device__ void operator+=(float3 &a, const float3 &b);
+
 __host__ __device__ bool operator==(const float3 &a, const float3 &b);
 __host__ __device__ bool operator!=(const float3 &a, const float3 &b);
 
+__host__ __device__ float3 operator-(const float3 &a);
+
+
+namespace cu
+{
+	template <typename T>
+	__forceinline__
+		T *raw(thrust::device_vector<T> &vec) { return thrust::raw_pointer_cast(&vec[0]); }
+
+	template <typename T>
+	__forceinline__
+		const T *raw(const thrust::device_vector<T> &vec) { return thrust::raw_pointer_cast(&vec[0]); }
+}
 
 namespace CudaUtils
 {
@@ -48,13 +61,28 @@ namespace CudaUtils
 		float End();
 	};
 
-	const float3 CUDA_GRAVITY_ACCEL = make_float3(0, -0.981f, -0.1f);
+	const float3 CUDA_GRAVITY_ACCEL = make_float3(0, -9.81f, -0.0f);
 	const int THREADS_PER_BLOCK = 256;
 
 
-	std::string MemUsage();
+	std::string MemUsage(const double freeInit = -1.0);
+
+	double VRAMUsage();
 
 	glm::vec3 MakeVec(const float3 &a);
+
+	__device__ bool isZero(const float3 &vec);
+
+	__device__ float3 ProjectOnPlane(const float3 &point, const float3 &planePoint, const float3 &planeNormal);
+
+	__device__ float3 ProjectOnLine(const float3 &point, const float3 &edgeP1, const float3 &edgeP2);
+
+	// Assumes point is on P1, P2 already
+	__device__ float3 ClampOnLine(const float3 &point, const float3 &edgeP1, const float3 &edgeP2);
+
+	__device__ bool isBetween(const float value, const float min, const float max);
+
+	__device__ bool isBetweenExclusive(const float value, const float min, const float max);
 
 	__device__ float clamp(const float value, const float min, const float max);
 

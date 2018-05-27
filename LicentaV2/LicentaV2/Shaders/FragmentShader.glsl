@@ -18,6 +18,7 @@ void main(void)
 	{
 		vec3 tex = texture(myTextureSampler, uv).rgb;
 
-		outColor = vec4(fragColor.x * light * tex.x, fragColor.y * light * tex.y, fragColor.z * light * tex.z, 1);
+		//outColor = vec4(fragColor.x * light * tex.x, fragColor.y * light * tex.y, fragColor.z * light * tex.z, 1);
+		outColor = vec4(fragColor.x * light , fragColor.y * light , fragColor.z * light, 1);
 	}
 }

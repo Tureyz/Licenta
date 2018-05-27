@@ -4,6 +4,53 @@
 
 namespace Physics
 {
+	/*struct ImpulseInfo
+	{
+		int particleID;
+		float3 impulse;
+
+		__host__ __device__ ImpulseInfo(const int id, const float3 impulse) : particleID(id), impulse(impulse) {}
+
+		__host__ __device__ ImpulseInfo() : particleID(-1)
+		{
+			impulse.x = 0.f;
+			impulse.y = 0.f;
+			impulse.z = 0.f;
+		}
+	};*/
+
+	template <typename T>
+	struct DoubleBuffer
+	{
+		thrust::device_vector<T> buffers[2];
+		int selector;
+
+
+		__host__ __device__ DoubleBuffer()
+		{
+			selector = 0;
+		}
+
+		__host__ __device__ DoubleBuffer(thrust::device_vector<T> &crt, thrust::device_vector<T> &alt)
+		{
+			selector = 0;
+			buffers[1] = crt;
+			buffers[2] = alt;
+		}
+
+		__host__ __device__ thrust::device_vector<T> & Current()
+		{
+			return buffers[selector];
+		}
+
+		__host__ __device__ void SwapBuffers()
+		{
+			selector = (selector + 1) % 2;
+		}
+
+		
+		
+	};
 	struct AABBCollision
 	{
 		int m_id1;
@@ -22,10 +69,21 @@ namespace Physics
 		float3 n;
 		bool contact;
 
-		__host__ __device__ PrimitiveContact() : v1(-1), v2(-1), v3(-1), v4(-1), w1(-1), w2(-1), w3(-1), w4(-1),
-			t(-1), contact(false) {}
+		__host__ __device__ PrimitiveContact() : v1(-1), v2(-1), v3(-1), v4(-1), w1(-1.f), w2(-1.f), w3(-1.f), w4(-1.f),
+			t(-1.f), contact(false)
+		{
+			n.x = -1.f;
+			n.y = -1.f;
+			n.z = -1.f;
+		}
+
 		__host__ __device__ PrimitiveContact(const int v1, const int v2, const int v3, const int v4) :
-			v1(v1), v2(v2), v3(v3), v4(v4) {}
+			v1(v1), v2(v2), v3(v3), v4(v4), w1(-1.f), w2(-1.f), w3(-1.f), w4(-1.f), t(-1.f), contact(false)
+		{
+			n.x = -1.f;
+			n.y = -1.f;
+			n.z = -1.f;
+		}
 	};
 
 	struct CudaSpring

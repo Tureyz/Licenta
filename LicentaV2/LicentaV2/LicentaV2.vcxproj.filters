@@ -556,5 +556,7 @@
     <CudaCompile Include="Core\CubWrappers.cuh" />
     <CudaCompile Include="Collision\CudaPrimitiveTests.cu" />
     <CudaCompile Include="Collision\CudaPrimitiveTests.cuh" />
+    <CudaCompile Include="Physics\CudaPBD.cu" />
+    <CudaCompile Include="Physics\CudaPBD.cuh" />
   </ItemGroup>
 </Project>

@@ -12,7 +12,7 @@ Rendering::Camera::Camera()
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, -1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
-	SetEyeVector(glm::vec3(0.4f, 0.4f, 0.f));
+	SetEyeVector(glm::vec3(0.4f, 0.4f, 0.f) * 100.f);
 	m_keyPitch = m_keyRoll = m_keyYaw = 0.f;
 	m_cameraQuat = glm::quat(0.f, 0.f, 0.f, 0.f);
 	m_isMousePressed = false;
@@ -120,7 +120,7 @@ void Rendering::Camera::Update()
 	glm::vec3 forward(mat[0][2], mat[1][2], mat[2][2]);
 	glm::vec3 strafe(mat[0][0], mat[1][0], mat[2][0]);
 
-	const float speed = 0.12f;
+	const float speed = 10.12f;
 	SetEyeVector(GetEyeVector() + (-dz * forward + dx * strafe) * speed * Core::DeltaTime::GetDt());
 
 	UpdateView();

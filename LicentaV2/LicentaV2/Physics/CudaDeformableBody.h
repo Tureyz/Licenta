@@ -4,6 +4,9 @@
 #include "IPhysicsbody.h"
 
 #include "Structs.h"
+#include "../Core/CudaUtils.cuh"
+
+
 
 
 namespace Physics
@@ -29,6 +32,15 @@ namespace Physics
 			thrust::host_vector<float> &l0s, thrust::host_vector<thrust::host_vector<int>> &springInfo,
 			const thrust::host_vector<float3> &initPos);
 		int lin(const int i, const int j);
+
+
+		void ClothInternalDynamics();
+		void UpdateTrianglesDiscrete();
+		void UpdateTrianglesContinuous();
+		void BuildBVH();
+		void HandleCollisionsDiscrete();
+		void HandleCollisionsContinuous();
+		void FinalVertUpdate();
 		//__device__ int MyID();
 		////__global__ void CudaFixedUpdate(float3 *d_positions, int posSize, float3 *d_velocities, int velSize, float *masses, int massesSize, struct CudaSpring *springs, int springsSize);
 		//__global__ void ComputeExternalForces(float3 *forces, int forcesSize, float *masses, int massesSize);
@@ -57,8 +69,11 @@ namespace Physics
 		thrust::device_vector<float3> m_dVelocities;
 		thrust::device_vector<float> m_dMasses;
 		thrust::device_vector<float3> m_dForces;
-		thrust::device_vector<float3> m_dVertexNormals;
 
+		thrust::device_vector<float3> m_dRawVertexNormals;
+		thrust::device_vector<uint32_t> m_dRawVertexNormalIDs;
+
+		thrust::device_vector<float3> m_dAccumulatedVertexNormals;
 
 		int m_springCount;
 		thrust::device_vector<int> m_daIDs;
@@ -77,7 +92,7 @@ namespace Physics
 		//thrust::device_vector<float3> m_dFaceNormals;
 
 
-		thrust::device_vector<CudaTriangle> m_dTriangles;
+		thrust::device_vector<Physics::CudaTriangle> m_dTriangles;
 		thrust::device_vector<uint64_t> m_dMortonCodes;
 		thrust::device_vector<float3> m_dAABBMins;
 		thrust::device_vector<float3> m_dAABBMaxs;
@@ -111,10 +126,25 @@ namespace Physics
 		uint64_t m_timeStamp;
 		int m_AABBColChunkSize;
 
-		ParticleInfoList m_particleInfos;
-		SpringInfoList m_springInfos;
-		SimulationInfo m_simulationInfo;
+		Physics::ParticleInfoList m_particleInfos;
+		Physics::SpringInfoList m_springInfos;
+		Physics::SimulationInfo m_simulationInfo;
 
+
+		//thrust::device_vector<uint32_t> m_dImpulseIDs;
+		//thrust::device_vector<uint32_t> m_dAltImpulseIDs;
+
+		Physics::DoubleBuffer<uint32_t> m_dbImpulseID;
+
+		//thrust::device_vector<float3> m_dImpulseValues;
+		//thrust::device_vector<float3> m_dAltImpulseValues;
+		Physics::DoubleBuffer<float3> m_dbImpulseValues;
+
+		uint64_t m_impulsesSize;
+		thrust::device_vector<uint32_t> m_dImpulseRLEUniques;
+		thrust::device_vector<int> m_dImpulseRLECounts;
+		thrust::device_vector<float3> m_dAccumulatedImpulses;
+		int m_impulseRunCount;
 
 		/*float3 *m_dPos;
 		float3 *m_dVel;
@@ -134,11 +164,20 @@ namespace Physics
 		int *m_springIDs;*/
 
 
+		thrust::device_vector<float3> m_pbdAux1;
+		thrust::device_vector<float3> m_pbdAux2;
+
 		float m_structuralStiffness;
 		float m_shearStiffness;
 		float m_bendStiffness;
 		float m_dampingCoefficient;
+		float m_springDampingCoefficient;
 		float m_objectMass;
+		float m_vertexMass;
+
+
+		CudaUtils::CudaTimer m_timer;
+		double m_freeVRAMInit;
 	};
 
 }

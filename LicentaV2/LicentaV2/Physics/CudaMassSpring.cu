@@ -5,7 +5,7 @@
 void CudaMassSpring::ClothEngineStep(thrust::device_vector<float3>& positions, thrust::device_vector<float3>& prevPositions, thrust::device_vector<float3>& velocities, 
 	const thrust::device_vector<float>& masses, const thrust::device_vector<int>& aIDs, const thrust::device_vector<int>& bIDs, 
 	const thrust::device_vector<float>& ks, const thrust::device_vector<float>& l0s, const thrust::device_vector<int>& springInfo, 
-	const thrust::device_vector<int>& springIDs, const float3 gravity, const float dampingCoef, const float timeStep, const float bendcoef,
+	const thrust::device_vector<int>& springIDs, const float3 gravity, const float dampingCoef, const float springDampingCoef, const float timeStep, const float bendcoef,
 	const thrust::device_vector<bool>& fixedVerts)
 {
 	const int particleCount = positions.size();
@@ -16,12 +16,12 @@ void CudaMassSpring::ClothEngineStep(thrust::device_vector<float3>& positions, t
 	ClothEngineStep<<<numBlocks, CudaUtils::THREADS_PER_BLOCK>>>(particleCount, thrust::raw_pointer_cast(&positions[0]), thrust::raw_pointer_cast(&prevPositions[0]),
 		thrust::raw_pointer_cast(&velocities[0]), thrust::raw_pointer_cast(&masses[0]), springCount, thrust::raw_pointer_cast(&aIDs[0]), thrust::raw_pointer_cast(&bIDs[0]),
 		thrust::raw_pointer_cast(&ks[0]), thrust::raw_pointer_cast(&l0s[0]), thrust::raw_pointer_cast(&springInfo[0]), thrust::raw_pointer_cast(&springIDs[0]),
-		gravity, dampingCoef, timeStep, bendcoef, thrust::raw_pointer_cast(&fixedVerts[0]));
+		gravity, dampingCoef, springDampingCoef, timeStep, bendcoef, thrust::raw_pointer_cast(&fixedVerts[0]));
 }
 
 __global__ void CudaMassSpring::ClothEngineStep(const int particleCount, float3 * __restrict__ positions, float3 *__restrict__ prevPositions, float3 *__restrict__ velocities,
 	const float *__restrict__ masses, const int springCount, const int *__restrict__ aIDs, const int *__restrict__ bIDs, const float *__restrict__ ks, const float *__restrict__ l0s,
-	const int *__restrict__ springInfo, const int *__restrict__ springIDs, const float3 gravity, const float dampingCoef, const float timeStep, const float bendCoef,
+	const int *__restrict__ springInfo, const int *__restrict__ springIDs, const float3 gravity, const float dampingCoef, const float springDampingCoef, const float timeStep, const float bendCoef,
 	const bool *__restrict__ fixedVerts)
 {
 	int id = CudaUtils::MyID();
@@ -41,30 +41,34 @@ __global__ void CudaMassSpring::ClothEngineStep(const int particleCount, float3 
 		int sprID = springInfo[i];
 		float3 dir = positions[aIDs[sprID]] - positions[bIDs[sprID]];
 
-		if (CudaUtils::len(dir) == 0)
+		float len = CudaUtils::len(dir);
+
+		if (!len)
 		{
 
 			printf("[%d] dir is 0, aid: %d, bid: %d\n", id, aIDs[sprID], bIDs[sprID]);
-			//dir = make_float3(1.f, 1.f, 1.f);
 		}
-		//float len = norm3df(dir.x, dir.y, dir.z);
 
-		//float k = ComputeSpringDeformation(positions[aIDs[sprID]], positions[bIDs[sprID]], l0s[sprID]) > 0.1f && ks[sprID] != bendCoef ? 0.99f : ks[sprID];
+		float3 e = dir / len;
+
+		float v1 = CudaUtils::dot(e, positions[bIDs[sprID]] - prevPositions[bIDs[sprID]]);
+		float v2 = CudaUtils::dot(e, positions[aIDs[sprID]] - prevPositions[aIDs[sprID]]);
+
+
 
 		if (CudaUtils::len(dir) > l0s[sprID])
 			force = force - ks[sprID] * (dir - l0s[sprID] * CudaUtils::normalize(dir));
+			//force = force - (-ks[sprID] * (l0s[sprID] - len) - springDampingCoef * (v1 - v2)) * e;
 
-		//printf("Force: (%f, %f, %f)\n", force.x, force.y, force.z);
-		//force = force - k * (len - l0s[sprID]) * (dir / len);
 	}
 
 	float3 accel = force / masses[id];
 
-	//Explicit Euler
+	//Semi-implicit Euler
+	//prevPositions[id] = positions[id];
 	//velocities[id] = velocities[id] + timeStep * accel;
 	//positions[id] = positions[id] + timeStep * velocities[id];
-
-
+	
 	// Verlet
 
 	float3 newPos = 2.f * positions[id] - prevPositions[id] + accel * timeStep * timeStep;
@@ -74,8 +78,10 @@ __global__ void CudaMassSpring::ClothEngineStep(const int particleCount, float3 
 		printf("NEWPOS NAN\n");
 	}
 
+	float3 prevPrev = prevPositions[id];
 	prevPositions[id] = positions[id];
 	positions[id] = newPos;
+	velocities[id] = (newPos - prevPositions[id]) / timeStep;
 
 }
 
@@ -84,9 +90,12 @@ __device__ float CudaMassSpring::ComputeSpringDeformation(const float3 a, const 
 	return (CudaUtils::distance(a, b) - l0) / l0;
 }
 
-void CudaMassSpring::AdjustSprings(thrust::device_vector<float3>& positions, const thrust::device_vector<int>& bIDs, const thrust::device_vector<float>& l0s, const float maxDeformation,
-	const thrust::device_vector<int>& springInfo, const thrust::device_vector<int>& springIDs, const thrust::device_vector<bool>& fixedVerts, 
-	const thrust::device_vector<float>& ks, const float bendCoef)
+void CudaMassSpring::AdjustSprings(thrust::device_vector<float3>& positions, 
+	const thrust::device_vector<float3> &prevPositions, thrust::device_vector<float3> &velocities,
+	const thrust::device_vector<int>& bIDs, const thrust::device_vector<float>& l0s, const float maxDeformation,
+	const thrust::device_vector<int>& springInfo, const thrust::device_vector<int>& springIDs,
+	const thrust::device_vector<bool>& fixedVerts, 
+	const thrust::device_vector<float>& ks, const float bendCoef, const float timeStep)
 {
 	const int particleCount = positions.size();	
 
@@ -94,15 +103,24 @@ void CudaMassSpring::AdjustSprings(thrust::device_vector<float3>& positions, con
 
 	for (int i = 0; i < 5; ++i)
 	{
-		_AdjustSprings << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, thrust::raw_pointer_cast(&positions[0]), thrust::raw_pointer_cast(&bIDs[0]),
-			thrust::raw_pointer_cast(&l0s[0]), maxDeformation, thrust::raw_pointer_cast(&springInfo[0]), thrust::raw_pointer_cast(&springIDs[0]), thrust::raw_pointer_cast(&fixedVerts[0]),
-			thrust::raw_pointer_cast(&ks[0]), bendCoef);
+		_AdjustSprings << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount,
+			thrust::raw_pointer_cast(&positions[0]),
+			thrust::raw_pointer_cast(&prevPositions[0]),
+			thrust::raw_pointer_cast(&velocities[0]),
+			thrust::raw_pointer_cast(&bIDs[0]),
+			thrust::raw_pointer_cast(&l0s[0]), maxDeformation,
+			thrust::raw_pointer_cast(&springInfo[0]), thrust::raw_pointer_cast(&springIDs[0]),
+			thrust::raw_pointer_cast(&fixedVerts[0]),
+			thrust::raw_pointer_cast(&ks[0]), bendCoef, timeStep);
 	}
 }
 
 __global__ void CudaMassSpring::_AdjustSprings(const int particleCount, float3 * __restrict__ positions,
-	const int * __restrict__ bIDs, const float * __restrict__ l0s, const float maxDeformation, const int * __restrict__ springInfo, const int * __restrict__ springIDs,
-	const bool * __restrict__ fixedVerts, const float * __restrict__ ks, const float bendCoef)
+	const float3 * __restrict__ prevPositions,
+	float3 * __restrict__ velocities,
+	const int * __restrict__ bIDs, const float * __restrict__ l0s, const float maxDeformation,
+	const int * __restrict__ springInfo, const int * __restrict__ springIDs,
+	const bool * __restrict__ fixedVerts, const float * __restrict__ ks, const float bendCoef, const float timeStep)
 {
 	int id = CudaUtils::MyID();
 
@@ -125,28 +143,12 @@ __global__ void CudaMassSpring::_AdjustSprings(const int particleCount, float3 *
 		{
 
 			float dif = (deformation - maxDeformation) * l0s[sprID];
-
-			//float3 dir = positions[bIDs[sprID]] - positions[id];
-
-			//float len = CudaUtils::distance(positions[id], positions[bIDs[sprID]]);
-
-			//float dif = (len - l0s[sprID]) / len;
-
-			//printf("[%d] Deformation = %f, bid: %d, max: %d, dif: %f\n", id, deformation, bIDs[sprID], particleCount, dif);
-
 			float3 push = CudaUtils::normalize(positions[bIDs[sprID]] - positions[id]) * dif / (fixedVerts[bIDs[sprID]] ? 1.f : 2.f);
-
-			//float3 push = dir * (fixedVerts[bIDs[sprID]] ? 1.f : 0.5f) * dif;
-
-			//printf("[%d] Push = (%f, %f, %f)\n", id, push.x, push.y, push.z);
-			//printf("[%d] dif = %f\n", id, dif);
-
-
-			//correction = correction + push;
 			positions[id] = positions[id] + push;
 		}
 	}
 
+	velocities[id] = (positions[id] - prevPositions[id]) / timeStep;
 	//positions[id] = positions[id] + correction;
 }
 

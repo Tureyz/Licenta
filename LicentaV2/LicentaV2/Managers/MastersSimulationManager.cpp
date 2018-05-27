@@ -26,7 +26,7 @@ void Managers::MastersSimulationManager::Init()
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
 	
-	int dim = 33;
+	int dim = 20;
 	std::pair<int, int> dims(dim, dim);
 
 	Rendering::SceneObject *meshObj = new Rendering::SceneObject();

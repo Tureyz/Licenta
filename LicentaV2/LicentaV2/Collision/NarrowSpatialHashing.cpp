@@ -335,7 +335,7 @@ bool Collision::NarrowSpatialHashing::TestIntersection(DeformingPoint node, Defo
 		float vr1 = glm::dot(x13, x43);
 		float vr2 = glm::dot(x23, x43);
 
-		float w2 = (m11 * vr2 - m21 * vr1) / (m11 * m22 + m21 * m12);
+		float w2 = (m11 * vr2 - m21 * vr1) / (m11 * m22 - m21 * m12);
 		float w1 = (vr1 - m12 * w2) / m11;
 		float w3 = 1.f - w1 - w2;
 
@@ -479,7 +479,7 @@ bool Collision::NarrowSpatialHashing::TestIntersection(DeformingEdge e1, Deformi
 	float vr1 = glm::dot(x21, x31);
 	float vr2 = glm::dot(-x43, x31);
 
-	float b = (m11 * vr2 - m21 * vr1) / (m11 * m22 + m21 * m12);
+	float b = (m11 * vr2 - m21 * vr1) / (m11 * m22 - m21 * m12);
 	float a = (vr1 - m12 * b) / m11;
 
 

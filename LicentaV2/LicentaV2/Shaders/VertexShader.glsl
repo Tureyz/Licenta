@@ -26,10 +26,11 @@ void main()
 
 	//fragColor = colors[collisionState];
 
+
 	vec3 L = normalize(lightPosition - inPosition);
 	vec3 V = normalize(eyePosition - inPosition);
 
-	float ambientLight = 0.6;
+	float ambientLight = 0.4;
 	float LdotN = clamp(dot(-L, -inNormal), 0, 1);
 	float diffuseLight = LdotN * kd;
 	float specularLight = 0;
@@ -54,6 +55,6 @@ void main()
 	light = l1 + l2;//(ambientLight + diffuseLight) + specularLight;
 
 	fragColor = inColor;
-	gl_Position = viewProjection * vec4(inPosition, 1);
+	gl_Position = viewProjection * vec4(inPosition * 100.f, 1);
 	uv = inUV;
 }
