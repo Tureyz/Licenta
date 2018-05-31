@@ -26,7 +26,23 @@ void Managers::MastersSimulationManager::Init()
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
 	
-	int dim = 20;
+	int dim = 30;
+
+	Physics::ClothParams params;
+	params.dims.x = dim;
+	params.dims.y = dim;
+	params.BVHChunkSize = 64;
+	params.ccdIterations = 5;
+	params.kBend = 0.03f;
+	params.kDamp = 0.1f;
+	params.kShear = 0.7f;
+	params.kSpringDamp = 0.2f;
+	params.kStretch = 0.99999f;
+	params.solverIterations = 15;
+	params.timestep = Core::PHYSICS_TIME_STEP;
+	params.objectMass = 0.25f;
+	params.gravity = make_float3(0, -0.0981f, 0.0f);
+
 	std::pair<int, int> dims(dim, dim);
 
 	Rendering::SceneObject *meshObj = new Rendering::SceneObject();
@@ -39,7 +55,8 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->ScaleAbsolute(glm::vec3(0.25f, 0.25f, 0.25f));
 	//meshObj->TranslateAbsolute(ScriptLoader::GetVec3("Scripts/randomPos.py", "RandomPosition"));
 	meshObj->Update();	
-	meshObj->SetPhysicsBody(new Physics::CudaDeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices, dims));
+	meshObj->SetPhysicsBody(new Physics::CudaDeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices, params));
+	//meshObj->SetPhysicsBody(new Physics::DeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices));
 	//meshObj->RotateAbsolute(glm::vec3(1, 0, 0), 90);
 
 	ObjectAdded(meshObj);

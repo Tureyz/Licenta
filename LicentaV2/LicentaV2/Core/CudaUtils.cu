@@ -124,7 +124,7 @@ glm::vec3 CudaUtils::MakeVec(const float3 &a)
 	return glm::vec3(a.x, a.y, a.z);
 }
 
-__device__ bool CudaUtils::isZero(const float3 & vec)
+__host__ __device__ bool CudaUtils::isZero(const float3 & vec)
 {
 	return vec.x == 0.f && vec.y == 0.f && vec.z == 0.f;
 }

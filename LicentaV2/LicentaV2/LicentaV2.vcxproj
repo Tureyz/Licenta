@@ -281,7 +281,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <CudaCompile Include="Collision\CudaBVH.cuh" />
+    <CudaCompile Include="Collision\CudaCollisionDetection.cu" />
+    <CudaCompile Include="Collision\CudaCollisionResponse.cu" />
     <CudaCompile Include="Collision\CudaPrimitiveTests.cuh" />
+    <CudaCompile Include="Collision\CudaCollisionDetection.cuh" />
+    <CudaCompile Include="Collision\CudaCollisionResponse.cuh" />
     <ClInclude Include="Collision\DataStructures\BVHTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -387,10 +391,12 @@
     <ClInclude Include="Physics\CubicSolver.h" />
     <CudaCompile Include="Collision\CudaBVH.cu" />
     <CudaCompile Include="Core\CudaUtils.cu" />
+    <CudaCompile Include="Physics\CudaCubicSolver.cu" />
     <CudaCompile Include="Physics\CudaDeformableBody.h" />
     <CudaCompile Include="Physics\CudaDeformableUtils.cuh" />
     <CudaCompile Include="Physics\CudaMassSpring.cuh" />
     <CudaCompile Include="Physics\CudaPBD.cuh" />
+    <ClInclude Include="Physics\CudaCubicSolver.cuh" />
     <ClInclude Include="Physics\DeformableBody.h" />
     <ClInclude Include="Physics\ClothNode.h" />
     <ClInclude Include="Physics\DisjointSet.h" />
@@ -505,9 +511,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
+    <None Include="Shaders\FragmentShaderFL.glsl" />
     <None Include="Shaders\TextFragmentShader.glsl" />
     <None Include="Shaders\TextVertexShader.glsl" />
     <None Include="Shaders\VertexShader.glsl" />
+    <None Include="Shaders\VertexShaderFL.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\glm\CMakeLists.txt" />

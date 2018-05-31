@@ -94,12 +94,12 @@ void Managers::SceneManager::notifyDisplayFrame()
 
 	glUseProgram(Managers::ShaderManager::GetSceneShader());
 
-	glm::vec3 light_position = glm::vec3(0.5f, 0.5f, 1.5f);
+	glm::vec3 light_position = glm::vec3(0.5f, 0.5f, 1.11f);
 
 	glUniform3f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "lightPosition"), light_position.x, light_position.y, light_position.z);
 	glUniform3f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "eyePosition"), m_camera->GetEyeVector().x, m_camera->GetEyeVector().y, m_camera->GetEyeVector().z);
-	glUniform1i(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "shininess"), 6);
-	glUniform1f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "kd"), 0.3);
+	glUniform1i(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "shininess"), 4);
+	glUniform1f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "kd"), 0.6);
 	glUniform1f(glGetUniformLocation(Managers::ShaderManager::GetSceneShader(), "ks"), 0.3);
 	glm::mat4 viewProjection = m_projectionMatrix * m_camera->GetViewMatrix();
 

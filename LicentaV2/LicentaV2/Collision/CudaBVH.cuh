@@ -15,11 +15,11 @@ namespace CudaBVH
 	void GetAABBCollisions(const thrust::device_vector<int> &lefts, const thrust::device_vector<int> &rights,
 		const thrust::device_vector<float3> &AABBMins, const thrust::device_vector<float3> &AABBMaxs,
 		const thrust::device_vector<int> &rmlls, const thrust::device_vector<int> &rmlrs,
-		thrust::device_vector<Physics::AABBCollision> &collisions, const int chunkSize, const uint64_t timestamp);
+		thrust::device_vector<Physics::AABBCollision> &collisions, thrust::device_vector<bool> &flags, const int chunkSize, const uint64_t timestamp);
 
 	__global__ void _GetAABBCollisions(const int leafCount, const int * __restrict__ lefts, const int * __restrict__ rights,
 		const float3 * __restrict__ aabbMins, const float3 * __restrict__ aabbMaxs, const int * __restrict__ rmlls, const int * __restrict__ rmlrs,
-		Physics::AABBCollision * __restrict__ collisions, const int chunkSize, const uint64_t timestamp);
+		Physics::AABBCollision * __restrict__ collisions, bool * __restrict__ flags, const int chunkSize, const uint64_t timestamp);
 
 	void ComputeTreeAABBs(const thrust::device_vector<int> &lefts, const thrust::device_vector<int> &rights,
 		const thrust::device_vector<int> &parents, thrust::device_vector<int> &nodesVisited,

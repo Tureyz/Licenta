@@ -5,7 +5,7 @@
 
 #include "Structs.h"
 #include "../Core/CudaUtils.cuh"
-
+#include "CudaPBD.cuh"
 
 
 
@@ -19,7 +19,7 @@ namespace Physics
 	public:
 
 		~CudaDeformableBody();
-		CudaDeformableBody(std::vector<Rendering::VertexFormat> *verts, std::vector<unsigned int> *indices, std::pair<int, int> dims);
+		CudaDeformableBody(std::vector<Rendering::VertexFormat> *verts, std::vector<unsigned int> *indices, const ClothParams params);
 		virtual void FixedUpdate() override;
 		virtual void Update() override;
 
@@ -41,15 +41,22 @@ namespace Physics
 		void HandleCollisionsDiscrete();
 		void HandleCollisionsContinuous();
 		void FinalVertUpdate();
+
+		void CreateTriangleTests();
+		void SolveCollisions();
 		//__device__ int MyID();
 		////__global__ void CudaFixedUpdate(float3 *d_positions, int posSize, float3 *d_velocities, int velSize, float *masses, int massesSize, struct CudaSpring *springs, int springsSize);
 		//__global__ void ComputeExternalForces(float3 *forces, int forcesSize, float *masses, int massesSize);
 
 		//__global__ void ApplyForces(float3 *forces, int forcesSize, float *masses, int massesSize, float3 *d_positions, int posSize, float3 *d_velocities, int velSize);
 
-		std::pair<int, int> m_dims;
+		ClothParams m_params;
 
-		float m_thickness;
+		//std::pair<int, int> m_dims;
+
+		//float m_thickness;
+
+		//int m_CCDMaxIterations;
 
 		/*thrust::host_vector<float3> m_vertexPositions;
 		thrust::host_vector<float3> m_vertexVelocities;
@@ -60,6 +67,8 @@ namespace Physics
 		thrust::host_vector<int> m_springIDs;*/
 
 
+		CudaPBD::CudaPBD m_pbd;
+
 		thrust::device_vector<Rendering::VertexFormat> m_dVerts;
 
 		int m_particleCount;
@@ -68,6 +77,7 @@ namespace Physics
 		thrust::device_vector<float3> m_dPositions;
 		thrust::device_vector<float3> m_dVelocities;
 		thrust::device_vector<float> m_dMasses;
+		thrust::device_vector<float> m_dInvMasses;
 		thrust::device_vector<float3> m_dForces;
 
 		thrust::device_vector<float3> m_dRawVertexNormals;
@@ -112,19 +122,25 @@ namespace Physics
 		//thrust::device_vector<int> m_dTreeEndIDs;
 
 		thrust::device_vector<Physics::AABBCollision> m_dAABBCollisions;
+		thrust::device_vector<bool> m_dAABBCollisionFlags;
 		thrust::device_vector<Physics::AABBCollision> m_dFilteredAABBCollisions;
 		uint64_t m_filteredAABBCollisionsSize;
 		
 		//thrust::device_vector<int> m_dAABBCollisionSizes;
 
 		thrust::device_vector<Physics::PrimitiveContact> m_vfContacts;
-		uint64_t m_vfContactsSize;
 		thrust::device_vector<Physics::PrimitiveContact> m_eeContacts;
+		thrust::device_vector<bool> m_dvfFlags;
+		thrust::device_vector<bool> m_deeFlags;
+
+		thrust::device_vector<Physics::PrimitiveContact> m_filteredVFContacts;
+		thrust::device_vector<Physics::PrimitiveContact> m_filteredEEContacts;
+		uint64_t m_vfContactsSize;
 		uint64_t m_eeContactsSize;
 
 
 		uint64_t m_timeStamp;
-		int m_AABBColChunkSize;
+//		int m_AABBColChunkSize;
 
 		Physics::ParticleInfoList m_particleInfos;
 		Physics::SpringInfoList m_springInfos;
@@ -134,6 +150,7 @@ namespace Physics
 		//thrust::device_vector<uint32_t> m_dImpulseIDs;
 		//thrust::device_vector<uint32_t> m_dAltImpulseIDs;
 
+		thrust::device_vector<bool> m_impulseFlags;
 		Physics::DoubleBuffer<uint32_t> m_dbImpulseID;
 
 		//thrust::device_vector<float3> m_dImpulseValues;
@@ -167,12 +184,12 @@ namespace Physics
 		thrust::device_vector<float3> m_pbdAux1;
 		thrust::device_vector<float3> m_pbdAux2;
 
-		float m_structuralStiffness;
+		/*float m_structuralStiffness;
 		float m_shearStiffness;
 		float m_bendStiffness;
 		float m_dampingCoefficient;
 		float m_springDampingCoefficient;
-		float m_objectMass;
+		float m_objectMass;*/
 		float m_vertexMass;
 
 

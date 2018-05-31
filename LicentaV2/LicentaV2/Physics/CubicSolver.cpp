@@ -82,7 +82,9 @@ std::vector<float> Physics::CubicSolver::FindCriticalPoints(const glm::vec3 &x21
 	return result;
 }
 
-float Physics::CubicSolver::Secant(const glm::vec3 &x21, const glm::vec3 &x31, const glm::vec3 &x41, const glm::vec3 &v21, const glm::vec3 &v31, const glm::vec3 &v41, const float &a, const float &b, const int &maxIterations, const float &tolerance)
+float Physics::CubicSolver::Secant(const glm::vec3 &x21, const glm::vec3 &x31, const glm::vec3 &x41,
+	const glm::vec3 &v21, const glm::vec3 &v31, const glm::vec3 &v41,
+	const float &a, const float &b, const int &maxIterations, const float &tolerance)
 {
 	float x0 = a, x1 = b;
 

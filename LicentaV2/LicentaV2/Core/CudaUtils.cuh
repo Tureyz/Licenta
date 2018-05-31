@@ -61,7 +61,7 @@ namespace CudaUtils
 		float End();
 	};
 
-	const float3 CUDA_GRAVITY_ACCEL = make_float3(0, -9.81f, -0.0f);
+	//const float3 CUDA_GRAVITY_ACCEL = make_float3(0, -0.981f, -0.0f);
 	const int THREADS_PER_BLOCK = 256;
 
 
@@ -71,7 +71,7 @@ namespace CudaUtils
 
 	glm::vec3 MakeVec(const float3 &a);
 
-	__device__ bool isZero(const float3 &vec);
+	__host__ __device__ bool isZero(const float3 &vec);
 
 	__device__ float3 ProjectOnPlane(const float3 &point, const float3 &planePoint, const float3 &planeNormal);
 

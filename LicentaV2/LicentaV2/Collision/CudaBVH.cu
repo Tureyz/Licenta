@@ -8,21 +8,21 @@
 
 void CudaBVH::GetAABBCollisions(const thrust::device_vector<int>& lefts, const thrust::device_vector<int>& rights, const thrust::device_vector<float3>& AABBMins,
 	const thrust::device_vector<float3>& AABBMaxs, const thrust::device_vector<int>& rmlls, const thrust::device_vector<int>& rmlrs,
-	thrust::device_vector<Physics::AABBCollision> &collisions, const int chunkSize, const uint64_t timestamp)
+	thrust::device_vector<Physics::AABBCollision> &collisions, thrust::device_vector<bool> &flags, const int chunkSize, const uint64_t timestamp)
 {
 	int leafCount = lefts.size() + 1;
 	int numBlocks = (leafCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	_GetAABBCollisions << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (leafCount, thrust::raw_pointer_cast(&lefts[0]), thrust::raw_pointer_cast(&rights[0]),
-		thrust::raw_pointer_cast(&AABBMins[0]), thrust::raw_pointer_cast(&AABBMaxs[0]), thrust::raw_pointer_cast(&rmlls[0]), thrust::raw_pointer_cast(&rmlrs[0]),
-		thrust::raw_pointer_cast(&collisions[0]), chunkSize, timestamp);
+	_GetAABBCollisions << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (leafCount, cu::raw(lefts), cu::raw(rights),
+		cu::raw(AABBMins), cu::raw(AABBMaxs), cu::raw(rmlls), cu::raw(rmlrs),
+		cu::raw(collisions), cu::raw(flags), chunkSize, timestamp);
 
 	//printf("Done with AABB cols\n");
 }
 
 __global__ void CudaBVH::_GetAABBCollisions(const int leafCount, const int *__restrict__ lefts, const int *__restrict__ rights, const float3 *__restrict__ aabbMins,
 	const float3 *__restrict__ aabbMaxs, const int *__restrict__ rmlls, const int *__restrict__ rmlrs,
-	Physics::AABBCollision * __restrict__ collisions, const int chunkSize, const uint64_t timestamp)
+	Physics::AABBCollision * __restrict__ collisions, bool * __restrict__ flags, const int chunkSize, const uint64_t timestamp)
 {
 	int id = CudaUtils::MyID();
 	if (id >= leafCount)
@@ -68,7 +68,8 @@ __global__ void CudaBVH::_GetAABBCollisions(const int leafCount, const int *__re
 		{
 			if (crtCol < chunkSize)
 			{
-				collisions[myChunk + crtCol++] = Physics::AABBCollision(id, left - internalNodeCount, timestamp);
+				collisions[myChunk + crtCol] = Physics::AABBCollision(id, left - internalNodeCount);// , timestamp);
+				flags[myChunk + crtCol++] = true;
 				//printf("[%d] Collision between %d and %d\n", id, myLeafID, left - internalNodeCount);
 			}
 			else
@@ -81,7 +82,8 @@ __global__ void CudaBVH::_GetAABBCollisions(const int leafCount, const int *__re
 		{
 			if (crtCol < chunkSize)
 			{
-				collisions[myChunk + crtCol++] = Physics::AABBCollision(id, right - internalNodeCount, timestamp);
+				collisions[myChunk + crtCol] = Physics::AABBCollision(id, right - internalNodeCount);// , timestamp);
+				flags[myChunk + crtCol++] = true;
 				//printf("[%d] Collision between %d and %d\n", id, myLeafID, right - internalNodeCount);
 			}
 			else

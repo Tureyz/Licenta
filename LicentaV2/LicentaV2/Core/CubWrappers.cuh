@@ -20,6 +20,36 @@
 
 namespace CubWrap
 {
+
+	template<typename T>
+	__forceinline__
+		void SelectFlagged(const thrust::device_vector<T> &keys, const thrust::device_vector<bool> &flags, const int inSize, thrust::device_vector<T> &out, int &outSize,
+			void *& tempStorage, uint64_t &tempStorageSize)
+	{
+
+		uint64_t requiredSize = 0;
+
+		const T *rawKeys = cu::raw(keys);
+		const bool *rawFlags = cu::raw(flags);
+		T *rawOut = cu::raw(out);
+		
+
+		int *dOutCount;
+		cudaMalloc(&dOutCount, sizeof(int));
+
+		cub::DeviceSelect::Flagged(NULL, requiredSize, rawKeys, rawFlags, rawOut, dOutCount, inSize);
+
+		CudaUtils::TempStorageGrow(tempStorage, tempStorageSize, requiredSize);
+
+		cub::DeviceSelect::Flagged(tempStorage, requiredSize, rawKeys, rawFlags, rawOut, dOutCount, inSize);
+
+
+		cudaMemcpy(&outSize, dOutCount, sizeof(int), cudaMemcpyDeviceToHost);
+
+		cudaFree(dOutCount);
+	}
+
+
 	template<typename T>
 	__forceinline__
 		T ReduceSum(const thrust::device_vector<T> &keys, void *& tempStorage, uint64_t &tempStorageSize)

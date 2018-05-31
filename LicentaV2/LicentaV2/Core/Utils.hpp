@@ -15,7 +15,7 @@ namespace Core
 
 	const float TIME_STEP_MS = 1000.f / 60.f;
 	const float TIME_STEP = TIME_STEP_MS / 1000.f;
-	const float PHYSICS_TIME_STEP_MS = 1000.f / 400.f;
+	const float PHYSICS_TIME_STEP_MS = 1000.f / 60.f;
 	const float PHYSICS_TIME_STEP = PHYSICS_TIME_STEP_MS / 1000.f;
 
 	const glm::vec3 GRAVITY_ACCEL(0, -9.81f, 0);

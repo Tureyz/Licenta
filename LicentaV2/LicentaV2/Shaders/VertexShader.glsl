@@ -27,34 +27,48 @@ void main()
 	//fragColor = colors[collisionState];
 
 
-	vec3 L = normalize(lightPosition - inPosition);
-	vec3 V = normalize(eyePosition - inPosition);
+	vec3 scaledInPos = inPosition * 100.f;
 
-	float ambientLight = 0.4;
-	float LdotN = clamp(dot(-L, -inNormal), 0, 1);
-	float diffuseLight = LdotN * kd;
+	vec3 L = normalize(lightPosition - scaledInPos);
+	vec3 V = normalize(eyePosition - scaledInPos);
+
+	float LdotN = clamp(dot(L, inNormal), 0, 1);
+
+	float ambientLight = 0.5;
+	float distance = length(L);
+
+	float diffuseLight = LdotN * kd;// / (distance * distance);
+
 	float specularLight = 0;
 
-
-	vec3 R = -normalize(reflect(L, inNormal));
-	specularLight = ks * pow(max(dot(V, R), 0), shininess);
+	if (LdotN >= 0)
+	{
+		vec3 R = -normalize(reflect(L, inNormal));
+		specularLight = ks * pow(max(dot(V, R), 0), shininess);
+	}
 
 	float l1 = (ambientLight + diffuseLight) + specularLight;
 
 	vec3 lPos = lightPosition;
 	lPos.z = -lPos.z;
 
-	L = normalize(lPos - inPosition);
-	LdotN = clamp(dot(-L, -inNormal), 0, 1);
-	diffuseLight = LdotN * kd;
-	R = -normalize(reflect(L, inNormal));
-	specularLight = ks * pow(max(dot(V, R), 0), shininess);
+	L = normalize(lPos - scaledInPos);
+	LdotN = clamp(dot(L, inNormal), 0, 1);
+	diffuseLight = LdotN * kd;// / (distance * distance);
+
+	specularLight = 0;
+
+	if (LdotN >= 0)
+	{
+		vec3 R = -normalize(reflect(L, inNormal));
+		specularLight = ks * pow(max(dot(V, R), 0), shininess);
+	}	
 
 	float l2 = (ambientLight + diffuseLight) + specularLight;
 
 	light = l1 + l2;//(ambientLight + diffuseLight) + specularLight;
 
 	fragColor = inColor;
-	gl_Position = viewProjection * vec4(inPosition * 100.f, 1);
+	gl_Position = viewProjection * vec4(scaledInPos, 1);
 	uv = inUV;
 }

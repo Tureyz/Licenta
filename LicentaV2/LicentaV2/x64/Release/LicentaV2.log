@@ -1,41 +1,5 @@
-﻿  
-  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -dlink -o x64\Release\LicentaV2.device-link.obj -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MT " -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\lib\x64" -LDependencies\freeglut -LDependencies\glew -LDependencies\glm cuda.lib cudart_static.lib cudadevrt.lib opengl32.lib freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib msvcrt.lib msvcmrt.lib  -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_30,code=sm_30  --machine 64 x64\Release\CudaBVH.cuh.obj x64\Release\CudaPrimitiveTests.cuh.obj x64\Release\CudaPrimitiveTests.cu.obj x64\Release\CubWrappers.cu.obj x64\Release\CudaUtils.cuh.obj x64\Release\CubWrappers.cuh.obj x64\Release\CudaBVH.cu.obj x64\Release\CudaUtils.cu.obj x64\Release\CudaDeformableBody.h.obj x64\Release\CudaDeformableUtils.cuh.obj x64\Release\CudaMassSpring.cuh.obj x64\Release\CudaPBD.cuh.obj x64\Release\CudaDeformableUtils.cu.obj x64\Release\CudaMassSpring.cu.obj x64\Release\CudaPBD.cu.obj x64\Release\CudaDeformableBody.cpp.obj 
-  cuda.lib
-  cudart_static.lib
-  cudadevrt.lib
-  opengl32.lib
-  freeglut.lib
-  glew32.lib
-  kernel32.lib
-  user32.lib
-  gdi32.lib
-  winspool.lib
-  comdlg32.lib
-  advapi32.lib
-  shell32.lib
-  ole32.lib
-  oleaut32.lib
-  uuid.lib
-  odbc32.lib
-  odbccp32.lib
-  msvcrt.lib
-  msvcmrt.lib
-  CudaBVH.cuh.obj
-  CudaPrimitiveTests.cuh.obj
-  CudaPrimitiveTests.cu.obj
-  CubWrappers.cu.obj
-  CudaUtils.cuh.obj
-  CubWrappers.cuh.obj
-  CudaBVH.cu.obj
-  CudaUtils.cu.obj
-  CudaDeformableBody.h.obj
-  CudaDeformableUtils.cuh.obj
-  CudaMassSpring.cuh.obj
-  CudaPBD.cuh.obj
-  CudaDeformableUtils.cu.obj
-  CudaMassSpring.cu.obj
-  CudaPBD.cu.obj
-  CudaDeformableBody.cpp.obj
+﻿  MastersSimulationManager.cpp
+Managers\MastersSimulationManager.cpp(53): warning C4305: 'argument': truncation from 'double' to 'const float'
      Creating library D:\Git Repos\Licenta\LicentaV2\x64\Release\LicentaV2.lib and object D:\Git Repos\Licenta\LicentaV2\x64\Release\LicentaV2.exp
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code

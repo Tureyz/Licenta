@@ -531,12 +531,15 @@
     <ClInclude Include="Dependencies\cub\warp\specializations\warp_scan_smem.cuh" />
     <ClInclude Include="Dependencies\cub\cub.cuh" />
     <ClInclude Include="Dependencies\cub\device\device_scan.cuh" />
+    <ClInclude Include="Physics\CudaCubicSolver.cuh" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
     <None Include="Shaders\VertexShader.glsl" />
     <None Include="Shaders\TextFragmentShader.glsl" />
     <None Include="Shaders\TextVertexShader.glsl" />
+    <None Include="Shaders\FragmentShaderFL.glsl" />
+    <None Include="Shaders\VertexShaderFL.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Dependencies\glm\CMakeLists.txt" />
@@ -558,5 +561,10 @@
     <CudaCompile Include="Collision\CudaPrimitiveTests.cuh" />
     <CudaCompile Include="Physics\CudaPBD.cu" />
     <CudaCompile Include="Physics\CudaPBD.cuh" />
+    <CudaCompile Include="Collision\CudaCollisionDetection.cu" />
+    <CudaCompile Include="Collision\CudaCollisionResponse.cu" />
+    <CudaCompile Include="Physics\CudaCubicSolver.cu" />
+    <CudaCompile Include="Collision\CudaCollisionDetection.cuh" />
+    <CudaCompile Include="Collision\CudaCollisionResponse.cuh" />
   </ItemGroup>
 </Project>

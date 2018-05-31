@@ -19,6 +19,25 @@ namespace Physics
 		}
 	};*/
 
+
+	struct ClothParams
+	{
+		float timestep;
+		float kStretch;
+		float kShear;
+		float kBend;
+		float kDamp;
+		float kSpringDamp;
+		float thickness;
+		float objectMass;
+		float3 gravity;
+
+		int2 dims;
+		int solverIterations;
+		int ccdIterations;
+		int BVHChunkSize;
+	};
+
 	template <typename T>
 	struct DoubleBuffer
 	{
@@ -55,10 +74,11 @@ namespace Physics
 	{
 		int m_id1;
 		int m_id2;
-		uint64_t m_timestamp;
+		//uint64_t m_timestamp;
 
-		__host__ __device__ AABBCollision(const int id1, const int id2, const uint64_t ts) : m_id1(id1), m_id2(id2), m_timestamp(ts) {}
-		__host__ __device__ AABBCollision() : m_id1(-1), m_id2(-2), m_timestamp(0) {}
+		__host__ __device__ AABBCollision(const int id1, const int id2/*, const uint64_t ts*/) :
+			m_id1(id1), m_id2(id2)/*, m_timestamp(ts)*/ {}
+		__host__ __device__ AABBCollision() : m_id1(-1), m_id2(-2)/*, m_timestamp(0) */{}
 	};
 
 	struct PrimitiveContact
@@ -67,10 +87,10 @@ namespace Physics
 		float w1, w2, w3, w4;
 		float t;
 		float3 n;
-		bool contact;
+		//bool contact;
 
 		__host__ __device__ PrimitiveContact() : v1(-1), v2(-1), v3(-1), v4(-1), w1(-1.f), w2(-1.f), w3(-1.f), w4(-1.f),
-			t(-1.f), contact(false)
+			t(-1.f)//, contact(false)
 		{
 			n.x = -1.f;
 			n.y = -1.f;
@@ -78,7 +98,7 @@ namespace Physics
 		}
 
 		__host__ __device__ PrimitiveContact(const int v1, const int v2, const int v3, const int v4) :
-			v1(v1), v2(v2), v3(v3), v4(v4), w1(-1.f), w2(-1.f), w3(-1.f), w4(-1.f), t(-1.f), contact(false)
+			v1(v1), v2(v2), v3(v3), v4(v4), w1(-1.f), w2(-1.f), w3(-1.f), w4(-1.f), t(-1.f)//, contact(false)
 		{
 			n.x = -1.f;
 			n.y = -1.f;

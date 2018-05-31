@@ -31,7 +31,7 @@ std::wstring  ShaderManager::ReadShader(const std::wstring & filename)
 
 void Managers::ShaderManager::CreatePrograms()
 {
-	m_sceneShaderProgram = CreateProgram(L"Shaders\\VertexShader.glsl", L"Shaders\\FragmentShader.glsl");
+	m_sceneShaderProgram = CreateProgram(L"Shaders\\VertexShaderFL.glsl", L"Shaders\\FragmentShaderFL.glsl");
 	m_textShaderProgram = CreateProgram(L"Shaders\\TextVertexShader.glsl", L"Shaders\\TextFragmentShader.glsl");
 }
 
