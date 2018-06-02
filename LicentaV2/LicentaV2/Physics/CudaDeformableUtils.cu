@@ -104,6 +104,52 @@ __global__ void DeformableUtils::_UpdateTriangles(const int triangleCount, const
 	//colSizes[id] = 0;
 }
 
+void DeformableUtils::UpdateTrianglesContinuous(const thrust::device_vector<float3>& positions,
+	const thrust::device_vector<float3>& prevPositions,
+	thrust::device_vector<Physics::CudaTriangle>& triangles,
+	thrust::device_vector<uint64_t>& mortonCodes, thrust::device_vector<float3>& aabbMins, thrust::device_vector<float3>& aabbMaxs, const float thickness)
+{
+	const int triangleCount = triangles.size();
+
+	int numBlocks = (triangleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+
+	_UpdateTrianglesContinuous << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> >(triangleCount, cu::raw(positions), cu::raw(prevPositions), cu::raw(triangles),
+		cu::raw(mortonCodes), cu::raw(aabbMins), cu::raw(aabbMaxs), thickness);
+}
+
+__global__ void DeformableUtils::_UpdateTrianglesContinuous(const int triangleCount, const float3 *__restrict__ positions, const float3 *__restrict__ prevPositions, Physics::CudaTriangle *__restrict__ triangles, uint64_t *__restrict__ mortonCodes, float3 *__restrict__ aabbMins, float3 *__restrict__ aabbMaxs, const float thickness)
+{
+	int id = CudaUtils::MyID();
+	if (id >= triangleCount)
+		return;
+
+	const float3 posV1 = positions[triangles[id].m_v1];
+	const float3 posV2 = positions[triangles[id].m_v2];
+	const float3 posV3 = positions[triangles[id].m_v3];
+
+
+	const float3 prevPosV1 = prevPositions[triangles[id].m_v1];
+	const float3 prevPosV2 = prevPositions[triangles[id].m_v2];
+	const float3 prevPosV3 = prevPositions[triangles[id].m_v3];
+
+	triangles[id].m_faceNormal = CudaUtils::normalize(CudaUtils::FaceNormal(posV1, posV2, posV3));
+
+	const float3 min = CudaUtils::min3(posV1, posV2, posV3) - thickness;
+	const float3 max = CudaUtils::max3(posV1, posV2, posV3) + thickness;
+
+	const float3 prevMin = CudaUtils::min3(prevPosV1, prevPosV2, prevPosV3) - thickness;
+	const float3 prevMax = CudaUtils::max3(prevPosV1, prevPosV2, prevPosV3) + thickness;
+
+
+	const float3 sweptMin = CudaUtils::minf3(min, prevMin);
+	const float3 sweptMax = CudaUtils::maxf3(max, prevMax);
+	aabbMins[id + triangleCount - 1] = sweptMin;
+	aabbMaxs[id + triangleCount - 1] = sweptMax;
+
+	mortonCodes[id] = CudaUtils::Morton3D64(sweptMin + (sweptMax - sweptMin) / 2.f);
+
+}
+
 void DeformableUtils::UpdateSweptAABBs(const thrust::device_vector<float3>& positions, const thrust::device_vector<float3>& prevPositions, const thrust::device_vector<Physics::CudaTriangle>& triangles, thrust::device_vector<float3>& aabbMins, thrust::device_vector<float3>& aabbMaxs, const float thickness)
 {
 	const int triangleCount = triangles.size();

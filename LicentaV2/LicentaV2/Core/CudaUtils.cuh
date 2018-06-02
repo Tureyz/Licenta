@@ -9,12 +9,33 @@
 #include "../Physics/Structs.h"
 
 
-#define cudaCheckError() {                                          \
- cudaError_t e=cudaGetLastError();                                 \
- if(e!=cudaSuccess) {                                              \
-   printf("Cuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e));           \
-   exit(0); \
- }                                                                 \
+#define CUDA_ERROR_CHECK
+
+#define cudaCheckError()    __cudaCheckError( __FILE__, __LINE__ )
+
+inline void __cudaCheckError(const char *file, const int line)
+{
+#ifdef CUDA_ERROR_CHECK
+	cudaError err = cudaGetLastError();
+	if (cudaSuccess != err)
+	{
+		fprintf(stderr, "cudaCheckError() failed at %s:%i : %s\n",
+			file, line, cudaGetErrorString(err));
+		exit(-1);
+	}
+
+	// More careful checking. However, this will affect performance.
+	// Comment away if needed.
+	//err = cudaDeviceSynchronize();
+	//if (cudaSuccess != err)
+	//{
+	//	fprintf(stderr, "cudaCheckError() with sync failed at %s:%i : %s\n",
+	//		file, line, cudaGetErrorString(err));
+	//	exit(-1);
+	//}
+#endif
+
+	return;
 }
 
 
@@ -24,7 +45,8 @@ __host__ __device__ float3 operator/(const float3 &a, const float b);
 __host__ __device__ float3 operator-(const float3 &a, const float3 &b);
 __host__ __device__ float3 operator-(const float3 &a, const float b);
 __host__ __device__ float3 operator+(const float3 &a, const float b);
-__host__ __device__ void operator*=(float3 &a, float s);
+__host__ __device__ void operator*=(float3 &a, const float s);
+__host__ __device__ void operator/=(float3 &a, const float s);
 __host__ __device__ float3 operator+(const float3 &a, const float3 &b);
 __host__ __device__ float3 operator/(const float3 &a, const float3 &b);
 

@@ -19,7 +19,8 @@ namespace Physics
 	public:
 
 		~CudaDeformableBody();
-		CudaDeformableBody(std::vector<Rendering::VertexFormat> *verts, std::vector<unsigned int> *indices, const ClothParams params);
+		CudaDeformableBody(std::vector<Rendering::VertexFormat> *verts, std::vector<unsigned int> *indices, const ClothParams params,
+			std::vector<bool> &fixedVerts);
 		virtual void FixedUpdate() override;
 		virtual void Update() override;
 
@@ -72,7 +73,7 @@ namespace Physics
 		thrust::device_vector<Rendering::VertexFormat> m_dVerts;
 
 		int m_particleCount;
-		thrust::device_vector<bool> m_fixedVerts;
+		//thrust::device_vector<bool> m_fixedVerts;
 		thrust::device_vector<float3> m_dPrevPositions;
 		thrust::device_vector<float3> m_dPositions;
 		thrust::device_vector<float3> m_dVelocities;
@@ -158,10 +159,10 @@ namespace Physics
 		Physics::DoubleBuffer<float3> m_dbImpulseValues;
 
 		uint64_t m_impulsesSize;
+		int m_impulseRunCount;
 		thrust::device_vector<uint32_t> m_dImpulseRLEUniques;
 		thrust::device_vector<int> m_dImpulseRLECounts;
 		thrust::device_vector<float3> m_dAccumulatedImpulses;
-		int m_impulseRunCount;
 
 		/*float3 *m_dPos;
 		float3 *m_dVel;

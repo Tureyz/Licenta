@@ -33,6 +33,14 @@ namespace DeformableUtils
 	__global__ void _UpdateTriangles(const int triangleCount, const float3 * __restrict__ positions, Physics::CudaTriangle * __restrict__ triangles,
 		uint64_t * __restrict__ mortonCodes, float3 * __restrict__ aabbMins, float3 * __restrict__ aabbMaxs, const float thickness);
 
+	void UpdateTrianglesContinuous(const thrust::device_vector<float3> &positions, const thrust::device_vector<float3> &prevPositions,
+		thrust::device_vector<Physics::CudaTriangle> &triangles,
+		thrust::device_vector<uint64_t> &mortonCodes, thrust::device_vector<float3> &aabbMins, thrust::device_vector<float3> &aabbMaxs, const float thickness);
+
+	__global__ void _UpdateTrianglesContinuous(const int triangleCount, const float3 * __restrict__ positions, const float3 * __restrict__ prevPositions,
+		Physics::CudaTriangle * __restrict__ triangles,
+		uint64_t * __restrict__ mortonCodes, float3 * __restrict__ aabbMins, float3 * __restrict__ aabbMaxs, const float thickness);
+
 	void UpdateSweptAABBs(const thrust::device_vector<float3> &positions, const thrust::device_vector<float3> &prevPositions,
 		const thrust::device_vector<Physics::CudaTriangle> &triangles, thrust::device_vector<float3> &aabbMins, thrust::device_vector<float3> &aabbMaxs, const float thickness);
 

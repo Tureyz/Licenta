@@ -59,9 +59,14 @@ __host__ __device__ float3 operator+(const float3 &a, const float b)
 	return make_float3(a.x + b, a.y + b, a.z + b);
 }
 
-__host__ __device__ void operator*=(float3 &a, float s)
+__host__ __device__ void operator*=(float3 &a, const float s)
 {
 	a.x *= s; a.y *= s; a.z *= s;
+}
+
+__host__ __device__ void operator/=(float3 & a, const float s)
+{
+	a.x /= s; a.y /= s; a.z /= s;
 }
 
 __host__ __device__ float3 operator+(const float3 &a, const float3 &b)

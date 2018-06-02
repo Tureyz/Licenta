@@ -19,6 +19,9 @@ void DeformableUtils::CreateImpulses(const thrust::device_vector<float3>& positi
 
 	uint64_t totalImpulses = 4 * (vfContactsSize + eeContactsSize);
 
+	if (totalImpulses == 0)
+		return;
+
 	if (impulsesSize < totalImpulses)
 	{
 		impulseIDs.buffers[0].resize(totalImpulses);
@@ -32,8 +35,6 @@ void DeformableUtils::CreateImpulses(const thrust::device_vector<float3>& positi
 	}
 
 
-	if (totalImpulses == 0)
-		return;
 
 
 	int numBlocks = (vfContactsSize + eeContactsSize + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
@@ -131,8 +132,11 @@ void DeformableUtils::CreateImpulses(const thrust::device_vector<float3>& positi
 
 	//	int z = 15;
 	//}
-	AccumulateImpulses << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (impulseRunCount, thrust::raw_pointer_cast(&impulseRLEUniques[0]),
-		thrust::raw_pointer_cast(&impulseRLECounts[0]), thrust::raw_pointer_cast(&impulseValues.buffers[impulseValues.selector][0]), totalImpulses, thrust::raw_pointer_cast(&accumulatedImpulses[0]));
+	AccumulateImpulses << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (impulseRunCount,
+		thrust::raw_pointer_cast(&impulseRLEUniques[0]),
+		thrust::raw_pointer_cast(&impulseRLECounts[0]),
+		thrust::raw_pointer_cast(&impulseValues.buffers[impulseValues.selector][0]),
+		totalImpulses, thrust::raw_pointer_cast(&accumulatedImpulses[0]));
 }
 
 __global__ void DeformableUtils::_CreateImpulses(const float3 * __restrict__ positions, const float3 * __restrict__ velocities,
@@ -231,7 +235,8 @@ __device__ void DeformableUtils::_CreateImpulse(const float3 * __restrict__ posi
 	//impulseFlags[myImpulseStart + 3] = contact.w4 != 0.f;
 }
 
-__global__ void DeformableUtils::AccumulateImpulses(const int impulseRunCount, const uint32_t *__restrict__ impulseRLEUniques, const int *__restrict__ impulseRLEPrefixSums,
+__global__ void DeformableUtils::AccumulateImpulses(const int impulseRunCount, const uint32_t *__restrict__ impulseRLEUniques,
+	const int *__restrict__ impulseRLEPrefixSums,
 	const float3 * __restrict__ impulseValues, const uint64_t impulseValuesSize, float3 *__restrict__ accumulatedImpulses)
 {
 	int id = CudaUtils::MyID();

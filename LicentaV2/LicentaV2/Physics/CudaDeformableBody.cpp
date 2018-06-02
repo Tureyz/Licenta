@@ -25,7 +25,8 @@
 
 //#define _PRINT_TIMERS
 
-Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFormat> *verts, std::vector<unsigned int> *indices, const ClothParams params)
+Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFormat> *verts,
+	std::vector<unsigned int> *indices, const ClothParams params, std::vector<bool> &fixedVerts)
 {
 
 	m_freeVRAMInit = CudaUtils::VRAMUsage();
@@ -61,15 +62,8 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 	}
 
 	m_particleCount = initPos.size();
-	thrust::host_vector<bool> hfVerts(m_particleCount);
 
-
-	for (int i = 0; i < m_params.dims.x; ++i)
-	{
-		hfVerts[i * m_params.dims.x] = true;
-		//hfVerts[(dims.first - 1)* dims.first ] = true;
-		break;
-	}
+	m_params.fixedVerts = thrust::host_vector<bool>(fixedVerts);	
 
 
 	for (int i = 0; i < m_verts->size(); ++i)
@@ -81,13 +75,11 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 		hVerts[i] = vert;
 		initVel.push_back(make_float3(0.f, 0.f, 0.f));
 		//masses.push_back(1.0f);
-		//masses[i] = hfVerts[i] ? 1000000.f : m_vertexMass;
-		masses[i] = m_vertexMass;
-		invMasses[i] = hfVerts[i] ? 0 : 1.f / m_vertexMass;
+		masses[i] = fixedVerts[i] ? 1000.f : m_vertexMass;
+		//masses[i] = m_vertexMass;
+		invMasses[i] = fixedVerts[i] ? 0 : 1.f / m_vertexMass;
 	}
 
-	m_fixedVerts = hfVerts;
-	hfVerts.clear();
 
 	m_params.thickness = glm::distance(CudaUtils::MakeVec(initPos[0]), CudaUtils::MakeVec(initPos[1])) / 3.f;
 
@@ -333,10 +325,8 @@ void Physics::CudaDeformableBody::ClothInternalDynamics()
 
 
 	CudaMassSpring::ClothEngineStep(m_dPositions, m_dPrevPositions, m_dVelocities, m_dMasses, m_daIDs, m_dbIDs, m_dks, m_dl0s, m_dLinSpringInfo, m_dSpringIDs,
-		m_params.gravity, m_params.kDamp, m_params.kSpringDamp, m_params.timestep, m_params.kBend, m_fixedVerts);
+		m_params.gravity, m_params.kDamp, m_params.kSpringDamp, m_params.timestep, m_params.kBend, m_params.fixedVerts);
 
-
-	m_pbd.DampVelocities(m_dPositions, m_dMasses, m_dVelocities, m_dTempStorage, m_dTempStorageSize);
 
 #ifdef _PRINT_TIMERS
 	std::cout << "Cloth engine step: " << m_timer.End() << std::endl;
@@ -345,7 +335,7 @@ void Physics::CudaDeformableBody::ClothInternalDynamics()
 #endif // _PRINT_TIMERS
 
 	CudaMassSpring::AdjustSprings(m_dPositions, m_dPrevPositions, m_dVelocities,
-		m_dbIDs, m_dl0s, 0.1f, m_dLinSpringInfo, m_dSpringIDs, m_fixedVerts,
+		m_dbIDs, m_dl0s, 0.1f, m_dLinSpringInfo, m_dSpringIDs, m_params.fixedVerts,
 		m_dks, m_params.kBend, m_params.timestep);
 
 
@@ -535,7 +525,7 @@ void Physics::CudaDeformableBody::SolveCollisions()
 #endif
 
 	DeformableUtils::ApplyImpulses(m_dPositions, m_dPrevPositions, m_dVelocities,
-		m_dAccumulatedImpulses, m_fixedVerts, m_vertexMass, m_params.timestep);
+		m_dAccumulatedImpulses, m_params.fixedVerts, m_vertexMass, m_params.timestep);
 
 #ifdef _PRINT_TIMERS
 	std::cout << "Impulse application: " << m_timer.End() << std::endl;
@@ -545,9 +535,30 @@ void Physics::CudaDeformableBody::SolveCollisions()
 void Physics::CudaDeformableBody::FixedUpdate()
 {
 
-	UpdateTrianglesDiscrete();
-	m_pbd.PBDStepExternal(m_dPositions, m_dPrevPositions, m_dMasses, m_dInvMasses, m_fixedVerts,
-		m_dVelocities, m_dTempStorage, m_dTempStorageSize);
+	//UpdateTrianglesDiscrete();
+
+
+	m_pbd.PBDStepExternal(m_dPositions, m_dPrevPositions, m_dMasses, m_dVelocities, m_dTempStorage, m_dTempStorageSize);
+
+	DeformableUtils::UpdateTrianglesContinuous(m_dPositions, m_dPrevPositions, m_dTriangles, m_dMortonCodes, m_dAABBMins,
+		m_dAABBMaxs, m_params.thickness);
+
+	DeformableUtils::UpdateVertexNormals(m_dTriangles, m_dRawVertexNormals, m_dRawVertexNormalIDs, m_dAccumulatedVertexNormals);
+
+	BuildBVH();
+
+	CreateTriangleTests();
+
+	DeformableUtils::CCDTriangleTests(m_dTriangles, m_dPrevPositions, m_dVelocities, m_vfContacts, m_dvfFlags, m_vfContactsSize,
+		m_eeContacts, m_deeFlags, m_eeContactsSize, m_params.thickness, m_params.timestep, m_dTempStorage, m_dTempStorageSize);
+
+	
+	m_pbd.PBDStepSolver(m_dPositions, m_dPrevPositions, m_dInvMasses, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize,
+		m_dTempStorage,	m_dTempStorageSize);
+
+
+	m_pbd.PBDStepFinal(m_dPositions, m_dPrevPositions, m_dVelocities, m_params.fixedVerts);
+
 	/*ClothInternalDynamics();
 
 	UpdateTrianglesDiscrete();
@@ -573,7 +584,7 @@ void Physics::CudaDeformableBody::FixedUpdate()
 
 void Physics::CudaDeformableBody::Update()
 {
-	//DeformableUtils::ColorCollidingFeatures(m_dVerts, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize);
+	DeformableUtils::ColorCollidingFeatures(m_dVerts, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize);
 	FinalVertUpdate();
-	//DeformableUtils::ResetVertColors(m_dVerts);
+	DeformableUtils::ResetVertColors(m_dVerts);
 }

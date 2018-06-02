@@ -35,14 +35,14 @@ void main(void)
 	vec3 L = normalize(lightPosition - fragPos);
 	vec3 V = normalize(eyePosition - fragPos);
 
-	float LdotN = clamp(dot(L, fragNormal), 0, 1);
+	float LdotN = clamp(dot(L, -fragNormal), 0, 1);
 
 	float diffuse = kd * LdotN;
 
 	float specular = 0;
 
 	
-	vec3 R = -normalize(reflect(L, fragNormal));
+	vec3 R = -normalize(reflect(L, -fragNormal));
 	specular = ks * pow(max(0, dot(R, V)), shininess);
 
 	//vec3 H = normalize(L + V);
@@ -58,14 +58,14 @@ void main(void)
 	L = normalize(lPos - fragPos);
 	V = normalize(eyePosition - fragPos);
 
-	LdotN = clamp(dot(L, fragNormal), 0, 1);
+	LdotN = clamp(dot(L, -fragNormal), 0, 1);
 
 	diffuse = kd * LdotN;
 
 	specular = 0;
 
 
-	R = -normalize(reflect(L, fragNormal));
+	R = -normalize(reflect(L, -fragNormal));
 	specular = ks * pow(max(0, dot(R, V)), shininess);
 
 	//H = normalize(L + V);
@@ -74,7 +74,7 @@ void main(void)
 	float l2 = ambientLight + diffuse + specular;
 
 
-	float light = l1 + l2;
+	float light = l1 * 0.5 + l2;
 	
 	
 	vec3 tex = texture(myTextureSampler, fragUV).rgb;

@@ -1,2 +1,207 @@
-﻿  LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe
+﻿  Compiling CUDA source file Collision\CudaBVH.cuh...
+  Compiling CUDA source file Collision\CudaCollisionDetection.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaBVH.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaBVH.cuh" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaCollisionDetection.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaCollisionDetection.cu" 
+  Compiling CUDA source file Collision\CudaCollisionDetection.cuh...
+  Compiling CUDA source file Collision\CudaCollisionResponse.cuh...
+  Compiling CUDA source file Collision\CudaPrimitiveTests.cuh...
+  Compiling CUDA source file Collision\CudaPrimitiveTests.cu...
+  Compiling CUDA source file Collision\CudaCollisionResponse.cu...
+  Compiling CUDA source file Core\CubWrappers.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaCollisionDetection.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaCollisionDetection.cuh" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaCollisionResponse.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaCollisionResponse.cuh" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaPrimitiveTests.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaPrimitiveTests.cuh" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaCollisionResponse.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaCollisionResponse.cu" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaPrimitiveTests.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaPrimitiveTests.cu" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CubWrappers.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Core\CubWrappers.cu" 
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(28): warning : function "CudaBVH::ComputeTreeAABBs(int, const int *, const int *, const int *, int *, float3 *, float3 *, int *, int *)" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(35): warning : function "CudaBVH::_GenerateBVH2" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(39): warning : function "CudaBVH::FindRange" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(40): warning : function "CudaBVH::FindSplit" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(50): warning : function "CudaBVH::PrintTree(int, const int *, const int *, const int *, const int *, const int *)" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(28): warning : function "CudaBVH::ComputeTreeAABBs(int, const int *, const int *, const int *, int *, float3 *, float3 *, int *, int *)" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(35): warning : function "CudaBVH::_GenerateBVH2" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(39): warning : function "CudaBVH::FindRange" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(40): warning : function "CudaBVH::FindSplit" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(50): warning : function "CudaBVH::PrintTree(int, const int *, const int *, const int *, const int *, const int *)" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(28): warning : function "CudaBVH::ComputeTreeAABBs(int, const int *, const int *, const int *, int *, float3 *, float3 *, int *, int *)" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(35): warning : function "CudaBVH::_GenerateBVH2" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(39): warning : function "CudaBVH::FindRange" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(40): warning : function "CudaBVH::FindSplit" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cuh(50): warning : function "CudaBVH::PrintTree(int, const int *, const int *, const int *, const int *, const int *)" was declared but never referenced
+  CudaBVH.cuh
+  CudaPrimitiveTests.cuh
+  CudaCollisionResponse.cuh
+  CudaCollisionDetection.cuh
+  Compiling CUDA source file Core\CudaUtils.cuh...
+  Compiling CUDA source file Core\CubWrappers.cuh...
+  Compiling CUDA source file Collision\CudaBVH.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaUtils.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Core\CudaUtils.cuh" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CubWrappers.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Core\CubWrappers.cuh" 
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaBVH.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Collision\CudaBVH.cu" 
+  Compiling CUDA source file Core\CudaUtils.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaUtils.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Core\CudaUtils.cu" 
+  CudaPrimitiveTests.cu
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Core/CudaUtils.cuh(87): warning : variable "CudaUtils::THREADS_PER_BLOCK" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Core/CudaUtils.cu(108): warning : variable "used" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaPrimitiveTests.cu(13): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaPrimitiveTests.cu(13): warning C4244: 'initializing': conversion from 'uint64_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaPrimitiveTests.cu(102): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaPrimitiveTests.cu(102): warning C4244: 'initializing': conversion from 'uint64_t' to 'const int', possible loss of data
+  Compiling CUDA source file Physics\CudaCubicSolver.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaCubicSolver.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaCubicSolver.cu" 
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Core/CudaUtils.cuh(87): warning : variable "CudaUtils::THREADS_PER_BLOCK" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Core/CudaUtils.cu(108): warning : variable "used" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Core/CudaUtils.cuh(87): warning : variable "CudaUtils::THREADS_PER_BLOCK" was declared but never referenced
+  CudaUtils.cuh
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Core/CudaUtils.cu(108): warning : variable "used" was declared but never referenced
+  CudaUtils.cu
+  Compiling CUDA source file Physics\CudaDeformableBody.h...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaDeformableBody.h.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaDeformableBody.h" 
+  Compiling CUDA source file Physics\CudaDeformableUtils.cuh...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaDeformableUtils.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaDeformableUtils.cuh" 
+  CudaCubicSolver.cu
+  CudaBVH.cu
+  Compiling CUDA source file Physics\CudaPBD.cuh...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaPBD.cuh.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaPBD.cuh" 
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cu(13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cu(119): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cu(155): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cu(155): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cu(254): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cu(254): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaBVH.cu(381): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
+  Compiling CUDA source file Physics\CudaDeformableUtils.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaDeformableUtils.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaDeformableUtils.cu" 
+  CubWrappers.cu
+  CudaDeformableBody.h
+  CudaDeformableUtils.cuh
+  Compiling CUDA source file Physics\CudaMassSpring.cu...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaMassSpring.cu.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaMassSpring.cu" 
+  Compiling CUDA source file Physics\CudaDeformableBody.cpp...
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2015 -ccbin "D:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu -rdc=true -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\/include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -IDependencies/cub -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DCUB_STDERR -D_CRT_SECURE_NO_WARNINGS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi  /MTd " -o x64\Debug\CudaDeformableBody.cpp.obj "D:\Git Repos\Licenta\LicentaV2\LicentaV2\Physics\CudaDeformableBody.cpp" 
+  CudaPBD.cuh
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(81): warning : variable "prevPrev" was declared but never referenced
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(81): warning : variable "prevPrev" was declared but never referenced
+  CubWrappers.cuh
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\thrust/detail/allocator/allocator_traits.inl(230): warning : calling a __host__ function("std::_Iterator_base12::_Iterator_base12") from a __host__ __device__ function("std::_Iterator_base12::_Iterator_base12 [subobject]") is not allowed
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\thrust/detail/allocator/allocator_traits.inl(230): warning : calling a __host__ function("std::_Iterator_base12::~_Iterator_base12") from a __host__ __device__ function("std::_Iterator_base12::~_Iterator_base12 [subobject]") is not allowed
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(81): warning : variable "prevPrev" was declared but never referenced
+  CudaMassSpring.cu
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(11): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(11): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(12): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(12): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(100): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaMassSpring.cu(100): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\thrust/detail/allocator/allocator_traits.inl(230): warning : calling a __host__ function("std::_Iterator_base12::_Iterator_base12") from a __host__ __device__ function("std::_Iterator_base12::_Iterator_base12 [subobject]") is not allowed
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include\thrust/detail/allocator/allocator_traits.inl(230): warning : calling a __host__ function("std::_Iterator_base12::~_Iterator_base12") from a __host__ __device__ function("std::_Iterator_base12::~_Iterator_base12 [subobject]") is not allowed
+  CudaCollisionDetection.cu
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionDetection.cu(17): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionDetection.cu(105): warning C4244: 'argument': conversion from 'uint64_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionDetection.cu(106): warning C4244: 'argument': conversion from 'uint64_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionDetection.cu(135): warning C4244: 'argument': conversion from 'uint64_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionDetection.cu(136): warning C4244: 'argument': conversion from 'uint64_t' to 'const int', possible loss of data
+  CudaCollisionResponse.cu
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionResponse.cu(40): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionResponse.cu(84): warning C4244: 'argument': conversion from 'uint64_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionResponse.cu(97): warning C4244: 'argument': conversion from 'uint64_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionResponse.cu(267): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Collision/CudaCollisionResponse.cu(267): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+  CudaDeformableUtils.cu
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(27): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(69): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(69): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(112): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(112): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(155): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(155): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(193): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(193): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(200): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(200): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(205): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(205): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(253): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(253): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(274): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(274): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(320): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(320): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(358): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableUtils.cu(358): warning C4244: 'initializing': conversion from 'uint64_t' to 'const int', possible loss of data
+  CudaDeformableBody.cpp
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cpp(64): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cpp(141): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cpp(179): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cpp(183): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cpp(295): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
+D:/Git Repos/Licenta/LicentaV2/LicentaV2/Physics/CudaDeformableBody.cpp(302): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
+cl : Command line warning D9007: '/Gm' requires '/Zi or /ZI'; option ignored
+  MastersSimulationManager.cpp
+Managers\MastersSimulationManager.cpp(67): warning C4305: 'argument': truncation from 'double' to 'const float'
+  
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -dlink -o x64\Debug\LicentaV2.device-link.obj -Xcompiler "/EHsc /W3 /nologo /Od /Zi  /MTd " -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\lib\x64" -LDependencies\freeglut -LDependencies\glew -LDependencies\glm cudart.lib cudadevrt.lib opengl32.lib freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib msvcrtd.lib msvcmrtd.lib  -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_30,code=sm_30 -G --machine 64 x64\Debug\CudaBVH.cuh.obj x64\Debug\CudaCollisionDetection.cu.obj x64\Debug\CudaCollisionResponse.cu.obj x64\Debug\CudaPrimitiveTests.cuh.obj x64\Debug\CudaCollisionDetection.cuh.obj x64\Debug\CudaCollisionResponse.cuh.obj x64\Debug\CudaPrimitiveTests.cu.obj x64\Debug\CubWrappers.cu.obj x64\Debug\CudaUtils.cuh.obj x64\Debug\CubWrappers.cuh.obj x64\Debug\CudaBVH.cu.obj x64\Debug\CudaUtils.cu.obj x64\Debug\CudaCubicSolver.cu.obj x64\Debug\CudaDeformableBody.h.obj x64\Debug\CudaDeformableUtils.cuh.obj x64\Debug\CudaMassSpring.cuh.obj x64\Debug\CudaPBD.cuh.obj x64\Debug\CudaDeformableUtils.cu.obj x64\Debug\CudaMassSpring.cu.obj x64\Debug\CudaPBD.cu.obj x64\Debug\CudaDeformableBody.cpp.obj 
+  cudart.lib
+  cudadevrt.lib
+  opengl32.lib
+  freeglut.lib
+  glew32.lib
+  kernel32.lib
+  user32.lib
+  gdi32.lib
+  winspool.lib
+  comdlg32.lib
+  advapi32.lib
+  shell32.lib
+  ole32.lib
+  oleaut32.lib
+  uuid.lib
+  odbc32.lib
+  odbccp32.lib
+  msvcrtd.lib
+  msvcmrtd.lib
+  CudaBVH.cuh.obj
+  CudaCollisionDetection.cu.obj
+  CudaCollisionResponse.cu.obj
+  CudaPrimitiveTests.cuh.obj
+  CudaCollisionDetection.cuh.obj
+  CudaCollisionResponse.cuh.obj
+  CudaPrimitiveTests.cu.obj
+  CubWrappers.cu.obj
+  CudaUtils.cuh.obj
+  CubWrappers.cuh.obj
+  CudaBVH.cu.obj
+  CudaUtils.cu.obj
+  CudaCubicSolver.cu.obj
+  CudaDeformableBody.h.obj
+  CudaDeformableUtils.cuh.obj
+  CudaMassSpring.cuh.obj
+  CudaPBD.cuh.obj
+  CudaDeformableUtils.cu.obj
+  CudaMassSpring.cu.obj
+  CudaPBD.cu.obj
+  CudaDeformableBody.cpp.obj
+LINK : warning LNK4098: defaultlib 'LIBCMTD' conflicts with use of other libs; use /NODEFAULTLIB:library
+  LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe
   LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.pdb (Full PDB)

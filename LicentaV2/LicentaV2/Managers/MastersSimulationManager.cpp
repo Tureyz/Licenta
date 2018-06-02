@@ -33,17 +33,31 @@ void Managers::MastersSimulationManager::Init()
 	params.dims.y = dim;
 	params.BVHChunkSize = 64;
 	params.ccdIterations = 5;
-	params.kBend = 0.03f;
-	params.kDamp = 0.1f;
+	params.kBend = 0.04f;
+	params.kDamp = 0.04f;
 	params.kShear = 0.7f;
 	params.kSpringDamp = 0.2f;
-	params.kStretch = 0.99999f;
-	params.solverIterations = 15;
+	params.kStretch = 0.8f;
+	params.globalVelDamp = 0.02f;
+	params.strainLimit = 0.15f;
+	params.solverIterations = 6;
 	params.timestep = Core::PHYSICS_TIME_STEP;
 	params.objectMass = 0.25f;
-	params.gravity = make_float3(0, -0.0981f, 0.0f);
+	params.gravity = make_float3(0.f, -0.0981f, 0.f);
+	params.worldMin = make_float3(0.f, 0.f, 0.f);
+	params.worldMax = make_float3(1.f, 1.f, 1.f);
 
 	std::pair<int, int> dims(dim, dim);
+
+
+	std::vector<bool> fixedVerts(dims.first * dims.second);
+
+	for (int i = 0; i < dims.first; ++i)
+	{
+		fixedVerts[i * dims.first] = true;
+		//fixedVerts[(dims.first - 1) * dims.first] = true;
+		break;
+	}
 
 	Rendering::SceneObject *meshObj = new Rendering::SceneObject();
 	meshObj->SetID(m_objectIDCounter);
@@ -55,7 +69,7 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->ScaleAbsolute(glm::vec3(0.25f, 0.25f, 0.25f));
 	//meshObj->TranslateAbsolute(ScriptLoader::GetVec3("Scripts/randomPos.py", "RandomPosition"));
 	meshObj->Update();	
-	meshObj->SetPhysicsBody(new Physics::CudaDeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices, params));
+	meshObj->SetPhysicsBody(new Physics::CudaDeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices, params, fixedVerts));
 	//meshObj->SetPhysicsBody(new Physics::DeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices));
 	//meshObj->RotateAbsolute(glm::vec3(1, 0, 0), 90);
 

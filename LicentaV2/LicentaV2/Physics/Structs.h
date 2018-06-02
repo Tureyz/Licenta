@@ -30,12 +30,19 @@ namespace Physics
 		float kSpringDamp;
 		float thickness;
 		float objectMass;
+		float globalVelDamp;
+		float strainLimit;
+
 		float3 gravity;
+		float3 worldMin;
+		float3 worldMax;
 
 		int2 dims;
 		int solverIterations;
 		int ccdIterations;
 		int BVHChunkSize;
+
+		thrust::device_vector<bool> fixedVerts;
 	};
 
 	template <typename T>

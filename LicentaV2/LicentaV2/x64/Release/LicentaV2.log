@@ -1,5 +1,5 @@
 ﻿  MastersSimulationManager.cpp
-Managers\MastersSimulationManager.cpp(53): warning C4305: 'argument': truncation from 'double' to 'const float'
+Managers\MastersSimulationManager.cpp(67): warning C4305: 'argument': truncation from 'double' to 'const float'
      Creating library D:\Git Repos\Licenta\LicentaV2\x64\Release\LicentaV2.lib and object D:\Git Repos\Licenta\LicentaV2\x64\Release\LicentaV2.exp
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
