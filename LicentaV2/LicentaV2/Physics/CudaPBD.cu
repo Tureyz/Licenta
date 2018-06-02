@@ -52,13 +52,16 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 		}
 	}
 
-	thrust::host_vector<float> l0s(m_particleCount * fixedVerts.size());
+	thrust::host_vector<float> l0s(m_particleCount * fixedVerts.size(), 0.f);
 
 	for (int i = 0; i < m_particleCount; ++i)
 	{
 		for (int j = 0; j < fixedVerts.size(); ++j)
 		{
-			l0s[i * fixedVerts.size() + j] = glm::distance(verts[i].m_position, verts[fixedVerts[j]].m_position) * (1.f + m_parentParams.strainLimit);
+			if (!hfv[i])
+			{
+				l0s[i * fixedVerts.size() + j] = glm::distance(verts[i].m_position, verts[fixedVerts[j]].m_position) * (1.f + m_parentParams.strainLimit);
+			}
 		}
 	}
 
@@ -344,7 +347,8 @@ void CudaPBD::CudaPBD::CreateLRAConstraints(const thrust::device_vector<float3>&
 	
 	const int numBlocks = (m_particleCount * m_LRAConstraints.fixedVertCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	_CreateLRAConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_particleCount, m_LRAConstraints.fixedVertCount, cu::raw(positions), cu::raw(m_LRAConstraints.fixedPosID),
+	_CreateLRAConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_particleCount, m_LRAConstraints.fixedVertCount,
+		cu::raw(positions), cu::raw(m_parentParams.fixedVerts), cu::raw(m_LRAConstraints.fixedPosID),
 		cu::raw(m_LRAConstraints.l0), cu::raw(m_LRAConstraints.flag));
 }
 
@@ -358,6 +362,7 @@ void CudaPBD::CudaPBD::DampVelocities(const thrust::device_vector<float3>& posit
 	const int numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
 
+	GlobalVelDamp << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_particleCount, cu::raw(velocities), m_parentParams.globalVelDamp);
 	float massSum = CubWrap::ReduceSum(masses, tempStorage, tempStorageSize);
 
 	float vertexMass;
@@ -961,11 +966,17 @@ __global__ void CudaPBD::_CreateGroundConstraints(const int particleCount,
 }
 
 __global__ void CudaPBD::_CreateLRAConstraints(const int particleCount, const int fixedCount,
-	const float3 *__restrict__ positions, const int *__restrict__ fixedPosIDs, const float *__restrict__ l0s, bool *__restrict__ flags)
+	const float3 *__restrict__ positions, const bool * __restrict__ fixedVerts, 
+	const int *__restrict__ fixedPosIDs, const float *__restrict__ l0s, bool *__restrict__ flags)
 {
 	int id = CudaUtils::MyID();
 	if (id >= particleCount * fixedCount)
 		return;
+
+	if (fixedVerts[id / fixedCount])
+	{
+		return;
+	}
 
 
 	float3 myPos = positions[id / fixedCount];
@@ -1015,9 +1026,6 @@ __global__ void CudaPBD::_ApplyLRACorrections(const int particleCount, const int
 	if (id >= particleCount)
 		return;
 
-	if (l0s[id] == 0.f)
-		return;
-
 
 	float3 acc = make_float3(0.f, 0.f, 0.f);
 	int cnt = 0;
@@ -1028,16 +1036,13 @@ __global__ void CudaPBD::_ApplyLRACorrections(const int particleCount, const int
 	{
 		if (flags[id * fixedCount + i])
 		{
-			float3 fixedPos = positions[fixedIDs[i]];
-
-			
+			float3 fixedPos = positions[fixedIDs[i]];			
 
 			float3 diff = myPos - fixedPos;
 			float len = CudaUtils::len(diff);
 
-			float3 n = diff / len;
-
-			acc += -(len - l0s[id + i]) * n;
+			float3 n = diff / len;			
+			acc += -(len - l0s[id * fixedCount + i]) * n;
 			cnt++;
 		}
 	}
@@ -1074,6 +1079,15 @@ __global__ void CudaPBD::_FinalUpdate(const int particleCount, float3 *__restric
 
 	velocities[id] = (positions[id] - prevPositions[id]) / timestep;
 	prevPositions[id] = positions[id];
+}
+
+__global__ void CudaPBD::GlobalVelDamp(const int particleCount, float3 *__restrict__ vel, const float kGlobalDamp)
+{
+	int id = CudaUtils::MyID();
+	if (id >= particleCount)
+		return;
+
+	vel[id] *= (1.f - kGlobalDamp);
 }
 
 __global__ void CudaPBD::ComputeXMVMs(const int particleCount, const float3 *__restrict__ pos, const float3 * __restrict__ vel,

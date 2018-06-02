@@ -37,7 +37,7 @@ void Managers::MastersSimulationManager::Init()
 	params.kDamp = 0.04f;
 	params.kShear = 0.7f;
 	params.kSpringDamp = 0.2f;
-	params.kStretch = 0.8f;
+	params.kStretch = 0.9f;
 	params.globalVelDamp = 0.02f;
 	params.strainLimit = 0.15f;
 	params.solverIterations = 6;

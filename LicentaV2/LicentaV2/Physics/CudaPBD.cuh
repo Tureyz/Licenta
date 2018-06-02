@@ -157,8 +157,8 @@ namespace CudaPBD
 		const float * __restrict__ invMasses, const float groundHeight, const float thickness,
 		float3 * __restrict__ qcs, float3 * __restrict__ ncs, bool * __restrict__ flags);
 		
-	__global__ void _CreateLRAConstraints(const int particleCount, const int fixedCount,
-		const float3 * __restrict__ positions, const int * __restrict__ fixedPosIDs,
+	__global__ void _CreateLRAConstraints(const int particleCount, const int fixedCount, 
+		const float3 * __restrict__ positions, const bool * __restrict__ fixedVerts, const int * __restrict__ fixedPosIDs,
 		const float * __restrict__ l0s, bool * __restrict__ flags);
 	
 
@@ -245,6 +245,7 @@ namespace CudaPBD
 
 
 
+	__global__ void GlobalVelDamp(const int particleCount, float3 * __restrict__ vel, const float kGlobalDamp);
 
 
 	__global__ void ComputeXMVMs(const int particleCount, const float3 * __restrict__ pos, const float3 * __restrict__ vel,
