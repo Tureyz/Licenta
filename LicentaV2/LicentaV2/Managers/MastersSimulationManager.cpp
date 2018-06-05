@@ -33,8 +33,9 @@ void Managers::MastersSimulationManager::Init()
 	params.dims.y = dim;
 	params.BVHChunkSize = 64;
 	params.ccdIterations = 5;
+	params.kFriction = 0.001f;
 	params.kBend = 0.04f;
-	params.kDamp = 0.04f;
+	params.kDamp = 0.05f;
 	params.kShear = 0.7f;
 	params.kSpringDamp = 0.2f;
 	params.kStretch = 0.9f;
@@ -46,6 +47,8 @@ void Managers::MastersSimulationManager::Init()
 	params.gravity = make_float3(0.f, -0.0981f, 0.f);
 	params.worldMin = make_float3(0.f, 0.f, 0.f);
 	params.worldMax = make_float3(1.f, 1.f, 1.f);
+	params.benchmarkSample = 60;
+	params.useTriangleBending = false;
 
 	std::pair<int, int> dims(dim, dim);
 

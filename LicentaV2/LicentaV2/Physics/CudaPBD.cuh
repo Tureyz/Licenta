@@ -42,6 +42,24 @@ namespace CudaPBD
 		thrust::device_vector<float> phi0;
 	};
 
+	struct TriangleBendConstraintList
+	{
+		// id1 = b0
+		thrust::device_vector<int> id1;
+
+		// id2 = b1
+		thrust::device_vector<int> id2;
+
+		// id3 = v
+		thrust::device_vector<int> id3;
+
+		thrust::device_vector<int> id1Offset;
+		thrust::device_vector<int> id2Offset;
+		thrust::device_vector<int> id3Offset;
+
+		thrust::device_vector<float> h0;
+		float k;
+	};
 
 	struct GroundConstraintList
 	{
@@ -65,6 +83,8 @@ namespace CudaPBD
 
 		StretchConstraintList m_stretchConstraints;
 		BendConstraintList m_bendConstraints;
+		TriangleBendConstraintList m_triangleBendConstraints;
+
 		GroundConstraintList m_groundConstraints;
 		LRAConstraintList m_LRAConstraints;
 
@@ -87,8 +107,38 @@ namespace CudaPBD
 		thrust::device_vector<uint32_t> m_dDynamicCorrectionRLEUniques;
 		thrust::device_vector<int> m_dDynamicCorrectionRLECounts;
 
+
+
+		Physics::DoubleBuffer<uint32_t> m_dbFrictionCorrectionID;
+		Physics::DoubleBuffer<float3> m_dbFrictionCorrectionValues;
+
+		uint64_t m_frictionCorrectionsSize;
+		int m_frictionCorrectionsRunCount;
+
+		thrust::device_vector<uint32_t> m_dFrictionCorrectionRLEUniques;
+		thrust::device_vector<int> m_dFrictionCorrectionRLECounts;
+
+		thrust::device_vector<float3> m_accumulatedVelCorrectionValues;
+		thrust::device_vector<int> m_accumulatedVelCorrectionCounts;
+
 		int m_particleCount;
 
+
+		void CreateTriangleBendingConstraints(const std::vector<Rendering::VertexFormat> &verts,
+			thrust::host_vector<int> & id1, thrust::host_vector<int> & id2, thrust::host_vector<int> & id3,
+			thrust::host_vector<float> & h0);
+
+		int lin(const int i, const int j);
+
+		int lin(const int2 coord);
+
+		int2 delin(const int i);
+
+		std::vector<int> GetNeighbors(const int2 coord);
+
+		bool InBounds(const int i, const int j);
+
+		bool InBounds(const int2 coord);
 
 		void PBDStepExternal(thrust::device_vector<float3> &positions, thrust::device_vector<float3> &prevPositions,
 			const thrust::device_vector<float> &masses,
@@ -101,7 +151,7 @@ namespace CudaPBD
 			const thrust::device_vector<Physics::PrimitiveContact>& eeContacts, const uint64_t & eeContactsSize,
 			void *&tempStorage, uint64_t &tempStorageSize);
 
-		void PBDStepFinal(thrust::device_vector<float3> &positions, thrust::device_vector<float3> &prevPositions,
+		void PBDStepIntegration(thrust::device_vector<float3> &positions, thrust::device_vector<float3> &prevPositions,
 			thrust::device_vector<float3> &velocities,
 			const thrust::device_vector<bool> &fixedVerts);
 
@@ -125,7 +175,9 @@ namespace CudaPBD
 			thrust::device_vector<float3> &velocities, void *&tempStorage, uint64_t &tempStorageSize);
 
 
-		void ProjectDynamicConstraints(const thrust::device_vector<float3> &positions, const thrust::device_vector<float> &invMasses, 
+		void ProjectDynamicConstraints(const thrust::device_vector<float3> &positions,
+			const thrust::device_vector<float3> &prevPositions,
+			const thrust::device_vector<float> &invMasses, 
 			const float thickness,
 			const thrust::device_vector<Physics::PrimitiveContact>& vfContacts,
 			const uint64_t vfContactsSize,
@@ -134,6 +186,12 @@ namespace CudaPBD
 			void *& tempStorage, uint64_t & tempStorageSize);
 
 
+		void ApplyFriction(thrust::device_vector<float3> &velocities,
+			const thrust::device_vector<Physics::PrimitiveContact>& vfContacts,
+			const uint64_t vfContactsSize,
+			const thrust::device_vector<Physics::PrimitiveContact>& eeContacts,
+			const uint64_t eeContactsSize,
+			void *& tempStorage, uint64_t & tempStorageSize);
 
 
 		void ProjectStaticConstraints(const thrust::device_vector<float3> &positions, const thrust::device_vector<float> &invMasses,
@@ -149,6 +207,8 @@ namespace CudaPBD
 
 		void FinalUpdate(thrust::device_vector<float3> &positions, thrust::device_vector<float3> &prevPositions,
 			thrust::device_vector<float3> &velocities, const thrust::device_vector<bool> &fixedVerts);
+
+
 	};
 
 
@@ -170,6 +230,15 @@ namespace CudaPBD
 		const int * __restrict__ bid1o, const int * __restrict__ bid2o, const int * __restrict__ bid3o, const int * __restrict__ bid4o,
 		const float bk, const float * __restrict__ bphi0, float3 * __restrict__ corVals);	
 
+
+	__global__ void _ProjectStaticConstraintsTriBend(const int stretchCount, const int bendCount, const int iteration,
+		const float3 * __restrict__ positions, const float * __restrict__ invMasses,
+		const int * __restrict__ sid1, const int * __restrict__ sid2, const int * __restrict__ sid1o, const int * __restrict__ sid2o,
+		const float sk, const float * __restrict__ sl0,
+		const int * __restrict__ bid1, const int * __restrict__ bid2, const int * __restrict__ bid3,
+		const int * __restrict__ bid1o, const int * __restrict__ bid2o, const int * __restrict__ bid3o,
+		const float bk, const float * __restrict__ bh0, float3 * __restrict__ corVals);
+
 	__device__ void ProjectStaticStretchConstraint(const int id, const int iteration,
 		const float3 * __restrict__ positions, const float * __restrict__ invMasses,
 		const int * __restrict__ sid1, const int * __restrict__ sid2,
@@ -182,8 +251,16 @@ namespace CudaPBD
 		const int * __restrict__ bid1o, const int * __restrict__ bid2o, const int * __restrict__ bid3o, const int * __restrict__ bid4o,
 		const float bk, const float * __restrict__ bphi0, float3 * __restrict__ corVals);
 
+	__device__ void ProjectStaticTriangleBendConstraint(const int id, const int iteration,
+		const float3 * __restrict__ positions, const float * __restrict__ invMasses,
+		const int * __restrict__ bid1, const int * __restrict__ bid2, const int * __restrict__ bid3,
+		const int * __restrict__ bid1o, const int * __restrict__ bid2o, const int * __restrict__ bid3o,
+		const float bk, const float * __restrict__ bh0, float3 * __restrict__ corVals);
+
 	
-	__global__ void _ProjectDynamicConstraints(const float3 * __restrict__ positions, const float * __restrict__ invMasses,
+	__global__ void _ProjectDynamicConstraints(const float3 * __restrict__ positions,
+		const float3 * __restrict__ prevPositions,
+		const float * __restrict__ invMasses,
 		const float thickness,
 		const Physics::PrimitiveContact * __restrict__ vfs, const uint64_t vfSize,
 		const Physics::PrimitiveContact * __restrict__ ees, const uint64_t eeSize,
@@ -194,12 +271,14 @@ namespace CudaPBD
 
 	__device__ void ProjectVFConstraint(const int id, const int myStart,
 		const float3 * __restrict__ positions,
+		const float3 * __restrict__ prevPositions,
 		const float * __restrict__ invMasses, const float thickness,
 		const Physics::PrimitiveContact * __restrict__ vfs,
 		uint32_t * __restrict__ rawCorIDs, float3 * __restrict__ rawCorVals);
 
 	__device__ void ProjectEEConstraint(const int id, const int myStart,
 		const float3 * __restrict__ positions,
+		const float3 * __restrict__ prevPositions,
 		const float * __restrict__ invMasses, const float thickness,
 		const Physics::PrimitiveContact * __restrict__ ees,
 		uint32_t * __restrict__ rawCorIDs, float3 * __restrict__ rawCorVals);
@@ -207,6 +286,7 @@ namespace CudaPBD
 	__global__ void _ApplyStaticCorrections(const int particleCount, const float3 * __restrict__ rawValues, 
 		const int * __restrict__ prefixSums,
 		float3 * __restrict__ accumulatedValues, int * __restrict__ accumulatedCounts);
+
 
 	__global__ void _ApplyDynamicCorrections(const int runCount, const uint32_t * __restrict__ RLEUniques,
 		const int * __restrict__ RLEPrefixSums,
@@ -229,7 +309,30 @@ namespace CudaPBD
 		const float3 * __restrict__ accumulatedCors, const int * __restrict__ accumulatedCounts,
 		float3 * __restrict__ positions);
 
+	__global__ void FinalFrictionStep(const int particleCount, const float kFriction,
+		const float3 * __restrict__ accumulatedCors, const int * __restrict__ accumulatedCounts,
+		float3 * __restrict__ velocities);
 
+
+	__global__ void _ApplyFriction(const float3 * __restrict__ vels, const float kFriction,
+		const Physics::PrimitiveContact * __restrict__ vfs, const uint64_t vfSize,
+		const Physics::PrimitiveContact * __restrict__ ees, const uint64_t eeSize,
+		uint32_t * __restrict__ rawCorIDs, float3 * __restrict__ rawCorVals);
+
+	__device__ void _ApplyFrictionVF(const int id, const int myStart, const float kFriction,
+		const float3 * __restrict__ velocities, const Physics::PrimitiveContact * __restrict__ vfs,
+		uint32_t * __restrict__ rawCorIDs, float3 * __restrict__ rawCorVals);
+
+	__device__ void _ApplyFrictionEE(const int id, const int myStart, const float kFriction,
+		const float3 * __restrict__ velocities, const Physics::PrimitiveContact * __restrict__ ees,
+		uint32_t * __restrict__ rawCorIDs, float3 * __restrict__ rawCorVals);
+
+
+	__global__ void _AccumulateFriction(const int runCount, const float kFriction,
+		const uint32_t * __restrict__ RLEUniques,
+		const int * __restrict__ RLEPrefixSums,
+		const float3 * __restrict__ rawCorVals, const uint64_t rawCorValsSize, float3 * __restrict__ accumulatedCors,
+		int * __restrict__ accumulatedCounts);
 
 
 

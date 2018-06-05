@@ -259,6 +259,7 @@
     <ClCompile Include="Rendering\Texture.cpp" />
     <ClCompile Include="Rendering\VisualBody.cpp" />
     <ClCompile Include="Rendering\VisualBodyFactory.cpp" />
+    <CudaCompile Include="Simulation\GPUBenchmark.cu" />
     <ClCompile Include="Simulation\Scenario.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -497,6 +498,7 @@
     <ClInclude Include="Managers\ShaderManager.h" />
     <ClInclude Include="Rendering\VisualBody.h" />
     <ClInclude Include="Rendering\VisualBodyFactory.h" />
+    <CudaCompile Include="Simulation\GPUBenchmark.cuh" />
     <ClInclude Include="Simulation\Scenario.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

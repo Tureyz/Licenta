@@ -23,6 +23,7 @@ namespace Physics
 	struct ClothParams
 	{
 		float timestep;
+		float kFriction;
 		float kStretch;
 		float kShear;
 		float kBend;
@@ -43,6 +44,10 @@ namespace Physics
 		int BVHChunkSize;
 
 		thrust::device_vector<bool> fixedVerts;
+
+		uint64_t benchmarkSample;
+
+		bool useTriangleBending;
 	};
 
 	template <typename T>

@@ -23,6 +23,8 @@
 
 
 
+
+
 //#define _PRINT_TIMERS
 
 Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFormat> *verts,
@@ -274,6 +276,8 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 
 	std::cout << "Init over. " << CudaUtils::MemUsage(m_freeVRAMInit) << std::endl;	
 
+	m_benchmark = GPUBenchmark(m_params.benchmarkSample, m_freeVRAMInit);
+
 }
 
 void Physics::CudaDeformableBody::AddSpring(const int i1, const int j1, const int i2, const int j2, const float stiffness,
@@ -308,7 +312,7 @@ void Physics::CudaDeformableBody::AddSpring(const int i1, const int j1, const in
 
 Physics::CudaDeformableBody::~CudaDeformableBody()
 {
-
+	cudaFree(m_dTempStorage);
 }
 
 int Physics::CudaDeformableBody::lin(const int i, const int j)
@@ -538,26 +542,47 @@ void Physics::CudaDeformableBody::FixedUpdate()
 	//UpdateTrianglesDiscrete();
 
 
+	m_benchmark.Start();
 	m_pbd.PBDStepExternal(m_dPositions, m_dPrevPositions, m_dMasses, m_dVelocities, m_dTempStorage, m_dTempStorageSize);
+	m_benchmark.Record("PBD External");
 
+	m_benchmark.Start();
 	DeformableUtils::UpdateTrianglesContinuous(m_dPositions, m_dPrevPositions, m_dTriangles, m_dMortonCodes, m_dAABBMins,
 		m_dAABBMaxs, m_params.thickness);
 
 	DeformableUtils::UpdateVertexNormals(m_dTriangles, m_dRawVertexNormals, m_dRawVertexNormalIDs, m_dAccumulatedVertexNormals);
+	m_benchmark.Record("Update Triangles");
 
+	m_benchmark.Start();
 	BuildBVH();
+	m_benchmark.Record("Build BVH");
 
+	m_benchmark.Start();
 	CreateTriangleTests();
+	m_benchmark.Record("Create Triangle Tests");
 
+
+	m_benchmark.Start();
 	DeformableUtils::CCDTriangleTests(m_dTriangles, m_dPrevPositions, m_dVelocities, m_vfContacts, m_dvfFlags, m_vfContactsSize,
 		m_eeContacts, m_deeFlags, m_eeContactsSize, m_params.thickness, m_params.timestep, m_dTempStorage, m_dTempStorageSize);
-
+	m_benchmark.Record("Perform Triangle Tests");
 	
+
+	m_benchmark.Start();
 	m_pbd.PBDStepSolver(m_dPositions, m_dPrevPositions, m_dInvMasses, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize,
 		m_dTempStorage,	m_dTempStorageSize);
+	m_benchmark.Record("PBD Solver");
+
+	m_benchmark.Start();
+	m_pbd.PBDStepIntegration(m_dPositions, m_dPrevPositions, m_dVelocities, m_params.fixedVerts);
+	m_benchmark.Record("PBD Integration");
 
 
-	m_pbd.PBDStepFinal(m_dPositions, m_dPrevPositions, m_dVelocities, m_params.fixedVerts);
+
+	//m_pbd.ApplyFriction(m_dVelocities,
+	//	m_vfContacts, m_vfContactsSize,
+	//	m_eeContacts, m_eeContactsSize,
+	//	m_dTempStorage, m_dTempStorageSize);
 
 	/*ClothInternalDynamics();
 
@@ -579,6 +604,7 @@ void Physics::CudaDeformableBody::FixedUpdate()
 #endif
 
 
+	m_benchmark.Step();
 	m_timeStamp++;
 }
 

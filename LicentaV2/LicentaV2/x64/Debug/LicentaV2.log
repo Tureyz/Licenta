@@ -1,5 +1,5 @@
 ﻿  
-  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -dlink -o x64\Debug\LicentaV2.device-link.obj -Xcompiler "/EHsc /W3 /nologo /Od /Zi  /MTd " -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\lib\x64" -LDependencies\freeglut -LDependencies\glew -LDependencies\glm cudart.lib cudadevrt.lib opengl32.lib freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib msvcrtd.lib msvcmrtd.lib  -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_30,code=sm_30 -G --machine 64 x64\Debug\CudaBVH.cuh.obj x64\Debug\CudaCollisionDetection.cu.obj x64\Debug\CudaCollisionResponse.cu.obj x64\Debug\CudaPrimitiveTests.cuh.obj x64\Debug\CudaCollisionDetection.cuh.obj x64\Debug\CudaCollisionResponse.cuh.obj x64\Debug\CudaPrimitiveTests.cu.obj x64\Debug\CubWrappers.cu.obj x64\Debug\CudaUtils.cuh.obj x64\Debug\CubWrappers.cuh.obj x64\Debug\CudaBVH.cu.obj x64\Debug\CudaUtils.cu.obj x64\Debug\CudaCubicSolver.cu.obj x64\Debug\CudaDeformableBody.h.obj x64\Debug\CudaDeformableUtils.cuh.obj x64\Debug\CudaMassSpring.cuh.obj x64\Debug\CudaPBD.cuh.obj x64\Debug\CudaDeformableUtils.cu.obj x64\Debug\CudaMassSpring.cu.obj x64\Debug\CudaPBD.cu.obj x64\Debug\CudaDeformableBody.cpp.obj 
+  D:\Git Repos\Licenta\LicentaV2\LicentaV2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin\nvcc.exe" -dlink -o x64\Debug\LicentaV2.device-link.obj -Xcompiler "/EHsc /W3 /nologo /Od /Zi  /MTd " -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\lib\x64" -LDependencies\freeglut -LDependencies\glew -LDependencies\glm cudart.lib cudadevrt.lib opengl32.lib freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib msvcrtd.lib msvcmrtd.lib  -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_30,code=sm_30 -G --machine 64 x64\Debug\GPUBenchmark.cu.obj x64\Debug\CudaBVH.cuh.obj x64\Debug\CudaCollisionDetection.cu.obj x64\Debug\CudaCollisionResponse.cu.obj x64\Debug\CudaPrimitiveTests.cuh.obj x64\Debug\CudaCollisionDetection.cuh.obj x64\Debug\CudaCollisionResponse.cuh.obj x64\Debug\CudaPrimitiveTests.cu.obj x64\Debug\CubWrappers.cu.obj x64\Debug\CudaUtils.cuh.obj x64\Debug\CubWrappers.cuh.obj x64\Debug\CudaBVH.cu.obj x64\Debug\CudaUtils.cu.obj x64\Debug\CudaCubicSolver.cu.obj x64\Debug\CudaDeformableBody.h.obj x64\Debug\CudaDeformableUtils.cuh.obj x64\Debug\CudaMassSpring.cuh.obj x64\Debug\CudaPBD.cuh.obj x64\Debug\GPUBenchmark.cuh.obj x64\Debug\CudaDeformableUtils.cu.obj x64\Debug\CudaMassSpring.cu.obj x64\Debug\CudaPBD.cu.obj x64\Debug\CudaDeformableBody.cpp.obj 
   cudart.lib
   cudadevrt.lib
   opengl32.lib
@@ -19,6 +19,7 @@
   odbccp32.lib
   msvcrtd.lib
   msvcmrtd.lib
+  GPUBenchmark.cu.obj
   CudaBVH.cuh.obj
   CudaCollisionDetection.cu.obj
   CudaCollisionResponse.cu.obj
@@ -36,6 +37,7 @@
   CudaDeformableUtils.cuh.obj
   CudaMassSpring.cuh.obj
   CudaPBD.cuh.obj
+  GPUBenchmark.cuh.obj
   CudaDeformableUtils.cu.obj
   CudaMassSpring.cu.obj
   CudaPBD.cu.obj

@@ -44,4 +44,10 @@ namespace DeformableUtils
 		thrust::device_vector<Physics::PrimitiveContact>& eeContacts, thrust::device_vector<bool> &eeFlags, uint64_t & eeContactsSize,
 		const float thickness, const float timeStep, void *& tempStorage, uint64_t & tempStorageSize);
 
+
+	__device__ void baryVF(const float3 &p, const float3 &p0, const float3 &p1, const float3 &p2, float &b0, float &b1, float &b2);
+
+	__device__ void baryEE(const float3 &p0, const float3 &p1, const float3 &p2, const float3 &p3, float &s, float &t);
+
+
 }

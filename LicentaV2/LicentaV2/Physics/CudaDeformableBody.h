@@ -7,6 +7,7 @@
 #include "../Core/CudaUtils.cuh"
 #include "CudaPBD.cuh"
 
+#include "../Simulation/GPUBenchmark.cuh"
 
 
 namespace Physics
@@ -194,7 +195,9 @@ namespace Physics
 		float m_vertexMass;
 
 
-		CudaUtils::CudaTimer m_timer;
+
+		GPUBenchmark m_benchmark;
+		
 		double m_freeVRAMInit;
 	};
 

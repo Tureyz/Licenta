@@ -160,10 +160,10 @@ __device__ void CudaPrimitiveTests::CCDTestVFs(const int id, const Physics::Cuda
 	{
 		const float t = coplanTimes[i] * timeStep;
 
-		x4 = AdvancePositionInTime(x4, v4, t);
-		x1 = AdvancePositionInTime(x1, v1, t);
-		x2 = AdvancePositionInTime(x2, v2, t);
-		x3 = AdvancePositionInTime(x3, v3, t);
+		x4 = CudaUtils::AdvancePositionInTime(x4, v4, t);
+		x1 = CudaUtils::AdvancePositionInTime(x1, v1, t);
+		x2 = CudaUtils::AdvancePositionInTime(x2, v2, t);
+		x3 = CudaUtils::AdvancePositionInTime(x3, v3, t);
 
 		if (TestVF(x4, x1, x2, x3, myContact, thickness))
 		{
@@ -212,10 +212,10 @@ __device__ void CudaPrimitiveTests::CCDTestEEsBridson(const int id, const Physic
 	{
 		const float t = coplanTimes[i] * timeStep;
 
-		x1 = AdvancePositionInTime(x1, v1, t);
-		x2 = AdvancePositionInTime(x2, v2, t);
-		x3 = AdvancePositionInTime(x3, v3, t);
-		x4 = AdvancePositionInTime(x4, v4, t);
+		x1 = CudaUtils::AdvancePositionInTime(x1, v1, t);
+		x2 = CudaUtils::AdvancePositionInTime(x2, v2, t);
+		x3 = CudaUtils::AdvancePositionInTime(x3, v3, t);
+		x4 = CudaUtils::AdvancePositionInTime(x4, v4, t);
 
 		if (TestEE(x1, x2, x3, x4, myContact, thickness, eps))
 		{
@@ -226,12 +226,6 @@ __device__ void CudaPrimitiveTests::CCDTestEEsBridson(const int id, const Physic
 	}
 
 	eeFlags[id] = false;
-}
-
-
-__device__ const float3 CudaPrimitiveTests::AdvancePositionInTime(const float3 & position, const float3 & velocity, const float time)
-{
-	return position + velocity * time;
 }
 
 __device__ bool CudaPrimitiveTests::VFSanity(const int p, const int v1, const int v2, const int v3)

@@ -9,8 +9,12 @@
 #include "../Physics/Structs.h"
 
 
-#define CUDA_ERROR_CHECK
 
+
+#define __kernel__ << <numBlocks, CudaUtils::THREADS_PER_BLOCK>> >
+
+
+//#define CUDA_ERROR_CHECK
 #define cudaCheckError()    __cudaCheckError( __FILE__, __LINE__ )
 
 inline void __cudaCheckError(const char *file, const int line)
@@ -58,17 +62,6 @@ __host__ __device__ bool operator!=(const float3 &a, const float3 &b);
 __host__ __device__ float3 operator-(const float3 &a);
 
 
-namespace cu
-{
-	template <typename T>
-	__forceinline__
-		T *raw(thrust::device_vector<T> &vec) { return thrust::raw_pointer_cast(&vec[0]); }
-
-	template <typename T>
-	__forceinline__
-		const T *raw(const thrust::device_vector<T> &vec) { return thrust::raw_pointer_cast(&vec[0]); }
-}
-
 namespace CudaUtils
 {
 
@@ -92,6 +85,7 @@ namespace CudaUtils
 	double VRAMUsage();
 
 	glm::vec3 MakeVec(const float3 &a);
+
 
 	__host__ __device__ bool isZero(const float3 &vec);
 
@@ -134,6 +128,11 @@ namespace CudaUtils
 
 	__device__ float dot(const float3 &a, const float3 &b);
 
+	__device__ float3 reflect(const float3 &vec, const float3 &normal);
+
+	__device__ void tangentNormal(const float3 &vec, const float3 &normal, float3 &outTangent, float3 & outNormal);
+
+
 	__device__ float3 FaceNormal(const float3 &a, const float3 &b, const float3 &c);
 
 	__device__ uint64_t ExpandBy2(uint64_t v);
@@ -162,7 +161,25 @@ namespace CudaUtils
 	__device__ void CheckResize(Physics::AABBCollision *&array, const int crtId, int &size);
 
 
+	__device__ const float3 AdvancePositionInTime(const float3 &position, const float3 &velocity, const float time);
+
+	__device__ const float3 AdvancePositionInTimePos(const float3 &prevPosition, const float3 &position, const float time);
+
+
 	void TempStorageGrow(void *&storage, uint64_t &size, const uint64_t requiredSize);
 	//template<typename T>
 	//T *ToRaw(thrust::device_vector<T> &vec);
+}
+
+namespace cu
+{
+	template <typename T>
+	__forceinline__
+		T *raw(thrust::device_vector<T> &vec) { return thrust::raw_pointer_cast(&vec[0]); }
+
+	template <typename T>
+	__forceinline__
+		const T *raw(const thrust::device_vector<T> &vec) { return thrust::raw_pointer_cast(&vec[0]); }
+
+	__forceinline__ int nb(const int threadCount) { return (threadCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;	}
 }

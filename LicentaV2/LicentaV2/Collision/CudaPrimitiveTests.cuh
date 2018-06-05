@@ -52,9 +52,6 @@ namespace CudaPrimitiveTests
 		Physics::PrimitiveContact *__restrict__ eeContacts, bool * __restrict__ eeFlags, const float thickness,
 		const float eps, const float timeStep);
 
-
-	__device__ const float3 AdvancePositionInTime(const float3 &position, const float3 &velocity, const float time);
-
 	__device__ bool TestEE(const float3 &x1, const float3 &x2, const float3 &x3, const float3 &x4, Physics::PrimitiveContact &contact,
 		const float thickness, const float eps);
 

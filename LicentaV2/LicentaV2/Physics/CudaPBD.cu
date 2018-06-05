@@ -1,12 +1,13 @@
 #include "CudaPBD.cuh"
 
+#include <unordered_map>
+#include <thrust/host_vector.h>
+
 #include "../Dependencies/glm/glm.hpp"
 
 #include "../Core/CubWrappers.cuh"
-#include <unordered_map>
 #include "../Core/CudaUtils.cuh"
-
-#include <thrust/host_vector.h>
+#include "../Collision/CudaCollisionDetection.cuh"
 
 namespace std
 {
@@ -32,6 +33,8 @@ __device__ const float EPS = 0.00000001f;
 
 #define PI 3.14159265359f
 
+
+
 void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::vector<Rendering::VertexFormat> &verts, const std::vector<unsigned int>  &indices)
 {
 	m_parentParams = parentParams;
@@ -52,23 +55,28 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 		}
 	}
 
-	thrust::host_vector<float> l0s(m_particleCount * fixedVerts.size(), 0.f);
+	m_LRAConstraints.fixedVertCount = fixedVerts.size();
 
-	for (int i = 0; i < m_particleCount; ++i)
+	if (m_LRAConstraints.fixedVertCount)
 	{
-		for (int j = 0; j < fixedVerts.size(); ++j)
+
+		thrust::host_vector<float> l0s(m_particleCount * fixedVerts.size(), 0.f);
+
+		for (int i = 0; i < m_particleCount; ++i)
 		{
-			if (!hfv[i])
+			for (int j = 0; j < fixedVerts.size(); ++j)
 			{
-				l0s[i * fixedVerts.size() + j] = glm::distance(verts[i].m_position, verts[fixedVerts[j]].m_position) * (1.f + m_parentParams.strainLimit);
+				if (!hfv[i])
+				{
+					l0s[i * fixedVerts.size() + j] = glm::distance(verts[i].m_position, verts[fixedVerts[j]].m_position) * (1.f + m_parentParams.strainLimit);
+				}
 			}
 		}
-	}
 
-	m_LRAConstraints.fixedPosID = fixedVerts;
-	m_LRAConstraints.fixedVertCount = fixedVerts.size();
-	m_LRAConstraints.l0 = l0s;
-	m_LRAConstraints.flag.resize(m_particleCount * m_LRAConstraints.fixedVertCount);
+		m_LRAConstraints.fixedPosID = fixedVerts;
+		m_LRAConstraints.l0 = l0s;
+		m_LRAConstraints.flag.resize(m_particleCount * m_LRAConstraints.fixedVertCount);
+	}
 
 	std::unordered_map<int2, int3> edgeTriangleMap;
 
@@ -83,6 +91,20 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 	thrust::host_vector<int> hbid3;
 	thrust::host_vector<int> hbid4;
 	thrust::host_vector<float> hbphi0;
+
+
+
+	thrust::host_vector<int> htbid1;
+	thrust::host_vector<int> htbid2;
+	thrust::host_vector<int> htbid3;
+	thrust::host_vector<float> htbh0;
+
+	if (m_parentParams.useTriangleBending)
+	{
+		CreateTriangleBendingConstraints(verts, htbid1, htbid2, htbid3, htbh0);
+	}
+
+
 
 	for (int i = 0; i < indices.size(); i += 3)
 	{
@@ -103,7 +125,10 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 
 			if (found != edgeTriangleMap.end())
 			{
-				CreateStaticBendConstraint((*found).second, triangle, verts, hbid1, hbid2, hbid3, hbid4, hbphi0);
+				if (!m_parentParams.useTriangleBending)
+				{
+					CreateStaticBendConstraint((*found).second, triangle, verts, hbid1, hbid2, hbid3, hbid4, hbphi0);
+				}
 				edgeTriangleMap.erase(edge);
 			}
 			else
@@ -113,6 +138,8 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 			}
 		}
 	}
+
+
 
 	std::vector<int> counts(m_particleCount, 0);
 	std::vector<int> offsets(m_particleCount, 0);
@@ -127,13 +154,26 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 		counts[hsid2[i]]++;
 	}
 
-	for (int i = 0; i < hbid1.size(); ++i)
+	if (!m_parentParams.useTriangleBending)
 	{
-		totalCount += 4;
-		counts[hbid1[i]]++;
-		counts[hbid2[i]]++;
-		counts[hbid3[i]]++;
-		counts[hbid4[i]]++;
+		for (int i = 0; i < hbid1.size(); ++i)
+		{
+			totalCount += 4;
+			counts[hbid1[i]]++;
+			counts[hbid2[i]]++;
+			counts[hbid3[i]]++;
+			counts[hbid4[i]]++;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < htbid1.size(); ++i)
+		{
+			totalCount += 3;
+			counts[htbid1[i]]++;
+			counts[htbid2[i]]++;
+			counts[htbid3[i]]++;			
+		}
 	}
 
 	for (int i = 1; i < counts.size() + 1; ++i)
@@ -155,53 +195,6 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 		hsid2o[i] = prefixSums[hsid2[i]] + (counts[hsid2[i]]++);
 	}
 
-	thrust::host_vector<int> hbid1o(hbid1.size(), -1);
-	thrust::host_vector<int> hbid2o(hbid2.size(), -1);
-	thrust::host_vector<int> hbid3o(hbid3.size(), -1);
-	thrust::host_vector<int> hbid4o(hbid4.size(), -1);
-
-	for (int i = 0; i < hbid1.size(); ++i)
-	{
-		hbid1o[i] = prefixSums[hbid1[i]] + (counts[hbid1[i]]++);
-		hbid2o[i] = prefixSums[hbid2[i]] + (counts[hbid2[i]]++);
-		hbid3o[i] = prefixSums[hbid3[i]] + (counts[hbid3[i]]++);
-		hbid4o[i] = prefixSums[hbid4[i]] + (counts[hbid4[i]]++);
-	}
-
-
-
-	//for (int i = 0; i < hsid1.size(); ++i)
-	//{
-	//	if (hsid1o[i] >= totalCount)
-	//	{
-	//		printf("hsid1o[%d] = %d\n", i, hsid1o[i]);
-	//	}
-	//	if (hsid2o[i] >= totalCount)
-	//	{
-	//		printf("hsid2o[%d] = %d\n", i, hsid2o[i]);
-	//	}
-	//}
-
-	//for (int i = 0; i < hbid1.size(); ++i)
-	//{
-	//	if (hbid1o[i] >= totalCount)
-	//	{
-	//		printf("hbid1o[%d] = %d\n", i, hbid1o[i]);
-	//	}
-	//	if (hbid2o[i] >= totalCount)
-	//	{
-	//		printf("hbid2o[%d] = %d\n", i, hbid2o[i]);
-	//	}
-	//	if (hbid3o[i] >= totalCount)
-	//	{
-	//		printf("hbid3o[%d] = %d\n", i, hbid3o[i]);
-	//	}
-	//	if (hbid4o[i] >= totalCount)
-	//	{
-	//		printf("hbid4o[%d] = %d\n", i, hbid4o[i]);
-	//	}
-	//}
-
 	m_stretchConstraints.id1 = hsid1;
 	m_stretchConstraints.id2 = hsid2;
 	m_stretchConstraints.id1Offset = hsid1o;
@@ -209,16 +202,57 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 	m_stretchConstraints.l0 = hsl0;
 	m_stretchConstraints.k = m_parentParams.kStretch;
 
-	m_bendConstraints.id1 = hbid1;
-	m_bendConstraints.id2 = hbid2;
-	m_bendConstraints.id3 = hbid3;
-	m_bendConstraints.id4 = hbid4;
-	m_bendConstraints.id1Offset = hbid1o;
-	m_bendConstraints.id2Offset = hbid2o;
-	m_bendConstraints.id3Offset = hbid3o;
-	m_bendConstraints.id4Offset = hbid4o;
-	m_bendConstraints.phi0 = hbphi0;
-	m_bendConstraints.k = m_parentParams.kBend;
+
+	if (!m_parentParams.useTriangleBending)
+	{
+		thrust::host_vector<int> hbid1o(hbid1.size(), -1);
+		thrust::host_vector<int> hbid2o(hbid2.size(), -1);
+		thrust::host_vector<int> hbid3o(hbid3.size(), -1);
+		thrust::host_vector<int> hbid4o(hbid4.size(), -1);
+
+		for (int i = 0; i < hbid1.size(); ++i)
+		{
+			hbid1o[i] = prefixSums[hbid1[i]] + (counts[hbid1[i]]++);
+			hbid2o[i] = prefixSums[hbid2[i]] + (counts[hbid2[i]]++);
+			hbid3o[i] = prefixSums[hbid3[i]] + (counts[hbid3[i]]++);
+			hbid4o[i] = prefixSums[hbid4[i]] + (counts[hbid4[i]]++);
+		}
+
+		m_bendConstraints.id1 = hbid1;
+		m_bendConstraints.id2 = hbid2;
+		m_bendConstraints.id3 = hbid3;
+		m_bendConstraints.id4 = hbid4;
+		m_bendConstraints.id1Offset = hbid1o;
+		m_bendConstraints.id2Offset = hbid2o;
+		m_bendConstraints.id3Offset = hbid3o;
+		m_bendConstraints.id4Offset = hbid4o;
+		m_bendConstraints.phi0 = hbphi0;
+		m_bendConstraints.k = m_parentParams.kBend;
+	}
+	else
+	{
+		thrust::host_vector<int> htbid1o(htbid1.size(), -1);
+		thrust::host_vector<int> htbid2o(htbid2.size(), -1);
+		thrust::host_vector<int> htbid3o(htbid3.size(), -1);		
+
+		for (int i = 0; i < hbid1.size(); ++i)
+		{
+			htbid1o[i] = prefixSums[htbid1[i]] + (counts[htbid1[i]]++);
+			htbid2o[i] = prefixSums[htbid2[i]] + (counts[htbid2[i]]++);
+			htbid3o[i] = prefixSums[htbid3[i]] + (counts[htbid3[i]]++);			
+		}
+
+		m_triangleBendConstraints.id1 = htbid1;
+		m_triangleBendConstraints.id2 = htbid2;
+		m_triangleBendConstraints.id3 = htbid3;		
+		m_triangleBendConstraints.id1Offset = htbid1o;
+		m_triangleBendConstraints.id2Offset = htbid2o;
+		m_triangleBendConstraints.id3Offset = htbid3o;		
+		m_triangleBendConstraints.h0 = htbh0;
+		m_triangleBendConstraints.k = m_parentParams.kBend;
+	}
+
+
 
 
 
@@ -226,6 +260,8 @@ void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::
 	m_staticCorrectionValues.resize(totalCount);
 	m_accumulatedCorrectionValues.resize(m_particleCount);
 	m_accumulatedCorrectionCounts.resize(m_particleCount);
+	m_accumulatedVelCorrectionValues.resize(m_particleCount);
+	m_accumulatedVelCorrectionCounts.resize(m_particleCount);
 	m_aux1.resize(m_particleCount);
 	m_aux2.resize(m_particleCount);
 
@@ -263,7 +299,7 @@ void CudaPBD::CudaPBD::CreateStaticBendConstraint(const int3 tri1, const int3 tr
 	t2[0] = tri2.x;
 	t2[1] = tri2.y;
 	t2[2] = tri2.z;
-	
+
 	for (int i = 0; i < 3; ++i)
 	{
 		for (int j = 0; j < 3; ++j)
@@ -344,7 +380,9 @@ void CudaPBD::CudaPBD::CreateGroundConstraints(const thrust::device_vector<float
 
 void CudaPBD::CudaPBD::CreateLRAConstraints(const thrust::device_vector<float3>& positions)
 {
-	
+	if (!m_LRAConstraints.fixedVertCount)
+		return;
+
 	const int numBlocks = (m_particleCount * m_LRAConstraints.fixedVertCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
 	_CreateLRAConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_particleCount, m_LRAConstraints.fixedVertCount,
@@ -373,7 +411,7 @@ void CudaPBD::CudaPBD::DampVelocities(const thrust::device_vector<float3>& posit
 
 
 	ComputeXMVMs << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(velocities), cu::raw(masses), cu::raw(m_aux1), cu::raw(m_aux2));
-	cudaCheckError();
+	////cudaCheckError();
 	const float3 ximiSum = CubWrap::ReduceSum(m_aux1, tempStorage, tempStorageSize);
 	const float3 vimiSum = CubWrap::ReduceSum(m_aux2, tempStorage, tempStorageSize);
 
@@ -382,11 +420,11 @@ void CudaPBD::CudaPBD::DampVelocities(const thrust::device_vector<float3>& posit
 
 
 	ComputeL << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), xcm, cu::raw(m_aux2), cu::raw(m_aux1));
-	cudaCheckError();
+	////cudaCheckError();
 	const float3 L = CubWrap::ReduceSum(m_aux1, tempStorage, tempStorageSize);
 
 	ComputeIs << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), xcm, cu::raw(masses), cu::raw(m_aux1), cu::raw(m_aux2));
-	cudaCheckError();
+	////cudaCheckError();
 	const float3 i1 = CubWrap::ReduceSum(m_aux1, tempStorage, tempStorageSize);
 	const float3 i2 = CubWrap::ReduceSum(m_aux2, tempStorage, tempStorageSize);
 
@@ -400,21 +438,157 @@ void CudaPBD::CudaPBD::DampVelocities(const thrust::device_vector<float3>& posit
 	const float3 omega = make_float3(omegaGLM.x, omegaGLM.y, omegaGLM.z);
 
 	UpdateVels << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), omega, xcm, vcm, m_parentParams.kDamp, cu::raw(velocities));
-	cudaCheckError();
+	////cudaCheckError();
+}
+
+void CudaPBD::CudaPBD::CreateTriangleBendingConstraints(const std::vector<Rendering::VertexFormat>& verts,
+	thrust::host_vector<int> & idb0, thrust::host_vector<int> & idb1, thrust::host_vector<int> & idv,
+	thrust::host_vector<float> & h0)
+{
+
+	for (int i = 0; i < m_parentParams.dims.x; ++i)
+	{
+		for (int j = 0; j < m_parentParams.dims.y - 2; ++j)
+		{
+
+			int v1 = lin(i, j), v3 = lin(i, j + 1), v2 = lin(i, j + 2);
+
+			glm::vec3 c0 = (1.f / 3) * (verts[v1].m_position + verts[v2].m_position + verts[v3].m_position);
+
+			idb0.push_back(v1);
+			idb1.push_back(v2);
+			idv.push_back(v3);
+			h0.push_back(glm::distance(verts[v3].m_position, c0));
+		}
+	}
+
+	for (int i = 0; i < m_parentParams.dims.x - 2; ++i)
+	{
+		for (int j = 0; j < m_parentParams.dims.y; ++j)
+		{
+
+			int v1 = lin(i, j), v3 = lin(i + 1, j), v2 = lin(i + 2, j);
+
+			glm::vec3 c0 = (verts[v1].m_position + verts[v2].m_position + verts[v3].m_position) / 3.f;
+
+			idb0.push_back(v1);
+			idb1.push_back(v2);
+			idv.push_back(v3);
+			h0.push_back(glm::distance(verts[v3].m_position, c0));
+		}
+	}
+
+
+	//std::vector<int> cons(verts.size(), -1);
+
+	//for (int v = 0; v < verts.size(); ++v)
+	//{
+	//	std::vector<int> neighbors = GetNeighbors(delin(v));
+
+	//	for (int vi : neighbors)
+	//	{
+	//		float cosBest = 0;
+	//		int vBest = vi;
+
+	//		for (int vj : neighbors)
+	//		{
+	//			if (vi == vj)
+	//				continue;
+	//			glm::vec3 viv = verts[vi].m_position - verts[v].m_position;
+	//			glm::vec3 vjv = verts[vj].m_position - verts[v].m_position;
+
+	//			float lviv = glm::length(viv);
+	//			float lvjv = glm::length(vjv);
+
+	//			float cos = glm::dot(viv, vjv) / (lviv * lvjv);
+
+	//			if (cos < cosBest)
+	//			{
+	//				cosBest = cos;
+	//				vBest = vj;
+	//			}
+	//		}
+
+	//		if (cons[vBest] != vi)
+	//		{
+	//			cons[vi] = vBest;
+
+	//			glm::vec3 c0 = (1.f / 3) * (verts[vi].m_position + verts[vBest].m_position + verts[v].m_position);
+
+	//			idb0.push_back(vi);
+	//			idb1.push_back(vBest);
+	//			idv.push_back(v);
+	//			h0.push_back(glm::distance(verts[v].m_position, c0));
+	//		}
+	//	}
+	//}
+}
+
+int CudaPBD::CudaPBD::lin(const int i, const int j)
+{
+	return i * m_parentParams.dims.x + j;
+}
+
+int CudaPBD::CudaPBD::lin(const int2 coord)
+{
+	return lin(coord.x, coord.y);
+}
+
+int2 CudaPBD::CudaPBD::delin(const int i)
+{
+	return make_int2(i / m_parentParams.dims.x, i % m_parentParams.dims.y);
+}
+
+std::vector<int> CudaPBD::CudaPBD::GetNeighbors(const int2 coord)
+{
+	int i = coord.x, j = coord.y;
+
+	std::vector<int> result;
+
+	std::vector<int2> raw;
+
+	if ((i + j) % 2 == 0)
+	{
+		raw = { make_int2(i - 1, j), make_int2(i + 1, j), make_int2(i, j - 1), make_int2(i, j + 1) };
+
+	}
+	else
+	{
+		raw = { make_int2(i - 1, j), make_int2(i + 1, j), make_int2(i, j - 1), make_int2(i, j + 1), 
+			make_int2(i - 1, j - 1), make_int2(i - 1, j + 1), make_int2(i + 1, j - 1), make_int2(i + 1, j + 1) };
+	}
+
+	for (int x = 0; x < raw.size(); ++x)
+	{
+		if (InBounds(raw[x]))
+			result.push_back(lin(raw[x]));
+	}
+
+	return result;
+}
+
+bool CudaPBD::CudaPBD::InBounds(const int i, const int j)
+{
+	return i >= 0 && i < m_parentParams.dims.x && j >= 0 && j < m_parentParams.dims.y;
+}
+
+bool CudaPBD::CudaPBD::InBounds(const int2 coord)
+{
+	return InBounds(coord.x, coord.y);
 }
 
 void CudaPBD::CudaPBD::PBDStepExternal(thrust::device_vector<float3> &positions, thrust::device_vector<float3> &prevPositions, const thrust::device_vector<float> &masses,
 	thrust::device_vector<float3> &velocities, void *&tempStorage, uint64_t &tempStorageSize)
 {
-	const int particleCount = (int) positions.size();
+	const int particleCount = (int)positions.size();
 	const int numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
 	ApplyExternalForces << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(velocities), m_parentParams.gravity, m_parentParams.timestep);
-	cudaCheckError();
+
 	DampVelocities(positions, masses, velocities, tempStorage, tempStorageSize);
 
 	ExplicitEuler << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(prevPositions), cu::raw(velocities), cu::raw(positions), m_parentParams.timestep);
-	cudaCheckError();
+
 }
 
 void CudaPBD::CudaPBD::PBDStepSolver(thrust::device_vector<float3>& positions, const thrust::device_vector<float3>& prevPositions,
@@ -437,19 +611,21 @@ void CudaPBD::CudaPBD::PBDStepSolver(thrust::device_vector<float3>& positions, c
 		ProjectGroundConstraints(positions, invMasses);
 		ProjectLRAConstraints(positions, invMasses);
 		ProjectStaticConstraints(positions, invMasses, m_parentParams.solverIterations);
-		ProjectDynamicConstraints(positions, invMasses, m_parentParams.thickness, vfContacts, vfContactsSize, eeContacts, eeContactsSize, tempStorage, tempStorageSize);
+		ProjectDynamicConstraints(positions, prevPositions, invMasses, m_parentParams.thickness, vfContacts, vfContactsSize, eeContacts, eeContactsSize, tempStorage, tempStorageSize);
 		ApplyCorrections(positions);
 	}
 }
 
-void CudaPBD::CudaPBD::PBDStepFinal(thrust::device_vector<float3>& positions,
+void CudaPBD::CudaPBD::PBDStepIntegration(thrust::device_vector<float3>& positions,
 	thrust::device_vector<float3>& prevPositions, thrust::device_vector<float3>& velocities,
 	const thrust::device_vector<bool>& fixedVerts)
 {
 	FinalUpdate(positions, prevPositions, velocities, fixedVerts);
 }
 
-void CudaPBD::CudaPBD::ProjectDynamicConstraints(const thrust::device_vector<float3> &positions, const thrust::device_vector<float> &invMasses,
+void CudaPBD::CudaPBD::ProjectDynamicConstraints(const thrust::device_vector<float3> &positions,
+	const thrust::device_vector<float3> &prevPositions,
+	const thrust::device_vector<float> &invMasses,
 	const float thickness,
 	const thrust::device_vector<Physics::PrimitiveContact>& vfContacts,
 	const uint64_t vfContactsSize,
@@ -480,13 +656,13 @@ void CudaPBD::CudaPBD::ProjectDynamicConstraints(const thrust::device_vector<flo
 
 	int numBlocks = (totalCorrections + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	_ProjectDynamicConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (cu::raw(positions), cu::raw(invMasses), thickness,
+	_ProjectDynamicConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (cu::raw(positions), cu::raw(prevPositions), cu::raw(invMasses), thickness,
 		cu::raw(vfContacts), vfContactsSize,
 		cu::raw(eeContacts), eeContactsSize,
 		cu::raw(m_dbDynamicCorrectionID.buffers[m_dbDynamicCorrectionID.selector]),
 		cu::raw(m_dbDynamicCorrectionValues.buffers[m_dbDynamicCorrectionValues.selector]));
 
-	cudaCheckError();
+	////cudaCheckError();
 
 
 	CubWrap::SortByKey(m_dbDynamicCorrectionID, m_dbDynamicCorrectionValues, totalCorrections, tempStorage, tempStorageSize);
@@ -494,41 +670,120 @@ void CudaPBD::CudaPBD::ProjectDynamicConstraints(const thrust::device_vector<flo
 		tempStorage, tempStorageSize);
 
 	CubWrap::ExclusiveSumInPlace(m_dDynamicCorrectionRLECounts, m_dynamicCorrectionsRunCount, tempStorage, tempStorageSize);
-	
+
 
 	numBlocks = (m_dynamicCorrectionsRunCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
 	_ApplyDynamicCorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_dynamicCorrectionsRunCount, cu::raw(m_dDynamicCorrectionRLEUniques), cu::raw(m_dDynamicCorrectionRLECounts),
 		cu::raw(m_dbDynamicCorrectionValues.buffers[m_dbDynamicCorrectionValues.selector]), totalCorrections, cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts));
 
-	cudaCheckError();
+	////cudaCheckError();
+
+}
+
+void CudaPBD::CudaPBD::ApplyFriction(thrust::device_vector<float3>& velocities,
+	const thrust::device_vector<Physics::PrimitiveContact>& vfContacts, const uint64_t vfContactsSize,
+	const thrust::device_vector<Physics::PrimitiveContact>& eeContacts, const uint64_t eeContactsSize,
+	void *& tempStorage, uint64_t & tempStorageSize)
+{
+
+	cudaMemset(cu::raw(m_accumulatedVelCorrectionCounts), 0, m_accumulatedVelCorrectionCounts.size() * sizeof(int));
+	cudaMemset(cu::raw(m_accumulatedVelCorrectionValues), 0, m_accumulatedVelCorrectionValues.size() * sizeof(float3));
+
+	int totalVF = vfContactsSize * 4;
+	int totalEE = eeContactsSize * 4;
+
+	int totalCorrections = totalVF + totalEE;
+
+	if (totalCorrections == 0)
+		return;
+
+	if (m_frictionCorrectionsSize < totalCorrections)
+	{
+		m_dbFrictionCorrectionID.buffers[0].resize(totalCorrections);
+		m_dbFrictionCorrectionID.buffers[1].resize(totalCorrections);
+		m_dbFrictionCorrectionValues.buffers[0].resize(totalCorrections);
+		m_dbFrictionCorrectionValues.buffers[1].resize(totalCorrections);
+		m_dFrictionCorrectionRLEUniques.resize(totalCorrections);
+		m_dFrictionCorrectionRLECounts.resize(totalCorrections);
+		m_frictionCorrectionsSize = totalCorrections;
+	}
+
+	int numBlocks = (totalCorrections + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+
+	_ApplyFriction << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (cu::raw(velocities), m_parentParams.kFriction,
+		cu::raw(vfContacts), vfContactsSize,
+		cu::raw(eeContacts), eeContactsSize,
+		cu::raw(m_dbFrictionCorrectionID.buffers[m_dbFrictionCorrectionID.selector]),
+		cu::raw(m_dbFrictionCorrectionValues.buffers[m_dbFrictionCorrectionValues.selector]));
+
+	////cudaCheckError();
+
+	CubWrap::SortByKey(m_dbFrictionCorrectionID, m_dbFrictionCorrectionValues, totalCorrections, tempStorage, tempStorageSize);
+
+	CubWrap::RLE(m_dbFrictionCorrectionID.buffers[m_dbFrictionCorrectionID.selector], totalCorrections, m_dFrictionCorrectionRLEUniques, m_dFrictionCorrectionRLECounts, m_frictionCorrectionsRunCount,
+		tempStorage, tempStorageSize);
+
+	CubWrap::ExclusiveSumInPlace(m_dFrictionCorrectionRLECounts, m_frictionCorrectionsRunCount, tempStorage, tempStorageSize);
+
+	numBlocks = (m_frictionCorrectionsRunCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+
+	_AccumulateFriction << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_frictionCorrectionsRunCount, m_parentParams.kFriction,
+		cu::raw(m_dFrictionCorrectionRLEUniques), cu::raw(m_dFrictionCorrectionRLECounts),
+		cu::raw(m_dbFrictionCorrectionValues.buffers[m_dbFrictionCorrectionValues.selector]), totalCorrections, cu::raw(m_accumulatedVelCorrectionValues), cu::raw(m_accumulatedVelCorrectionCounts));
+
+	////cudaCheckError();
+
+	numBlocks = (m_particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+	FinalFrictionStep << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_particleCount, m_parentParams.kFriction, cu::raw(m_accumulatedVelCorrectionValues), cu::raw(m_accumulatedVelCorrectionCounts),
+		cu::raw(velocities));
 
 }
 
 void CudaPBD::CudaPBD::ProjectStaticConstraints(const thrust::device_vector<float3>& positions, const thrust::device_vector<float>& invMasses, const int iteration)
 {
-	const int stretchCount = (int)m_stretchConstraints.id1.size();
-	const int bendCount = (int)m_bendConstraints.id1.size();
 
-	int numBlocks = (stretchCount + bendCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+	int numBlocks;
 
-	_ProjectStaticConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (stretchCount, bendCount, iteration,
-		cu::raw(positions), cu::raw(invMasses),
-		cu::raw(m_stretchConstraints.id1), cu::raw(m_stretchConstraints.id2), cu::raw(m_stretchConstraints.id1Offset), cu::raw(m_stretchConstraints.id2Offset),
-		m_stretchConstraints.k, cu::raw(m_stretchConstraints.l0),
-		cu::raw(m_bendConstraints.id1), cu::raw(m_bendConstraints.id2), cu::raw(m_bendConstraints.id3), cu::raw(m_bendConstraints.id4),
-		cu::raw(m_bendConstraints.id1Offset), cu::raw(m_bendConstraints.id2Offset), cu::raw(m_bendConstraints.id3Offset), cu::raw(m_bendConstraints.id4Offset),
-		m_bendConstraints.k, cu::raw(m_bendConstraints.phi0), cu::raw(m_staticCorrectionValues));
+	if (m_parentParams.useTriangleBending)
+	{
+		const int stretchCount = (int)m_stretchConstraints.id1.size();
+		const int bendCount = (int)m_triangleBendConstraints.id1.size();
 
-	cudaCheckError();
+		numBlocks = cu::nb(stretchCount + bendCount);
+
+		_ProjectStaticConstraintsTriBend << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (stretchCount, bendCount, iteration,
+			cu::raw(positions), cu::raw(invMasses),
+			cu::raw(m_stretchConstraints.id1), cu::raw(m_stretchConstraints.id2), cu::raw(m_stretchConstraints.id1Offset), cu::raw(m_stretchConstraints.id2Offset),
+			m_stretchConstraints.k, cu::raw(m_stretchConstraints.l0),
+			cu::raw(m_triangleBendConstraints.id1), cu::raw(m_triangleBendConstraints.id2), cu::raw(m_triangleBendConstraints.id3),
+			cu::raw(m_triangleBendConstraints.id1Offset), cu::raw(m_triangleBendConstraints.id2Offset), cu::raw(m_triangleBendConstraints.id3Offset),
+			m_triangleBendConstraints.k, cu::raw(m_triangleBendConstraints.h0), cu::raw(m_staticCorrectionValues));
+	}
+	else
+	{
+		const int stretchCount = (int)m_stretchConstraints.id1.size();
+		const int bendCount = (int)m_bendConstraints.id1.size();
+
+		numBlocks = cu::nb(stretchCount + bendCount);
+
+		_ProjectStaticConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (stretchCount, bendCount, iteration,
+			cu::raw(positions), cu::raw(invMasses),
+			cu::raw(m_stretchConstraints.id1), cu::raw(m_stretchConstraints.id2), cu::raw(m_stretchConstraints.id1Offset), cu::raw(m_stretchConstraints.id2Offset),
+			m_stretchConstraints.k, cu::raw(m_stretchConstraints.l0),
+			cu::raw(m_bendConstraints.id1), cu::raw(m_bendConstraints.id2), cu::raw(m_bendConstraints.id3), cu::raw(m_bendConstraints.id4),
+			cu::raw(m_bendConstraints.id1Offset), cu::raw(m_bendConstraints.id2Offset), cu::raw(m_bendConstraints.id3Offset), cu::raw(m_bendConstraints.id4Offset),
+			m_bendConstraints.k, cu::raw(m_bendConstraints.phi0), cu::raw(m_staticCorrectionValues));
+	}
+	////cudaCheckError();
 
 	const int particleCount = (int)positions.size();
 	numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	_ApplyStaticCorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> >(particleCount, cu::raw(m_staticCorrectionValues),
+	_ApplyStaticCorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(m_staticCorrectionValues),
 		cu::raw(m_staticCorrectionPrefixSums), cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts));
 
-	cudaCheckError();
+	////cudaCheckError();
 
 }
 
@@ -544,6 +799,10 @@ void CudaPBD::CudaPBD::ProjectGroundConstraints(const thrust::device_vector<floa
 
 void CudaPBD::CudaPBD::ProjectLRAConstraints(const thrust::device_vector<float3>& positions, const thrust::device_vector<float>& invMasses)
 {
+	if (!m_LRAConstraints.fixedVertCount)
+		return;
+
+
 	int numBlocks = (m_particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
 	_ApplyLRACorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_particleCount, m_LRAConstraints.fixedVertCount,
@@ -558,7 +817,7 @@ void CudaPBD::CudaPBD::ApplyCorrections(thrust::device_vector<float3>& positions
 	const int numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
 	FinalCorrectionStep << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts), cu::raw(positions));
-	cudaCheckError();
+	////cudaCheckError();
 
 }
 
@@ -568,10 +827,10 @@ void CudaPBD::CudaPBD::FinalUpdate(thrust::device_vector<float3>& positions, thr
 	const int particleCount = (int)positions.size();
 	int numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	_FinalUpdate << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(prevPositions), cu::raw(velocities), 
+	_FinalUpdate << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(prevPositions), cu::raw(velocities),
 		cu::raw(fixedVerts), m_parentParams.timestep);
 
-	cudaCheckError();
+	////cudaCheckError();
 
 }
 
@@ -594,6 +853,28 @@ __global__ void CudaPBD::_ProjectStaticConstraints(const int stretchCount, const
 	else
 	{
 		ProjectStaticBendConstraint(id - stretchCount, iteration, positions, invMasses, bid1, bid2, bid3, bid4, bid1o, bid2o, bid3o, bid4o, bk, bphi0, corVals);
+	}
+}
+
+__global__ void CudaPBD::_ProjectStaticConstraintsTriBend(const int stretchCount, const int bendCount, const int iteration,
+	const float3 *__restrict__ positions, const float *__restrict__ invMasses,
+	const int *__restrict__ sid1, const int *__restrict__ sid2, const int *__restrict__ sid1o, const int *__restrict__ sid2o,
+	const float sk, const float *__restrict__ sl0,
+	const int *__restrict__ bid1, const int *__restrict__ bid2, const int *__restrict__ bid3,
+	const int *__restrict__ bid1o, const int *__restrict__ bid2o, const int *__restrict__ bid3o,
+	const float bk, const float *__restrict__ bh0, float3 *__restrict__ corVals)
+{
+	int id = CudaUtils::MyID();
+	if (id >= stretchCount + bendCount)
+		return;
+
+	if (id < stretchCount)
+	{
+		ProjectStaticStretchConstraint(id, iteration, positions, invMasses, sid1, sid2, sid1o, sid2o, sk, sl0, corVals);
+	}
+	else
+	{
+		ProjectStaticTriangleBendConstraint(id - stretchCount, iteration, positions, invMasses, bid1, bid2, bid3, bid1o, bid2o, bid3o, bk, bh0, corVals);
 	}
 }
 
@@ -630,9 +911,9 @@ __device__ void CudaPBD::ProjectStaticStretchConstraint(const int id, const int 
 	const float3 n = diff / len;
 
 	const float3 tempTerm = (len - sl0[id]) * n * kp / wSum;
-	
+
 	corVals[sid1o[id]] = -w1 * tempTerm;
-	corVals[sid2o[id]] = w2  * tempTerm;
+	corVals[sid2o[id]] = w2 * tempTerm;
 }
 
 __device__ void CudaPBD::ProjectStaticBendConstraint(const int id, const int iteration, const float3 *__restrict__ positions, const float *__restrict__ invMasses,
@@ -674,6 +955,40 @@ __device__ void CudaPBD::ProjectStaticBendConstraint(const int id, const int ite
 	const float3 n2 = c24 / l24;
 
 	const float d = CudaUtils::clamp(CudaUtils::dot(n1, n2), -1.f, 1.f);
+	float phi = acosf(d);
+
+	if (d == -1.f)
+	{
+		phi = PI;
+		if (phi == bphi0[id])
+		{
+			corVals[bid1o[id]] = make_float3(0.f, 0.f, 0.f);
+			corVals[bid2o[id]] = make_float3(0.f, 0.f, 0.f);
+			corVals[bid3o[id]] = make_float3(0.f, 0.f, 0.f);
+			corVals[bid4o[id]] = make_float3(0.f, 0.f, 0.f);
+			return;
+		}
+
+		corVals[bid1o[id]] = n1 / 100.f;
+		corVals[bid2o[id]] = n2 / 100.f;
+		corVals[bid3o[id]] = make_float3(0.f, 0.f, 0.f);
+		corVals[bid4o[id]] = make_float3(0.f, 0.f, 0.f);
+		return;
+	}
+
+	if (d == 1.f)
+	{
+		phi = 0.f;
+
+		if (phi == bphi0[id])
+		{
+			corVals[bid1o[id]] = make_float3(0.f, 0.f, 0.f);
+			corVals[bid2o[id]] = make_float3(0.f, 0.f, 0.f);
+			corVals[bid3o[id]] = make_float3(0.f, 0.f, 0.f);
+			corVals[bid4o[id]] = make_float3(0.f, 0.f, 0.f);
+			return;
+		}
+	}
 
 	const float3 q3 = (CudaUtils::cross(p2, n2) + (CudaUtils::cross(n1, p2) * d)) / l23;
 
@@ -698,7 +1013,7 @@ __device__ void CudaPBD::ProjectStaticBendConstraint(const int id, const int ite
 	}*/
 	const float3 q1 = -q2 - q3 - q4;
 
-	const float term = sqrtf(1.f - d * d) * (acosf(d) - bphi0[id]) * kp;
+	const float term = sqrtf(1.f - d * d) * (phi - bphi0[id]) * kp;
 
 	const float l1 = CudaUtils::len(q1);
 	const float l2 = CudaUtils::len(q2);
@@ -726,8 +1041,50 @@ __device__ void CudaPBD::ProjectStaticBendConstraint(const int id, const int ite
 	corVals[bid4o[id]] = -(w4 * ts) * q4;
 }
 
+__device__ void CudaPBD::ProjectStaticTriangleBendConstraint(const int id, const int iteration,
+	const float3 *__restrict__ positions, const float *__restrict__ invMasses,
+	const int *__restrict__ bid1, const int *__restrict__ bid2, const int *__restrict__ bid3,
+	const int *__restrict__ bid1o, const int *__restrict__ bid2o, const int *__restrict__ bid3o,
+	const float bk, const float *__restrict__ bh0, float3 *__restrict__ corVals)
+{
+	const float kp = 1.f - powf(1.f - bk, 1.f / iteration);
 
-__global__ void CudaPBD::_ProjectDynamicConstraints(const float3 * __restrict__ positions, const float * __restrict__ invMasses,
+	const float wb0 = invMasses[bid1[id]];
+	const float wb1 = invMasses[bid2[id]];
+	const float wv = invMasses[bid3[id]];
+
+	const float3 b0 = positions[bid1[id]];
+	const float3 b1 = positions[bid2[id]];
+	const float3 v = positions[bid3[id]];
+
+	float W = wb0 + wb1 + 2 * wv;
+
+	float3 c = (b0 + b1 + v) / 3.f;
+
+	float3 h = v - c;
+	float len = CudaUtils::len(h);
+
+	if (len <= EPS)
+	{
+		corVals[bid1o[id]] = make_float3(0.f, 0.f, 0.f);
+		corVals[bid2o[id]] = make_float3(0.f, 0.f, 0.f);
+		corVals[bid3o[id]] = make_float3(0.f, 0.f, 0.f);		
+
+		printf("[%d] TriBend len = 0", id);
+		return;
+	}
+
+	float3 term = kp * (h / W) * (1.f - (bh0[id] / len));
+
+	corVals[bid1o[id]] = 2.f * wb0 * term;
+	corVals[bid2o[id]] = 2.f * wb1 * term;
+	corVals[bid3o[id]] = -4.f * wv * term;
+}
+
+
+__global__ void CudaPBD::_ProjectDynamicConstraints(const float3 * __restrict__ positions,
+	const float3 * __restrict__ prevPositions,
+	const float * __restrict__ invMasses,
 	const float thickness,
 	const Physics::PrimitiveContact * __restrict__ vfs, const uint64_t vfSize,
 	const Physics::PrimitiveContact * __restrict__ ees, const uint64_t eeSize,
@@ -739,32 +1096,53 @@ __global__ void CudaPBD::_ProjectDynamicConstraints(const float3 * __restrict__ 
 
 	if (id < vfSize)
 	{
-		ProjectVFConstraint(id, id * 4, positions, invMasses, thickness, vfs, rawCorIDs, rawCorVals);
+		ProjectVFConstraint(id, id * 4, positions, prevPositions, invMasses, thickness, vfs, rawCorIDs, rawCorVals);
 	}
 	else
 	{
-		ProjectEEConstraint(id - vfSize, id * 4, positions, invMasses, thickness, ees, rawCorIDs, rawCorVals);
+		ProjectEEConstraint(id - vfSize, id * 4, positions, prevPositions, invMasses, thickness, ees, rawCorIDs, rawCorVals);
 	}
 }
 
 __device__ void CudaPBD::ProjectVFConstraint(const int id, const int myStart,
 	const float3 * __restrict__ positions,
+	const float3 * __restrict__ prevPositions,
 	const float * __restrict__ invMasses, const float thickness,
 	const Physics::PrimitiveContact * __restrict__ vfs,
 	uint32_t * __restrict__ rawCorIDs, float3 * __restrict__ rawCorVals)
 {
-	
+
 	const Physics::PrimitiveContact myContact = vfs[id];
 
-	const float b0 = CudaUtils::clamp(-myContact.w2, 0.f, 1.f);
-	const float b1 = CudaUtils::clamp(-myContact.w3, 0.f, 1.f);
-	const float b2 = CudaUtils::clamp(-myContact.w4, 0.f, 1.f);
-
+	const float ct = myContact.t;
 
 	const float3 p = positions[myContact.v1];
 	const float3 p0 = positions[myContact.v2];
 	const float3 p1 = positions[myContact.v3];
 	const float3 p2 = positions[myContact.v4];
+
+	const float3 pp = prevPositions[myContact.v1];
+	const float3 pp0 = prevPositions[myContact.v2];
+	const float3 pp1 = prevPositions[myContact.v3];
+	const float3 pp2 = prevPositions[myContact.v4];
+
+	const float3 cp = CudaUtils::AdvancePositionInTimePos(pp, p, ct);
+	const float3 cp0 = CudaUtils::AdvancePositionInTimePos(pp0, p0, ct);
+	const float3 cp1 = CudaUtils::AdvancePositionInTimePos(pp1, p1, ct);
+	const float3 cp2 = CudaUtils::AdvancePositionInTimePos(pp2, p2, ct);
+
+
+
+	/*float b0, b1, b2;
+
+	DeformableUtils::baryVF(p, p0, p1, p2, b0, b1, b2);*/
+
+
+	float b0 = CudaUtils::clamp(-myContact.w2, 0.f, 1.f);
+	float b1 = CudaUtils::clamp(-myContact.w3, 0.f, 1.f);
+	float b2 = CudaUtils::clamp(-myContact.w4, 0.f, 1.f);
+
+
 
 	const float w = invMasses[myContact.v1];
 	const float w0 = invMasses[myContact.v2];
@@ -794,6 +1172,10 @@ __device__ void CudaPBD::ProjectVFConstraint(const int id, const int myStart,
 
 	if (s == 0)
 	{
+		rawCorVals[myStart] = make_float3(0.f, 0.f, 0.f);
+		rawCorVals[myStart + 1] = make_float3(0.f, 0.f, 0.f);
+		rawCorVals[myStart + 2] = make_float3(0.f, 0.f, 0.f);
+		rawCorVals[myStart + 3] = make_float3(0.f, 0.f, 0.f);
 		return;
 	}
 
@@ -801,25 +1183,63 @@ __device__ void CudaPBD::ProjectVFConstraint(const int id, const int myStart,
 
 	s = c < 0 ? s : 0;
 
-	if (s == 0)
-	{
-		return;
-	}
+	//if (s == 0)
+	//{
+	//	rawCorVals[myStart] = make_float3(0.f, 0.f, 0.f);
+	//	rawCorVals[myStart + 1] = make_float3(0.f, 0.f, 0.f);
+	//	rawCorVals[myStart + 2] = make_float3(0.f, 0.f, 0.f);
+	//	rawCorVals[myStart + 3] = make_float3(0.f, 0.f, 0.f);
+	//	return;
+	//}
 
-	rawCorVals[myStart] = -s * w * grad;
-	rawCorVals[myStart + 1] = -s * w0 * grad0;
-	rawCorVals[myStart + 2] = -s * w1 * grad1;
-	rawCorVals[myStart + 3] = -s * w2 * grad2;
+	rawCorVals[myStart] = -s * w * grad;// +(cp - p);
+	rawCorVals[myStart + 1] = -s * w0 * grad0;// + (cp0 - p0);
+	rawCorVals[myStart + 2] = -s * w1 * grad1;// + (cp1 - p1);
+	rawCorVals[myStart + 3] = -s * w2 * grad2;// + (cp2 - p2);
 
 }
 
 __device__ void CudaPBD::ProjectEEConstraint(const int id, const int myStart,
 	const float3 * __restrict__ positions,
+	const float3 * __restrict__ prevPositions,
 	const float * __restrict__ invMasses, const float thickness,
 	const Physics::PrimitiveContact * __restrict__ ees,
 	uint32_t * __restrict__ rawCorIDs, float3 * __restrict__ rawCorVals)
 {
 	const Physics::PrimitiveContact myContact = ees[id];
+
+	const float ct = myContact.t;
+
+	const float3 p0 = positions[myContact.v1];
+	const float3 p1 = positions[myContact.v2];
+	const float3 p2 = positions[myContact.v3];
+	const float3 p3 = positions[myContact.v4];
+
+	const float3 pp0 = prevPositions[myContact.v1];
+	const float3 pp1 = prevPositions[myContact.v2];
+	const float3 pp2 = prevPositions[myContact.v3];
+	const float3 pp3 = prevPositions[myContact.v4];
+
+	const float3 cp0 = CudaUtils::AdvancePositionInTimePos(pp0, p0, ct);
+	const float3 cp1 = CudaUtils::AdvancePositionInTimePos(pp1, p0, ct);
+	const float3 cp2 = CudaUtils::AdvancePositionInTimePos(pp2, p1, ct);
+	const float3 cp3 = CudaUtils::AdvancePositionInTimePos(pp3, p2, ct);
+
+	//float s, t;
+
+	//DeformableUtils::baryEE(p0, p1, p2, p3, s, t);
+
+
+
+	//float b0 = 1.f - s;
+	//float b1 = s;
+	//float b2 = 1.f - t;
+	//float b3 = t;
+
+	float b0 = myContact.w1;
+	float b1 = myContact.w2;
+	float b2 = -myContact.w3;
+	float b3 = -myContact.w4;
 
 
 	rawCorIDs[myStart] = myContact.v1;
@@ -827,10 +1247,6 @@ __device__ void CudaPBD::ProjectEEConstraint(const int id, const int myStart,
 	rawCorIDs[myStart + 2] = myContact.v3;
 	rawCorIDs[myStart + 3] = myContact.v4;
 
-	const float3 p0 = positions[myContact.v1];
-	const float3 p1 = positions[myContact.v2];
-	const float3 p2 = positions[myContact.v3];
-	const float3 p3 = positions[myContact.v4];
 
 	const float w0 = invMasses[myContact.v1];
 	const float w1 = invMasses[myContact.v2];
@@ -838,10 +1254,6 @@ __device__ void CudaPBD::ProjectEEConstraint(const int id, const int myStart,
 	const float w3 = invMasses[myContact.v4];
 
 
-	const float b0 = myContact.w1;
-	const float b1 = myContact.w2;
-	const float b2 = -myContact.w3;
-	const float b3 = -myContact.w4;
 
 	float3 q0 = p0 * b0 + p1 * b1;
 	float3 q1 = p2 * b2 + p3 * b3;
@@ -861,21 +1273,31 @@ __device__ void CudaPBD::ProjectEEConstraint(const int id, const int myStart,
 	float s = w0 * b0 * b0 + w1 * b1 * b1 + w2 * b2 * b2 + w3 * b3 * b3;
 
 	if (s == 0)
+	{
+		rawCorVals[myStart] = make_float3(0.f, 0.f, 0.f);
+		rawCorVals[myStart + 1] = make_float3(0.f, 0.f, 0.f);
+		rawCorVals[myStart + 2] = make_float3(0.f, 0.f, 0.f);
+		rawCorVals[myStart + 3] = make_float3(0.f, 0.f, 0.f);
 		return;
+	}
 
 	s = c / s;
 
 	s = c < 0 ? s : 0;
 
-	if (s == 0)
-	{
-		return;
-	}
+	//if (s == 0)
+	//{
+	//	rawCorVals[myStart] = make_float3(0.f, 0.f, 0.f);
+	//	rawCorVals[myStart + 1] = make_float3(0.f, 0.f, 0.f);
+	//	rawCorVals[myStart + 2] = make_float3(0.f, 0.f, 0.f);
+	//	rawCorVals[myStart + 3] = make_float3(0.f, 0.f, 0.f);
+	//	return;
+	//}
 
-	rawCorVals[myStart] = -s * w0 * grad0;
-	rawCorVals[myStart + 1] = -s * w1 * grad1;
-	rawCorVals[myStart + 2] = -s * w2 * grad2;
-	rawCorVals[myStart + 3] = -s * w3 * grad3;
+	rawCorVals[myStart] = -s * w0 * grad0;// +(cp0 - p0);
+	rawCorVals[myStart + 1] = -s * w1 * grad1;// + (cp1 - p1);
+	rawCorVals[myStart + 2] = -s * w2 * grad2;// + (cp2 - p2);
+	rawCorVals[myStart + 3] = -s * w3 * grad3;// + (cp3 - p3);
 }
 
 __global__ void CudaPBD::_ApplyStaticCorrections(const int particleCount, const float3 * __restrict__ rawValues,
@@ -921,16 +1343,21 @@ __global__ void CudaPBD::_ApplyDynamicCorrections(const int runCount, const uint
 
 	int myStart = RLEPrefixSums[id];
 	int myEnd = id == runCount - 1 ? rawCorValsSize : RLEPrefixSums[id + 1];
+	int cnt = 0;
 
 	float3 acc = make_float3(0.f, 0.f, 0.f);
 
 	for (int i = myStart; i < myEnd; ++i)
 	{
-		acc += rawCorVals[i];
+		if (!CudaUtils::isZero(rawCorVals[i]))
+		{
+			acc += rawCorVals[i];
+			cnt++;
+		}
 	}
 
 	accumulatedCors[myAccImpulseID] += acc;
-	accumulatedCounts[myAccImpulseID] += (myEnd - myStart);
+	accumulatedCounts[myAccImpulseID] += cnt;
 }
 
 __global__ void CudaPBD::_CreateGroundConstraints(const int particleCount,
@@ -966,7 +1393,7 @@ __global__ void CudaPBD::_CreateGroundConstraints(const int particleCount,
 }
 
 __global__ void CudaPBD::_CreateLRAConstraints(const int particleCount, const int fixedCount,
-	const float3 *__restrict__ positions, const bool * __restrict__ fixedVerts, 
+	const float3 *__restrict__ positions, const bool * __restrict__ fixedVerts,
 	const int *__restrict__ fixedPosIDs, const float *__restrict__ l0s, bool *__restrict__ flags)
 {
 	int id = CudaUtils::MyID();
@@ -1010,7 +1437,7 @@ __global__ void CudaPBD::_ApplyGroundCorrections(const int particleCount, const 
 		{
 			float deriv = nc.x + nc.y + nc.z;
 
-			
+
 			accumulatedCors[id] += -(cVal / (w * deriv * deriv)) * w * nc;
 			accumulatedCounts[id] += 1;
 		}
@@ -1036,12 +1463,12 @@ __global__ void CudaPBD::_ApplyLRACorrections(const int particleCount, const int
 	{
 		if (flags[id * fixedCount + i])
 		{
-			float3 fixedPos = positions[fixedIDs[i]];			
+			float3 fixedPos = positions[fixedIDs[i]];
 
 			float3 diff = myPos - fixedPos;
 			float len = CudaUtils::len(diff);
 
-			float3 n = diff / len;			
+			float3 n = diff / len;
 			acc += -(len - l0s[id * fixedCount + i]) * n;
 			cnt++;
 		}
@@ -1061,6 +1488,168 @@ __global__ void CudaPBD::FinalCorrectionStep(const int particleCount,
 	positions[id] += (accumulatedCors[id] / accumulatedCounts[id]);
 }
 
+__global__ void CudaPBD::FinalFrictionStep(const int particleCount, const float kFriction,
+	const float3 *__restrict__ accumulatedCors, const int *__restrict__ accumulatedCounts, float3 *__restrict__ velocities)
+{
+	int id = CudaUtils::MyID();
+	if (id >= particleCount)
+		return;
+
+	if (accumulatedCounts[id] == 0)
+		return;
+
+	velocities[id] = (1.f - kFriction) * accumulatedCors[id] / accumulatedCounts[id];
+}
+
+__global__ void CudaPBD::_ApplyFriction(const float3 *__restrict__ vels, const float kFriction,
+	const Physics::PrimitiveContact *__restrict__ vfs, const uint64_t vfSize,
+	const Physics::PrimitiveContact *__restrict__ ees, const uint64_t eeSize,
+	uint32_t *__restrict__ rawCorIDs, float3 *__restrict__ rawCorVals)
+{
+	int id = CudaUtils::MyID();
+
+	if (id >= vfSize + eeSize)
+		return;
+
+	if (id < vfSize)
+	{
+		_ApplyFrictionVF(id, id * 4, kFriction, vels, vfs, rawCorIDs, rawCorVals);
+	}
+	else
+	{
+		_ApplyFrictionEE(id - vfSize, id * 4, kFriction, vels, ees, rawCorIDs, rawCorVals);
+	}
+}
+
+__device__ void CudaPBD::_ApplyFrictionVF(const int id, const int myStart,
+	const float kFriction, const float3 *__restrict__ velocities,
+	const Physics::PrimitiveContact *__restrict__ vfs, uint32_t *__restrict__ rawCorIDs, float3 *__restrict__ rawCorVals)
+{
+
+	Physics::PrimitiveContact myContact = vfs[id];
+
+	float3 v1 = velocities[myContact.v1];
+	float3 v2 = velocities[myContact.v2];
+	float3 v3 = velocities[myContact.v3];
+	float3 v4 = velocities[myContact.v4];
+
+
+	float3 n = myContact.n;
+
+	rawCorIDs[myStart] = myContact.v1;
+	rawCorIDs[myStart + 1] = myContact.v2;
+	rawCorIDs[myStart + 2] = myContact.v3;
+	rawCorIDs[myStart + 3] = myContact.v4;
+
+
+	float w1 = myContact.w1;
+	float w2 = -myContact.w2;
+	float w3 = -myContact.w3;
+	float w4 = -myContact.w4;
+
+	float3 n1, t1, n2, t2, n3, t3, n4, t4;
+
+	CudaUtils::tangentNormal(v1, n, t1, n1);
+	CudaUtils::tangentNormal(v2, n, t2, n2);
+	CudaUtils::tangentNormal(v3, n, t3, n3);
+	CudaUtils::tangentNormal(v4, n, t4, n4);
+
+	//n1 *= (1.f - kFriction);
+	//n2 *= (1.f - kFriction);
+	//n3 *= (1.f - kFriction);
+	//n4 *= (1.f - kFriction);
+
+	v1 = CudaUtils::reflect(t1 + n1, n);
+	v2 = CudaUtils::reflect(t2 + n2, n);
+	v3 = CudaUtils::reflect(t3 + n3, n);
+	v4 = CudaUtils::reflect(t4 + n4, n);
+
+	//printf("[%d] VF v1: (%g, %g, %g), v2: (%g, %g, %g), v3: (%g, %g, %g), v4: (%g, %g, %g)\n", id, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z, v4.x, v4.y, v4.z);
+
+	rawCorVals[myStart] = v1;
+	rawCorVals[myStart + 1] = v2;
+	rawCorVals[myStart + 2] = v3;
+	rawCorVals[myStart + 3] = v4;
+}
+
+__device__ void CudaPBD::_ApplyFrictionEE(const int id, const int myStart,
+	const float kFriction, const float3 *__restrict__ velocities,
+	const Physics::PrimitiveContact *__restrict__ ees, uint32_t *__restrict__ rawCorIDs, float3 *__restrict__ rawCorVals)
+{
+	Physics::PrimitiveContact myContact = ees[id];
+
+	float3 v1 = velocities[myContact.v1];
+	float3 v2 = velocities[myContact.v2];
+	float3 v3 = velocities[myContact.v3];
+	float3 v4 = velocities[myContact.v4];
+
+
+	float3 n = myContact.n;
+
+	rawCorIDs[myStart] = myContact.v1;
+	rawCorIDs[myStart + 1] = myContact.v2;
+	rawCorIDs[myStart + 2] = myContact.v3;
+	rawCorIDs[myStart + 3] = myContact.v4;
+
+
+	float w1 = myContact.w1;
+	float w2 = myContact.w2;
+	float w3 = -myContact.w3;
+	float w4 = -myContact.w4;
+
+	float3 n1, t1, n2, t2, n3, t3, n4, t4;
+
+	CudaUtils::tangentNormal(v1, n, t1, n1);
+	CudaUtils::tangentNormal(v2, n, t2, n2);
+	CudaUtils::tangentNormal(v3, n, t3, n3);
+	CudaUtils::tangentNormal(v4, n, t4, n4);
+
+	//n1 *= (1.f - kFriction);
+	//n2 *= (1.f - kFriction);
+	//n3 *= (1.f - kFriction);
+	//n4 *= (1.f - kFriction);
+
+	v1 = CudaUtils::reflect(t1 + n1, n);
+	v2 = CudaUtils::reflect(t2 + n2, n);
+	v3 = CudaUtils::reflect(t3 + n3, n);
+	v4 = CudaUtils::reflect(t4 + n4, n);
+
+	//printf("[%d] EE v1: (%g, %g, %g), v2: (%g, %g, %g), v3: (%g, %g, %g), v4: (%g, %g, %g)\n", id, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z, v4.x, v4.y, v4.z);
+
+	rawCorVals[myStart] = v1;
+	rawCorVals[myStart + 1] = v2;
+	rawCorVals[myStart + 2] = v3;
+	rawCorVals[myStart + 3] = v4;
+}
+
+__global__ void CudaPBD::_AccumulateFriction(const int runCount, const float kFriction,
+	const uint32_t *__restrict__ RLEUniques, const int *__restrict__ RLEPrefixSums,
+	const float3 *__restrict__ rawCorVals, const uint64_t rawCorValsSize,
+	float3 *__restrict__ accumulatedCors, int *__restrict__ accumulatedCounts)
+{
+	int id = CudaUtils::MyID();
+	if (id >= runCount)
+		return;
+
+	int myAccID = RLEUniques[id];
+
+	int myStart = RLEPrefixSums[id];
+	int myEnd = id == runCount - 1 ? rawCorValsSize : RLEPrefixSums[id + 1];
+
+	float3 acc = make_float3(0.f, 0.f, 0.f);
+
+	for (int i = myStart; i < myEnd; ++i)
+	{
+		acc += rawCorVals[i];
+	}
+
+
+	//printf("[%d] accumulatedCors[%d] += (%g, %g, %g)\n", id, myAccID, acc.x, acc.y, acc.z);
+
+	accumulatedCors[myAccID] += acc;
+	accumulatedCounts[myAccID] += (myEnd - myStart);
+}
+
 
 
 __global__ void CudaPBD::_FinalUpdate(const int particleCount, float3 *__restrict__ positions, float3 *__restrict__ prevPositions,
@@ -1072,10 +1661,10 @@ __global__ void CudaPBD::_FinalUpdate(const int particleCount, float3 *__restric
 
 	if (fixedVerts[id])
 	{
-		velocities[id] = make_float3(0.f, 0.f, 0.f);		
+		velocities[id] = make_float3(0.f, 0.f, 0.f);
 		return;
 	}
-		
+
 
 	velocities[id] = (positions[id] - prevPositions[id]) / timestep;
 	prevPositions[id] = positions[id];
@@ -1245,12 +1834,12 @@ __global__ void CudaPBD::ExplicitEuler(const int particleCount, const float3 *__
 //
 //
 //	ProjectStaticConstraints(positions, invMasses, iteration);
-//	cudaCheckError();
+//	//cudaCheckError();
 //
 //
 //
 //	ProjectDynamicConstraints(positions, invMasses, m_parentParams.thickness, vfContacts, vfContactsSize, eeContacts, eeContactsSize, tempStorage, tempStorageSize);
-//	cudaCheckError();
+//	//cudaCheckError();
 //
 //	ApplyCorrections(positions);	
 //}

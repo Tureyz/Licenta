@@ -246,6 +246,17 @@ __device__ float CudaUtils::dot(const float3 &a, const float3 &b)
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+__device__ float3 CudaUtils::reflect(const float3 & vec, const float3 & normal)
+{
+	return vec - 2 * dot(vec, normal) * normal;
+}
+
+__device__ void CudaUtils::tangentNormal(const float3 & vec, const float3 & normal, float3 & outTangent, float3 & outNormal)
+{
+	outNormal = dot(vec, normal) * normal;
+	outTangent = vec - outNormal;
+}
+
 __device__ float3 CudaUtils::FaceNormal(const float3 &a, const float3 &b, const float3 &c)
 {
 	return CudaUtils::cross(b - a, c - a);
@@ -361,6 +372,17 @@ __device__ void CudaUtils::CheckResize(Physics::AABBCollision *& array, const in
 		free(array);
 		array = newArr;
 	}
+}
+
+
+__device__ const float3 CudaUtils::AdvancePositionInTime(const float3 & position, const float3 & velocity, const float time)
+{
+	return position + velocity * time;
+}
+
+__device__ const float3 CudaUtils::AdvancePositionInTimePos(const float3 & prevPosition, const float3 & position, const float time)
+{
+	return (1.f - time) * prevPosition + time * position;
 }
 
 void CudaUtils::TempStorageGrow(void *& storage, uint64_t & size, const uint64_t requiredSize)

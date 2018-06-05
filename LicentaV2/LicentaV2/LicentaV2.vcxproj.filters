@@ -186,6 +186,9 @@
     <ClCompile Include="Rendering\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Simulation\GPUBenchmark.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\glm\common.hpp">
@@ -532,6 +535,9 @@
     <ClInclude Include="Dependencies\cub\cub.cuh" />
     <ClInclude Include="Dependencies\cub\device\device_scan.cuh" />
     <ClInclude Include="Physics\CudaCubicSolver.cuh" />
+    <ClInclude Include="Simulation\GPUBenchmark.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FragmentShader.glsl" />
