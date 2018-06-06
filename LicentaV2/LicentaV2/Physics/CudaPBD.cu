@@ -1015,12 +1015,12 @@ __device__ void CudaPBD::ProjectStaticBendConstraint(const int id, const int ite
 
 	const float term = sqrtf(1.f - d * d) * (phi - bphi0[id]) * kp;
 
-	const float l1 = CudaUtils::len(q1);
-	const float l2 = CudaUtils::len(q2);
-	const float l3 = CudaUtils::len(q3);
-	const float l4 = CudaUtils::len(q4);
+	const float sql1 = CudaUtils::dot(q1, q1);// CudaUtils::len(q1);
+	const float sql2 = CudaUtils::dot(q2, q2);
+	const float sql3 = CudaUtils::dot(q3, q3);
+	const float sql4 = CudaUtils::dot(q4, q4);
 
-	const float scalingFactor = w1 * l1 * l1 + w2 * l2 * l2 + w3 * l3 * l3 + w4 * l4 * l4;
+	const float scalingFactor = w1 * sql1 + w2 * sql2 + w3 * sql3 + w4 * sql4;
 
 	if (scalingFactor <= EPS)
 	{
@@ -1029,7 +1029,7 @@ __device__ void CudaPBD::ProjectStaticBendConstraint(const int id, const int ite
 		corVals[bid3o[id]] = make_float3(0.f, 0.f, 0.f);
 		corVals[bid4o[id]] = make_float3(0.f, 0.f, 0.f);
 
-		printf("[%d] Bend scalingFactor = 0, w1: %g, l1: %g, w2: %g, l2: %g, w3: %g, l3: %g, w4: %g, l4: %g, d = %g\n", id, w1, l1, w2, l2, w3, l3, w4, l4, d);
+		printf("[%d] Bend scalingFactor = 0\n", id);// , w1: %g, l1 : %g, w2 : %g, l2 : %g, w3 : %g, l3 : %g, w4 : %g, l4 : %g, d = %g\n", id, w1, l1, w2, l2, w3, l3, w4, l4, d);
 		return;
 	}
 

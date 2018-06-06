@@ -196,7 +196,7 @@ namespace Physics
 
 
 
-		GPUBenchmark m_benchmark;
+		GPUBenchmark *m_benchmark;
 		
 		double m_freeVRAMInit;
 	};

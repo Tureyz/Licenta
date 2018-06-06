@@ -2,12 +2,12 @@
 #include "../Core/CudaUtils.cuh"
 #include <map>
 
-//#define _BENCHMARK_ON
+#define _BENCHMARK_ON
 
 class GPUBenchmark
 {
 public:
-	GPUBenchmark() {}
+	//GPUBenchmark() {}
 	GPUBenchmark(const uint64_t sample, const double freeVRAMInit);
 
 	void Start();

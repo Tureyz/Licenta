@@ -26,7 +26,7 @@ void Managers::MastersSimulationManager::Init()
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
 	
-	int dim = 30;
+	int dim = 100;
 
 	Physics::ClothParams params;
 	params.dims.x = dim;
