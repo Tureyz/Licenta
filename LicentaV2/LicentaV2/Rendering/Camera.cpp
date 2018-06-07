@@ -12,7 +12,7 @@ Rendering::Camera::Camera()
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, -1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
-	SetEyeVector(glm::vec3(0.4f, 0.4f, 0.f) * 100.f);
+	SetEyeVector(glm::vec3(0.4f, 0.1f, 0.f) * 100.f);
 	m_keyPitch = m_keyRoll = m_keyYaw = 0.f;
 	m_cameraQuat = glm::quat(0.f, 0.f, 0.f, 0.f);
 	m_isMousePressed = false;

@@ -26,7 +26,7 @@ void Managers::MastersSimulationManager::Init()
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
 	
-	int dim = 100;
+	int dim = 60;
 
 	Physics::ClothParams params;
 	params.dims.x = dim;
@@ -34,20 +34,20 @@ void Managers::MastersSimulationManager::Init()
 	params.BVHChunkSize = 64;
 	params.ccdIterations = 5;
 	params.kFriction = 0.001f;
-	params.kBend = 0.04f;
+	params.kBend = 0.1f;
 	params.kDamp = 0.05f;
 	params.kShear = 0.7f;
 	params.kSpringDamp = 0.2f;
 	params.kStretch = 0.9f;
-	params.globalVelDamp = 0.02f;
+	params.globalVelDamp = 0.01f;
 	params.strainLimit = 0.15f;
 	params.solverIterations = 6;
 	params.timestep = Core::PHYSICS_TIME_STEP;
-	params.objectMass = 0.25f;
+	params.objectMass = 0.525f;
 	params.gravity = make_float3(0.f, -0.0981f, 0.f);
 	params.worldMin = make_float3(0.f, 0.f, 0.f);
 	params.worldMax = make_float3(1.f, 1.f, 1.f);
-	params.benchmarkSample = 60;
+	params.benchmarkSample = 1000;
 	params.useTriangleBending = false;
 
 	std::pair<int, int> dims(dim, dim);
@@ -67,8 +67,8 @@ void Managers::MastersSimulationManager::Init()
 	meshObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
 	meshObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
 	meshObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateMeshVisualBody(dims.first, dims.second));
-	meshObj->RotateAbsolute(glm::vec3(0, 0, 1), 3.14159);
-	meshObj->TranslateAbsolute(glm::vec3(0.5f, 0.5f, 0.5f));
+	meshObj->RotateAbsolute(glm::vec3(0, 1, 1), 3.14159);
+	meshObj->TranslateAbsolute(glm::vec3(0.5f, 0.25f, 0.5f));
 	meshObj->ScaleAbsolute(glm::vec3(0.25f, 0.25f, 0.25f));
 	//meshObj->TranslateAbsolute(ScriptLoader::GetVec3("Scripts/randomPos.py", "RandomPosition"));
 	meshObj->Update();	
