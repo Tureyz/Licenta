@@ -260,7 +260,7 @@ void Rendering::VisualBodyFactory::CreateSphereProps()
 {
 	const float X = .525731112119133606f;
 	const float Z = .850650808352039932f;
-	const int divisionDepth = 3;
+	const int divisionDepth = 4;
 
 	std::vector<glm::vec3> icoVerts = {
 		glm::vec3(-X, 0, Z), glm::vec3(X, 0, Z), glm::vec3(-X, 0, -Z), glm::vec3(X, 0, -Z),

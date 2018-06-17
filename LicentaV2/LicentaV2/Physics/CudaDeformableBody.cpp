@@ -208,7 +208,10 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 	//int numBlocks = (m_triangleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 	
 
+	m_features.Init(*verts, *indices, m_params);
+	m_features.UpdateFeatureAABBs(m_dPositions, m_dPrevPositions);
 	DeformableUtils::CreateTriangles(m_dPositions, dCudaIndices, m_dTriangles, m_dMortonCodes, m_dAABBMins, m_dAABBMaxs, m_params.thickness);
+	m_features.AssignFeatures(m_dTriangles);
 
 	/*CreateTriangles<<<numBlocks, CudaUtils::THREADS_PER_BLOCK>>>(m_triangleCount, CudaUtils::ToRaw(m_dPositions), CudaUtils::ToRaw(dCudaIndices), CudaUtils::ToRaw(m_dTriV1s),
 		CudaUtils::ToRaw(m_dTriV2s), CudaUtils::ToRaw(m_dTriV3s), CudaUtils::ToRaw(m_dFaceNormals), CudaUtils::ToRaw(m_dMortonCodes), CudaUtils::ToRaw(m_dAABBMins),
@@ -262,8 +265,8 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 	m_dRawVertexNormalIDs.resize(m_triangleCount * 3);
 	m_dAccumulatedVertexNormals.resize(m_particleCount);
 
-
-	m_params.ccdIterations = 5;
+	DeformableUtils::UpdateVertexNormals(m_dTriangles, m_dRawVertexNormals, m_dRawVertexNormalIDs, m_dAccumulatedVertexNormals);
+	
 
 
 	m_pbd.Init(m_params, *verts, *indices);
@@ -450,7 +453,7 @@ void Physics::CudaDeformableBody::HandleCollisionsContinuous()
 		m_timer.Start();
 #endif
 
-		DeformableUtils::CCDTriangleTests(m_dTriangles, m_dPrevPositions, m_dVelocities, m_vfContacts, m_dvfFlags, m_vfContactsSize,
+		DeformableUtils::CCDTriangleTests(m_features, m_dTriangles, m_dPositions, m_dPrevPositions, m_dVelocities, m_vfContacts, m_dvfFlags, m_vfContactsSize,
 			m_eeContacts, m_deeFlags, m_eeContactsSize, m_params.thickness, m_params.timestep, m_dTempStorage, m_dTempStorageSize);
 
 		if (m_vfContactsSize == 0 && m_eeContactsSize == 0)
@@ -474,6 +477,13 @@ void Physics::CudaDeformableBody::FinalVertUpdate()
 #endif
 
 	DeformableUtils::FinalVerticesUpdate(m_dVerts, m_dTriangles, m_dPrevPositions, m_dAccumulatedVertexNormals);
+	auto err = cudaDeviceSynchronize();
+
+	if (err != cudaSuccess)
+	{
+		fprintf(stderr, "cudaError at %s:%i : %s\n", __FILE__, __LINE__, cudaGetErrorString(err));
+		exit(err);
+	}
 
 	cudaMemcpy(m_verts->data(), cu::raw(m_dVerts), m_dVerts.size() * sizeof(Rendering::VertexFormat), cudaMemcpyDeviceToHost);
 
@@ -543,11 +553,12 @@ void Physics::CudaDeformableBody::FixedUpdate()
 
 	
 	m_benchmark->Start();
-	m_pbd.PBDStepExternal(m_dPositions, m_dPrevPositions, m_dMasses, m_dVelocities, m_dTempStorage, m_dTempStorageSize);
+	m_pbd.PBDStepExternal(m_dPositions, m_dPrevPositions, m_dMasses, m_dVelocities, m_dAccumulatedVertexNormals, m_dTempStorage, m_dTempStorageSize);
 	m_benchmark->Record("1. PBD External");	
 
 
 	m_benchmark->Start();
+	m_features.UpdateFeatureAABBs(m_dPositions, m_dPrevPositions);
 	DeformableUtils::UpdateTrianglesContinuous(m_dPositions, m_dPrevPositions, m_dTriangles, m_dMortonCodes, m_dAABBMins,
 		m_dAABBMaxs, m_params.thickness);
 
@@ -564,10 +575,11 @@ void Physics::CudaDeformableBody::FixedUpdate()
 
 
 	m_benchmark->Start();
-	DeformableUtils::CCDTriangleTests(m_dTriangles, m_dPrevPositions, m_dVelocities, m_vfContacts, m_dvfFlags, m_vfContactsSize,
+	DeformableUtils::CCDTriangleTests(m_features, m_dTriangles, m_dPositions, m_dPrevPositions, m_dVelocities, m_vfContacts, m_dvfFlags, m_vfContactsSize,
 		m_eeContacts, m_deeFlags, m_eeContactsSize, m_params.thickness, m_params.timestep, m_dTempStorage, m_dTempStorageSize);
 	m_benchmark->Record("5. Perform Triangle Tests");
 	
+	//m_pbd.RevertToTOC(m_dPositions, m_dPrevPositions, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize, m_dTempStorage, m_dTempStorageSize);
 
 	m_benchmark->Start();
 	m_pbd.PBDStepSolver(m_dPositions, m_dPrevPositions, m_dInvMasses, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize,
@@ -611,7 +623,16 @@ void Physics::CudaDeformableBody::FixedUpdate()
 
 void Physics::CudaDeformableBody::Update()
 {
-	DeformableUtils::ColorCollidingFeatures(m_dVerts, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize);
+	if (m_params.colorContacts)
+		DeformableUtils::ColorCollidingFeatures(m_dVerts, m_vfContacts, m_vfContactsSize, m_eeContacts, m_eeContactsSize);
+
 	FinalVertUpdate();
-	DeformableUtils::ResetVertColors(m_dVerts);
+
+	if (m_params.colorContacts)
+		DeformableUtils::ResetVertColors(m_dVerts);
+}
+
+void Physics::CudaDeformableBody::SetSpherePos(glm::vec3 & pos, float radius)
+{
+	m_pbd.SetSpherePos(make_float3(pos.x, pos.y, pos.z), radius);
 }

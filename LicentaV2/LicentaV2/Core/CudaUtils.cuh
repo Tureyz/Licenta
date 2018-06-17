@@ -10,8 +10,14 @@
 
 
 
-
-#define __kernel__ << <numBlocks, CudaUtils::THREADS_PER_BLOCK>> >
+//
+//typedef float * __restrict__ fp;
+//typedef float3 * __restrict__ f3p;
+//typedef int * __restrict__ ip;
+//
+//typedef const float * __restrict__ cfp;
+//typedef const float3 * __restrict__ cf3p;
+//typedef const int * __restrict__ cip;
 
 
 //#define CUDA_ERROR_CHECK
@@ -43,6 +49,7 @@ inline void __cudaCheckError(const char *file, const int line)
 }
 
 
+__host__ __device__ float3 operator*(const float3 &a, const float3 &b);
 __host__ __device__ float3 operator*(const float s, const float3 &a);
 __host__ __device__ float3 operator*(const float3 &a, const float s);
 __host__ __device__ float3 operator/(const float3 &a, const float b);
@@ -100,7 +107,9 @@ namespace CudaUtils
 
 	__device__ bool isBetweenExclusive(const float value, const float min, const float max);
 
-	__device__ float clamp(const float value, const float min, const float max);
+	__host__ __device__ float clamp(const float value, const float min, const float max);
+
+	__host__ __device__ float3 clamp(const float3 &value, const float3 &min, const float3 &max);
 
 	__device__ bool isNan(const float3 &a);
 
@@ -165,6 +174,11 @@ namespace CudaUtils
 
 	__device__ const float3 AdvancePositionInTimePos(const float3 &prevPosition, const float3 &position, const float time);
 
+	__device__ void SetBit(char &byte, const int bitIndex);
+
+	__device__ void ClearBit(char &byte, const int bitIndex);
+
+	__device__ bool GetBit(const char byte, const int bitIndex);
 
 	void TempStorageGrow(void *&storage, uint64_t &size, const uint64_t requiredSize);
 	//template<typename T>

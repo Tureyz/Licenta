@@ -41,12 +41,12 @@ void Rendering::ShapeRenderer::Draw(const glm::mat4 viewProjection, const Render
 // 	//	std::cout << "tmp " << tmp.x << " " << tmp.y << " " << tmp.z << std::endl;
 // 		verts[i].m_position = glm::vec3(tmp.x, tmp.y, tmp.z);
 // 	}
+	glBindVertexArray(body->m_vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, body->m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * body->m_verts.size(), &body->m_verts[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindVertexArray(body->m_vao);	
 
 	glDrawElements(GL_TRIANGLES, (GLsizei)(body->m_indices.size()), GL_UNSIGNED_INT, &(body->m_indices[0]));
 	glBindVertexArray(0);
@@ -62,10 +62,11 @@ void Rendering::ShapeRenderer::DrawWithLines(const glm::mat4 viewProjection, con
 
 	glUniformMatrix4fv(3, 1, false, &viewProjection[0][0]);
 
+	glBindVertexArray(body->m_vao);
+
 	glBindBuffer(GL_ARRAY_BUFFER, body->m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Rendering::VertexFormat) * body->m_verts.size(), &body->m_verts[0], GL_STATIC_DRAW);
 
-	glBindVertexArray(body->m_vao);
 
 	glDrawElements(GL_LINE_LOOP, (GLsizei)body->m_indices.size(), GL_UNSIGNED_INT, &body->m_indices[0]);
 	glBindVertexArray(0);	

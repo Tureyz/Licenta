@@ -8,6 +8,7 @@
 #include "../Core/CubWrappers.cuh"
 #include "../Core/CudaUtils.cuh"
 #include "../Collision/CudaCollisionDetection.cuh"
+#include "../Core/Utils.hpp"
 
 namespace std
 {
@@ -38,6 +39,7 @@ __device__ const float EPS = 0.00000001f;
 void CudaPBD::CudaPBD::Init(const Physics::ClothParams parentParams, const std::vector<Rendering::VertexFormat> &verts, const std::vector<unsigned int>  &indices)
 {
 	m_parentParams = parentParams;
+	m_crtWindDir = m_parentParams.windOn ? m_parentParams.startWindDir : make_float3(0.f, 0.f, 0.f);
 
 	m_particleCount = m_parentParams.dims.x * m_parentParams.dims.y;
 
@@ -378,6 +380,20 @@ void CudaPBD::CudaPBD::CreateGroundConstraints(const thrust::device_vector<float
 		m_parentParams.thickness, cu::raw(m_groundConstraints.qc), cu::raw(m_groundConstraints.nc), cu::raw(m_groundConstraints.flag));
 }
 
+void CudaPBD::CudaPBD::CreateSphereConstraints(const thrust::device_vector<float3>& positions,
+	const thrust::device_vector<float3>& prevPositions, const thrust::device_vector<float>& invMasses)
+{
+	if (!m_spherePresent)
+		return;
+
+	const int particleCount = positions.size();
+
+	const int numBlocks = cu::nb(particleCount);
+
+	_CreateSphereConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(prevPositions), cu::raw(invMasses), m_spherePos, m_sphereRadius,
+		m_parentParams.thickness, cu::raw(m_groundConstraints.qc), cu::raw(m_groundConstraints.nc), cu::raw(m_groundConstraints.flag));
+}
+
 void CudaPBD::CudaPBD::CreateLRAConstraints(const thrust::device_vector<float3>& positions)
 {
 	if (!m_LRAConstraints.fixedVertCount)
@@ -439,6 +455,20 @@ void CudaPBD::CudaPBD::DampVelocities(const thrust::device_vector<float3>& posit
 
 	UpdateVels << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), omega, xcm, vcm, m_parentParams.kDamp, cu::raw(velocities));
 	////cudaCheckError();
+}
+
+void CudaPBD::CudaPBD::SetSpherePos(const float3 & position, const float radius)
+{
+	if (!m_spherePresent)
+	{
+		m_sphereConstraints.flag.resize(m_particleCount);
+		m_sphereConstraints.qc.resize(m_particleCount);
+		m_sphereConstraints.nc.resize(m_particleCount);
+	}
+
+	m_spherePos = position;
+	m_sphereRadius = radius;
+	m_spherePresent = true;
 }
 
 void CudaPBD::CudaPBD::CreateTriangleBendingConstraints(const std::vector<Rendering::VertexFormat>& verts,
@@ -578,12 +608,20 @@ bool CudaPBD::CudaPBD::InBounds(const int2 coord)
 }
 
 void CudaPBD::CudaPBD::PBDStepExternal(thrust::device_vector<float3> &positions, thrust::device_vector<float3> &prevPositions, const thrust::device_vector<float> &masses,
-	thrust::device_vector<float3> &velocities, void *&tempStorage, uint64_t &tempStorageSize)
-{
+	thrust::device_vector<float3> &velocities, const thrust::device_vector<float3> &vertexNormals, void *&tempStorage, uint64_t &tempStorageSize)
+{	
+	if (m_parentParams.windOn)
+	{
+		float variation = ((std::rand() % 2) ? 1.f : -1.f) * Core::Utils::RandomRange(m_parentParams.windMinVariation, m_parentParams.windMaxVariation);
+
+		m_crtWindDir += m_parentParams.startWindDir * variation;
+		m_crtWindDir = CudaUtils::clamp(m_crtWindDir, m_parentParams.minWindDir, m_parentParams.maxWindDir);
+	}
 	const int particleCount = (int)positions.size();
 	const int numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	ApplyExternalForces << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(velocities), m_parentParams.gravity, m_parentParams.timestep);
+	ApplyExternalForces << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(velocities), cu::raw(vertexNormals),
+		m_parentParams.gravity, m_crtWindDir, m_parentParams.timestep);
 
 	DampVelocities(positions, masses, velocities, tempStorage, tempStorageSize);
 
@@ -598,9 +636,12 @@ void CudaPBD::CudaPBD::PBDStepSolver(thrust::device_vector<float3>& positions, c
 	void *& tempStorage, uint64_t & tempStorageSize)
 {
 	cudaMemset(cu::raw(m_groundConstraints.flag), 0, m_groundConstraints.flag.size() * sizeof(bool));
+	if (m_spherePresent)
+		cudaMemset(cu::raw(m_sphereConstraints.flag), 0, m_sphereConstraints.flag.size() * sizeof(bool));
 	cudaMemset(cu::raw(m_LRAConstraints.flag), 0, m_LRAConstraints.flag.size() * sizeof(bool));
 
 	CreateGroundConstraints(positions, prevPositions, invMasses);
+	CreateSphereConstraints(positions, prevPositions, invMasses);
 	CreateLRAConstraints(positions);
 
 	for (int i = 0; i < m_parentParams.solverIterations; ++i)
@@ -609,6 +650,7 @@ void CudaPBD::CudaPBD::PBDStepSolver(thrust::device_vector<float3>& positions, c
 		cudaMemset(cu::raw(m_accumulatedCorrectionValues), 0, m_accumulatedCorrectionValues.size() * sizeof(float3));
 
 		ProjectGroundConstraints(positions, invMasses);
+		ProjectSphereConstraints(positions, invMasses);
 		ProjectLRAConstraints(positions, invMasses);
 		ProjectStaticConstraints(positions, invMasses, m_parentParams.solverIterations);
 		ProjectDynamicConstraints(positions, prevPositions, invMasses, m_parentParams.thickness, vfContacts, vfContactsSize, eeContacts, eeContactsSize, tempStorage, tempStorageSize);
@@ -678,6 +720,49 @@ void CudaPBD::CudaPBD::ProjectDynamicConstraints(const thrust::device_vector<flo
 		cu::raw(m_dbDynamicCorrectionValues.buffers[m_dbDynamicCorrectionValues.selector]), totalCorrections, cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts));
 
 	////cudaCheckError();
+
+}
+
+void CudaPBD::CudaPBD::RevertToTOC(thrust::device_vector<float3>& positions, const thrust::device_vector<float3>& prevPositions,
+	const thrust::device_vector<Physics::PrimitiveContact>& vfContacts, const uint64_t & vfContactsSize,
+	const thrust::device_vector<Physics::PrimitiveContact>& eeContacts, const uint64_t & eeContactsSize,
+	void *& tempStorage, uint64_t & tempStorageSize)
+{
+	int totalVF = vfContactsSize * 4;
+	int totalEE = eeContactsSize * 4;
+
+	int totalCorrections = totalVF + totalEE;
+
+	if (totalCorrections == 0)
+		return;
+
+	if (m_dynamicCorrectionsSize < totalCorrections)
+	{
+		m_dbtocID.buffers[0].resize(totalCorrections);
+		m_dbtocID.buffers[1].resize(totalCorrections);
+		m_dbtoc.buffers[0].resize(totalCorrections);
+		m_dbtoc.buffers[1].resize(totalCorrections);
+		m_dtocRLEUniques.resize(totalCorrections);
+		m_dtocRLECounts.resize(totalCorrections);
+		m_tocSize = totalCorrections;
+	}
+
+	int numBlocks = (totalCorrections + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+
+	FillTOCs << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (cu::raw(vfContacts), vfContactsSize, cu::raw(eeContacts), eeContactsSize,
+		cu::raw(m_dbtocID.buffers[m_dbtocID.selector]), cu::raw(m_dbtoc.buffers[m_dbtoc.selector]));
+
+
+	CubWrap::SortByKey(m_dbtocID, m_dbtoc, totalCorrections, tempStorage, tempStorageSize);
+	CubWrap::RLE(m_dbtocID.buffers[m_dbtocID.selector], totalCorrections, m_dtocRLEUniques, m_dtocRLECounts, m_tocRunCount,
+		tempStorage, tempStorageSize);
+
+	CubWrap::ExclusiveSumInPlace(m_dtocRLECounts, m_tocRunCount, tempStorage, tempStorageSize);
+
+	numBlocks = (m_tocRunCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+
+	_RevertToTOC << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (m_tocRunCount, cu::raw(prevPositions),
+		cu::raw(m_dtocRLEUniques), cu::raw(m_dtocRLECounts), cu::raw(m_dbtoc.buffers[m_dbtoc.selector]), totalCorrections, cu::raw(positions));
 
 }
 
@@ -795,6 +880,19 @@ void CudaPBD::CudaPBD::ProjectGroundConstraints(const thrust::device_vector<floa
 
 	_ApplyGroundCorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(invMasses),
 		cu::raw(m_groundConstraints.flag), cu::raw(m_groundConstraints.qc), cu::raw(m_groundConstraints.nc), cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts));
+}
+
+void CudaPBD::CudaPBD::ProjectSphereConstraints(const thrust::device_vector<float3>& positions, const thrust::device_vector<float>& invMasses)
+{
+	if (!m_spherePresent)
+		return;
+
+	const int particleCount = (int)positions.size();
+
+	int numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+
+	_ApplyGroundCorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(invMasses),
+		cu::raw(m_sphereConstraints.flag), cu::raw(m_sphereConstraints.qc), cu::raw(m_sphereConstraints.nc), cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts));
 }
 
 void CudaPBD::CudaPBD::ProjectLRAConstraints(const thrust::device_vector<float3>& positions, const thrust::device_vector<float>& invMasses)
@@ -1152,6 +1250,12 @@ __device__ void CudaPBD::ProjectVFConstraint(const int id, const int myStart,
 	float3 q = p0 * b0 + p1 * b1 + p2 * b2;
 	float3 n = p - q;
 
+	//float d1 = CudaUtils::dot(p, n);
+	//float d2 = CudaUtils::dot(pp, n);
+
+	//if (CudaUtils::dot(n, pp - (pp0 * b0 + pp1 * b1 + pp2 * b2)) < 0)
+	//	n = -n;
+
 	float len = CudaUtils::len(n);
 
 	n /= len;
@@ -1259,6 +1363,9 @@ __device__ void CudaPBD::ProjectEEConstraint(const int id, const int myStart,
 	float3 q1 = p2 * b2 + p3 * b3;
 
 	float3 n = q0 - q1;
+
+	//if (CudaUtils::dot(pp0 * b0 + pp1 * b1 - pp2 * b2 - pp3 * b3, n) < 0)
+	//	n = -n;
 
 	float len = CudaUtils::len(n);
 	n /= len;
@@ -1389,6 +1496,32 @@ __global__ void CudaPBD::_CreateGroundConstraints(const int particleCount,
 		qcs[id] = qc;
 		ncs[id] = nc;
 
+	}
+}
+
+__global__ void CudaPBD::_CreateSphereConstraints(const int particleCount,
+	const float3 *__restrict__ positions, const float3 *__restrict__ prevPositions, const float *__restrict__ invMasses,
+	const float3 spherePos, const float sphereRadius, const float thickness, float3 *__restrict__ qcs, float3 *__restrict__ ncs, bool *__restrict__ flags)
+{
+	int id = CudaUtils::MyID();
+	if (id >= particleCount)
+		return;
+
+	float3 pos = positions[id];
+	float3 prevPos = prevPositions[id];
+
+	if (CudaUtils::distance(pos, spherePos) <= sphereRadius + thickness)
+	{
+
+		float3 l = CudaUtils::normalize(pos - prevPos);
+		float3 qc = prevPos + (-(CudaUtils::dot(l, prevPos - spherePos))) * l;
+
+		float3 nc = CudaUtils::normalize(qc - spherePos);
+		
+
+		qcs[id] = qc;
+		ncs[id] = nc;
+		flags[id] = true;
 	}
 }
 
@@ -1542,10 +1675,10 @@ __device__ void CudaPBD::_ApplyFrictionVF(const int id, const int myStart,
 	rawCorIDs[myStart + 3] = myContact.v4;
 
 
-	float w1 = myContact.w1;
+	/*float w1 = myContact.w1;
 	float w2 = -myContact.w2;
 	float w3 = -myContact.w3;
-	float w4 = -myContact.w4;
+	float w4 = -myContact.w4;*/
 
 	float3 n1, t1, n2, t2, n3, t3, n4, t4;
 
@@ -1592,10 +1725,10 @@ __device__ void CudaPBD::_ApplyFrictionEE(const int id, const int myStart,
 	rawCorIDs[myStart + 3] = myContact.v4;
 
 
-	float w1 = myContact.w1;
-	float w2 = myContact.w2;
-	float w3 = -myContact.w3;
-	float w4 = -myContact.w4;
+	//float w1 = myContact.w1;
+	//float w2 = myContact.w2;
+	//float w3 = -myContact.w3;
+	//float w4 = -myContact.w4;
 
 	float3 n1, t1, n2, t2, n3, t3, n4, t4;
 
@@ -1728,13 +1861,17 @@ __global__ void CudaPBD::UpdateVels(const int particleCount, const float3 *__res
 	vel[id] = vel[id] + dampingCoef * dv;
 }
 
-__global__ void CudaPBD::ApplyExternalForces(const int particleCount, float3 *__restrict__ vels, const float3 gravity, const float timestep)
+__global__ void CudaPBD::ApplyExternalForces(const int particleCount, float3 * __restrict__ vels, const float3 * __restrict__ particleNormals,
+	const float3 gravity, const float3 wind, const float timestep)
 {
 	int id = CudaUtils::MyID();
 	if (id >= particleCount)
 		return;
 
-	vels[id] = vels[id] + timestep * gravity;
+	if (CudaUtils::isZero(wind))
+		vels[id] = vels[id] + timestep * gravity;
+	else
+		vels[id] = vels[id] + timestep * (gravity + particleNormals[id] * CudaUtils::dot(CudaUtils::normalize(wind), particleNormals[id]) * CudaUtils::len(wind));
 }
 
 __global__ void CudaPBD::ExplicitEuler(const int particleCount, const float3 *__restrict__ prevPositions, const float3 *__restrict__ velocities, float3 *__restrict__ positions, const float timestep)
@@ -1746,6 +1883,66 @@ __global__ void CudaPBD::ExplicitEuler(const int particleCount, const float3 *__
 	positions[id] = prevPositions[id] + timestep * velocities[id];
 }
 
+__global__ void CudaPBD::FillTOCs(const Physics::PrimitiveContact *__restrict__ vfs, const uint64_t vfSize,
+	const Physics::PrimitiveContact *__restrict__ ees, const uint64_t eeSize,
+	uint32_t *__restrict__ rawtocIDs, float *__restrict__ rawtocVals)
+{
+	int id = CudaUtils::MyID();
+
+	if (id >= vfSize + eeSize)
+		return;
+
+	if (id < vfSize)
+	{
+		FillTOC(id, id * 4, vfs, rawtocIDs, rawtocVals);
+	}
+	else
+	{
+		FillTOC(id - vfSize, id * 4, ees, rawtocIDs, rawtocVals);
+	}
+}
+
+__device__ void CudaPBD::FillTOC(const int id, const int myStart, const Physics::PrimitiveContact *__restrict__ contacts, uint32_t *__restrict__ rawtocIDs, float *__restrict__ rawtocVals)
+{
+	const Physics::PrimitiveContact myContact = contacts[id];
+
+	rawtocIDs[myStart] = myContact.v1;
+	rawtocIDs[myStart + 1] = myContact.v2;
+	rawtocIDs[myStart + 2] = myContact.v3;
+	rawtocIDs[myStart + 3] = myContact.v4;
+
+	rawtocVals[myStart] = myContact.t;
+	rawtocVals[myStart + 1] = myContact.t;
+	rawtocVals[myStart + 2] = myContact.t;
+	rawtocVals[myStart + 3] = myContact.t;
+}
+
+__global__ void CudaPBD::_RevertToTOC(const int runCount,
+	const float3 *__restrict__ prevPositions,
+	const uint32_t *__restrict__ RLEUniques, const int *__restrict__ RLEPrefixSums,
+	const float *__restrict__ rawtocVals, const uint64_t rawtocValsSize, float3 *__restrict__ positions)
+{
+	int id = CudaUtils::MyID();
+	if (id >= runCount)
+		return;
+
+	int myParticleID = RLEUniques[id];
+
+	int myStart = RLEPrefixSums[id];
+	int myEnd = id == runCount - 1 ? rawtocValsSize : RLEPrefixSums[id + 1];	
+
+	float min = 100.f;
+	float max = 0.f;
+	for (int i = myStart; i < myEnd; ++i)
+	{
+		min = fminf(min, rawtocVals[i]);
+		max = fmaxf(max, rawtocVals[i]);
+	}
+
+	//printf("[%d] min: %f, max: %f\n", myParticleID, min, max);
+
+	positions[myParticleID] = CudaUtils::AdvancePositionInTimePos(prevPositions[myParticleID], positions[myParticleID], min);
+}
 
 
 

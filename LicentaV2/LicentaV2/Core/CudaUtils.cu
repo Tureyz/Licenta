@@ -29,6 +29,11 @@ CudaUtils::CudaTimer::~CudaTimer()
 	cudaEventDestroy(m_end);
 }
 
+__host__ __device__ float3 operator*(const float3 & a, const float3 & b)
+{
+	return make_float3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
 __host__ __device__ float3 operator*(const float s, const float3 &a)
 {
 	return make_float3(a.x * s, a.y * s, a.z * s);
@@ -66,6 +71,8 @@ __host__ __device__ void operator*=(float3 &a, const float s)
 
 __host__ __device__ void operator/=(float3 & a, const float s)
 {
+	assert(s != 0.0f);
+
 	a.x /= s; a.y /= s; a.z /= s;
 }
 
@@ -175,6 +182,16 @@ __device__ float CudaUtils::clamp(const float value, const float min, const floa
 	return fminf(fmaxf(min, value), max);
 }
 
+__device__ float3 CudaUtils::clamp(const float3 & value, const float3 & min, const float3 & max)
+{
+	float3 result = value;
+	result.x = clamp(result.x, min.x, max.x);
+	result.y = clamp(result.y, min.y, max.y);
+	result.z = clamp(result.z, min.z, max.z);
+
+	return result;
+}
+
 __device__ bool CudaUtils::isNan(const float3 &a)
 {
 	return isnan(a.x) || isnan(a.y) || isnan(a.z);
@@ -187,11 +204,7 @@ __device__ size_t CudaUtils::MyID()
 
 __device__ float3 CudaUtils::normalize(const float3 &a)
 {
-	if (norm3df(a.x, a.y, a.z) == 0.f)
-	{
-		printf("WAAAAAT (%f, %f, %f)\n", a.x, a.y, a.z);
-		//return make_float3(0.f, 0.f, 0.f);
-	}
+	assert(!isZero(a));
 
 	return a / norm3df(a.x, a.y, a.z);
 }
@@ -383,6 +396,21 @@ __device__ const float3 CudaUtils::AdvancePositionInTime(const float3 & position
 __device__ const float3 CudaUtils::AdvancePositionInTimePos(const float3 & prevPosition, const float3 & position, const float time)
 {
 	return (1.f - time) * prevPosition + time * position;
+}
+
+__device__ void CudaUtils::ClearBit(char & byte, const int bitIndex)
+{
+	byte &= ~(1 << bitIndex);
+}
+
+__device__ bool CudaUtils::GetBit(const char byte, const int bitIndex)
+{
+	return (byte & (1 << bitIndex)) != 0;
+}
+
+__device__ void CudaUtils::SetBit(char &byte, const int bitIndex)
+{
+	byte |= (1 << bitIndex);
 }
 
 void CudaUtils::TempStorageGrow(void *& storage, uint64_t & size, const uint64_t requiredSize)

@@ -67,6 +67,23 @@ namespace CudaPrimitiveTests
 
 
 
+	__global__ void FeatureAABBTests(const int particleCount, const float3 * __restrict__  particleMins, const float3 * __restrict__ particleMaxs,
+		const int * __restrict__ edgeMap, const int * __restrict__ edgev1s, const int * __restrict__ edgev2s,
+		const float3 * __restrict__ edgeMins, const float3 * __restrict__ edgeMaxs,
+		const Physics::CudaTriangle * __restrict__ triangles, const float3 * __restrict__ triangleMins,
+		const float3 * __restrict__ triangleMaxs,
+		const Physics::PrimitiveContact *__restrict__ vfContacts, bool * __restrict__ vfFlags, const uint64_t vfSize,
+		const Physics::PrimitiveContact *__restrict__ eeContacts, bool * __restrict__ eeFlags, const uint64_t eeSize);
+
+	__device__ void VFAABBTest(const int id, const float3 * __restrict__  particleMins, const float3 * __restrict__ particleMaxs,
+		const Physics::CudaTriangle * __restrict__ triangles, const float3 * __restrict__ triangleMins, const float3 * __restrict__ triangleMaxs,
+		const Physics::PrimitiveContact *__restrict__ vfContacts, bool * __restrict__ vfFlags, const uint64_t vfSize);
+
+	__device__ void EEAABBTest(const int id, const int particleCount, const int * __restrict__ edgeMap,
+		const int * __restrict__ edgev1s, const int * __restrict__ edgev2s,
+		const float3 * __restrict__ edgeMins, const float3 * __restrict__ edgeMaxs,
+		const Physics::PrimitiveContact *__restrict__ eeContacts, bool * __restrict__ eeFlags, const uint64_t eeSize);
+
 
 	//__device__ void DCDTestVFs2(const int id, const Physics::CudaTriangle * __restrict__ triangles, const float3 * __restrict__ positions,
 	//	Physics::PrimitiveContact * __restrict__ vfContacts, const float thickness);

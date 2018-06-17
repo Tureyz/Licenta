@@ -66,6 +66,7 @@ void GPUBenchmark::Step()
 				<< "(" << std::setprecision(3) << std::fixed << (minMaxTotal.z / total) * 100.f << "%)" << std::endl;
 		}
 
+		std::cout << "Avg total: " << total / m_crtStep << "ms" << std::endl;
 		std::cout << CudaUtils::MemUsage(m_freeVRAMInit) << std::endl;
 		std::cout << "----------------------------------------------------" << std::endl;
 

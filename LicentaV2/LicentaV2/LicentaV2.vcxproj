@@ -259,6 +259,7 @@
     <ClCompile Include="Rendering\Texture.cpp" />
     <ClCompile Include="Rendering\VisualBody.cpp" />
     <ClCompile Include="Rendering\VisualBodyFactory.cpp" />
+    <CudaCompile Include="Collision\FeatureList.cu" />
     <CudaCompile Include="Simulation\GPUBenchmark.cu" />
     <ClCompile Include="Simulation\Scenario.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -293,6 +294,7 @@
     <ClInclude Include="Collision\DataStructures\ContactData.h" />
     <ClInclude Include="Collision\DataStructures\EdgeEdgeContactData.h" />
     <ClInclude Include="Collision\DataStructures\PointTriangleContactData.h" />
+    <CudaCompile Include="Collision\FeatureList.cuh" />
     <ClInclude Include="Collision\NarrowSpatialHashing.h" />
     <CudaCompile Include="Collision\CudaPrimitiveTests.cu" />
     <CudaCompile Include="Core\CubWrappers.cu" />

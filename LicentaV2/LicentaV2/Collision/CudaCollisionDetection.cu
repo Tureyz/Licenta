@@ -40,16 +40,19 @@ void DeformableUtils::CreateTriangleTests(const thrust::device_vector<Physics::C
 	/*if (filteredContactsSize % 256 != 0)
 	printf("CONTACTSSSS\n");*/
 
+	cudaMemset(cu::raw(vfFlags), 1, vfContactsSize * sizeof(bool));
+	cudaMemset(cu::raw(eeFlags), 1, eeContactsSize * sizeof(bool));
+
 
 	const int numBlocks = (filteredContactsSize + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	CreateTriangleTests << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> >(filteredContactsSize, thrust::raw_pointer_cast(&triangles[0]), thrust::raw_pointer_cast(&rawAABBCols[0]),
-		thrust::raw_pointer_cast(&vfContacts[0]), thrust::raw_pointer_cast(&eeContacts[0]));
+	CreateTriangleTests << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> >(filteredContactsSize, cu::raw(triangles), cu::raw(rawAABBCols),
+		cu::raw(vfContacts), cu::raw(vfFlags), cu::raw(eeContacts), cu::raw(eeFlags));
 }
 
 __global__ void DeformableUtils::CreateTriangleTests(const int filteredContactsSize, const Physics::CudaTriangle *__restrict__ triangles,
 	const Physics::AABBCollision * __restrict__ filteredCols,
-	Physics::PrimitiveContact *__restrict__ vfContacts, Physics::PrimitiveContact *__restrict__ eeContacts)
+	Physics::PrimitiveContact *__restrict__ vfContacts, bool * __restrict__ vfFlags, Physics::PrimitiveContact *__restrict__ eeContacts, bool * __restrict__ eeFlags)
 {
 	int id = CudaUtils::MyID();
 	if (id >= filteredContactsSize)
@@ -64,25 +67,125 @@ __global__ void DeformableUtils::CreateTriangleTests(const int filteredContactsS
 	Physics::CudaTriangle tri2 = triangles[filteredCols[id].m_id2];
 
 
-	vfContacts[myVFStart++] = Physics::PrimitiveContact(tri1.m_v1, tri2.m_v1, tri2.m_v2, tri2.m_v3);
-	vfContacts[myVFStart++] = Physics::PrimitiveContact(tri1.m_v2, tri2.m_v1, tri2.m_v2, tri2.m_v3);
-	vfContacts[myVFStart++] = Physics::PrimitiveContact(tri1.m_v3, tri2.m_v1, tri2.m_v2, tri2.m_v3);
+	//vfContacts[myVFStart] = Physics::PrimitiveContact(tri1.m_v1, tri2.m_v1, tri2.m_v2, tri2.m_v3);
+	//vfContacts[myVFStart + 1] = Physics::PrimitiveContact(tri1.m_v2, tri2.m_v1, tri2.m_v2, tri2.m_v3);
+	//vfContacts[myVFStart + 2] = Physics::PrimitiveContact(tri1.m_v3, tri2.m_v1, tri2.m_v2, tri2.m_v3);
+	//vfContacts[myVFStart + 3] = Physics::PrimitiveContact(tri2.m_v1, tri1.m_v1, tri1.m_v2, tri1.m_v3);
+	//vfContacts[myVFStart + 4] = Physics::PrimitiveContact(tri2.m_v2, tri1.m_v1, tri1.m_v2, tri1.m_v3);
+	//vfContacts[myVFStart + 5] = Physics::PrimitiveContact(tri2.m_v3, tri1.m_v1, tri1.m_v2, tri1.m_v3);
 
-	vfContacts[myVFStart++] = Physics::PrimitiveContact(tri2.m_v1, tri1.m_v1, tri1.m_v2, tri1.m_v3);
-	vfContacts[myVFStart++] = Physics::PrimitiveContact(tri2.m_v2, tri1.m_v1, tri1.m_v2, tri1.m_v3);
-	vfContacts[myVFStart] = Physics::PrimitiveContact(tri2.m_v3, tri1.m_v1, tri1.m_v2, tri1.m_v3);
+	//eeContacts[myEEStart] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v1, tri2.m_v2);
+	//eeContacts[myEEStart + 1] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v1, tri2.m_v2);
+	//eeContacts[myEEStart + 2] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v1, tri2.m_v2);
+	//eeContacts[myEEStart + 3] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v1, tri2.m_v3);
+	//eeContacts[myEEStart + 4] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v1, tri2.m_v3);
+	//eeContacts[myEEStart + 5] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v1, tri2.m_v3);
+	//eeContacts[myEEStart + 6] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v2, tri2.m_v3);
+	//eeContacts[myEEStart + 7] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v2, tri2.m_v3);
+	//eeContacts[myEEStart + 8] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v2, tri2.m_v3);
 
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v1, tri2.m_v2);
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v1, tri2.m_v2);
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v1, tri2.m_v2);
+	//if (AdjacentTriangles(tri1, tri2))
+	//{
+	//	for (int i = 0; i < 6; ++i)
+	//	{
+	//		vfFlags[myVFStart + i] = false;
+	//	}
 
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v1, tri2.m_v3);
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v1, tri2.m_v3);
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v1, tri2.m_v3);
+	//	for (int i = 0; i < 9; ++i)
+	//	{
+	//		eeFlags[myEEStart + i] = false;
+	//	}
+	//}
+	//else
+	//{
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 5))
+			vfContacts[myVFStart] = Physics::PrimitiveContact(tri1.m_v1, tri2.m_v1, tri2.m_v2, tri2.m_v3);
+		else
+			vfFlags[myVFStart] = false;
 
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v2, tri2.m_v3);
-	eeContacts[myEEStart++] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v2, tri2.m_v3);
-	eeContacts[myEEStart] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v2, tri2.m_v3);
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 4))
+			vfContacts[myVFStart + 1] = Physics::PrimitiveContact(tri1.m_v2, tri2.m_v1, tri2.m_v2, tri2.m_v3);
+		else
+			vfFlags[myVFStart + 1] = false;
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 3))
+			vfContacts[myVFStart + 2] = Physics::PrimitiveContact(tri1.m_v3, tri2.m_v1, tri2.m_v2, tri2.m_v3);
+		else
+			vfFlags[myVFStart + 2] = false;
+
+
+
+		if (CudaUtils::GetBit(tri2.m_assignedFeatures, 5))
+			vfContacts[myVFStart + 3] = Physics::PrimitiveContact(tri2.m_v1, tri1.m_v1, tri1.m_v2, tri1.m_v3);
+		else
+			vfFlags[myVFStart + 3] = false;
+
+		if (CudaUtils::GetBit(tri2.m_assignedFeatures, 4))
+			vfContacts[myVFStart + 4] = Physics::PrimitiveContact(tri2.m_v2, tri1.m_v1, tri1.m_v2, tri1.m_v3);
+		else
+			vfFlags[myVFStart + 4] = false;
+
+		if (CudaUtils::GetBit(tri2.m_assignedFeatures, 3))
+			vfContacts[myVFStart + 5] = Physics::PrimitiveContact(tri2.m_v3, tri1.m_v1, tri1.m_v2, tri1.m_v3);
+		else
+			vfFlags[myVFStart + 5] = false;
+
+
+
+
+
+
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 2) & CudaUtils::GetBit(tri2.m_assignedFeatures, 2))
+			eeContacts[myEEStart] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v1, tri2.m_v2);
+		else
+			eeFlags[myEEStart] = false;
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 0) & CudaUtils::GetBit(tri2.m_assignedFeatures, 2))
+			eeContacts[myEEStart + 1] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v1, tri2.m_v2);
+		else
+			eeFlags[myEEStart + 1] = false;
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 1) & CudaUtils::GetBit(tri2.m_assignedFeatures, 2))
+			eeContacts[myEEStart + 2] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v1, tri2.m_v2);
+		else
+			eeFlags[myEEStart + 2] = false;
+
+
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 2) & CudaUtils::GetBit(tri2.m_assignedFeatures, 0))
+			eeContacts[myEEStart + 3] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v1, tri2.m_v3);
+		else
+			eeFlags[myEEStart + 3] = false;
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 0) & CudaUtils::GetBit(tri2.m_assignedFeatures, 0))
+			eeContacts[myEEStart + 4] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v1, tri2.m_v3);
+		else
+			eeFlags[myEEStart + 4] = false;
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 1) & CudaUtils::GetBit(tri2.m_assignedFeatures, 0))
+			eeContacts[myEEStart + 5] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v1, tri2.m_v3);
+		else
+			eeFlags[myEEStart + 5] = false;
+
+
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 2) & CudaUtils::GetBit(tri2.m_assignedFeatures, 1))
+			eeContacts[myEEStart + 6] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v2, tri2.m_v2, tri2.m_v3);
+		else
+			eeFlags[myEEStart + 6] = false;
+
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 0) & CudaUtils::GetBit(tri2.m_assignedFeatures, 1))
+			eeContacts[myEEStart + 7] = Physics::PrimitiveContact(tri1.m_v1, tri1.m_v3, tri2.m_v2, tri2.m_v3);
+		else
+			eeFlags[myEEStart + 7] = false;
+
+		if (CudaUtils::GetBit(tri1.m_assignedFeatures, 1) & CudaUtils::GetBit(tri2.m_assignedFeatures, 1))
+			eeContacts[myEEStart + 8] = Physics::PrimitiveContact(tri1.m_v2, tri1.m_v3, tri2.m_v2, tri2.m_v3);
+		else
+			eeFlags[myEEStart + 8] = false;
+	//}
 }
 
 void DeformableUtils::DCDTriangleTests(const thrust::device_vector<Physics::CudaTriangle>& triangles, const thrust::device_vector<float3>& positions,
@@ -117,15 +220,49 @@ void DeformableUtils::DCDTriangleTests(const thrust::device_vector<Physics::Cuda
 
 }
 
-void DeformableUtils::CCDTriangleTests(const thrust::device_vector<Physics::CudaTriangle>& triangles,
-	const thrust::device_vector<float3>& positions, const thrust::device_vector<float3>& velocities,
+void DeformableUtils::CCDTriangleTests(const FeatureList::FeatureList &features, const thrust::device_vector<Physics::CudaTriangle>& triangles,
+	const thrust::device_vector<float3>& positions, const thrust::device_vector<float3>& prevPositions, const thrust::device_vector<float3>& velocities,
 	thrust::device_vector<Physics::PrimitiveContact>& vfContacts, thrust::device_vector<bool> &vfFlags, uint64_t & vfContactsSize,
 	thrust::device_vector<Physics::PrimitiveContact>& eeContacts, thrust::device_vector<bool> &eeFlags, uint64_t & eeContactsSize,
 	const float thickness, const float timeStep, void *& tempStorage, uint64_t & tempStorageSize)
 {
-	CudaPrimitiveTests::CCDTriangleTests(triangles, positions, velocities, vfContacts, vfFlags, vfContactsSize, eeContacts, eeFlags, eeContactsSize, thickness, timeStep);
+
+	///TODO culling goes here
+
+
+	if (vfContactsSize + eeContactsSize == 0)
+		return;
 
 	int vfsz = 0, eesz = 0;
+
+	int numBlocks;
+
+
+
+	numBlocks = cu::nb(vfContactsSize + eeContactsSize);
+
+
+	CudaPrimitiveTests::FeatureAABBTests << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (positions.size(), cu::raw(features.m_particleAABBMins), cu::raw(features.m_particleAABBMaxs),
+		cu::raw(features.m_edgeMap), cu::raw(features.m_edgev1s), cu::raw(features.m_edgev2s), cu::raw(features.m_edgeAABBMins), cu::raw(features.m_edgeAABBMaxs), NULL,
+		NULL, NULL, cu::raw(vfContacts), cu::raw(vfFlags), vfContactsSize, cu::raw(eeContacts), cu::raw(eeFlags), eeContactsSize);
+
+
+	numBlocks = cu::nb(vfContactsSize + eeContactsSize);
+
+	//DeformingNonPenetrationFilters << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (cu::raw(positions), cu::raw(prevPositions), cu::raw(vfContacts), cu::raw(vfFlags), vfContactsSize,
+	//	cu::raw(eeContacts), cu::raw(eeFlags), eeContactsSize, thickness, timeStep);
+
+
+	///........................
+
+	CubWrap::SelectFlagged(vfContacts, vfFlags, vfContactsSize, vfContacts, vfsz, tempStorage, tempStorageSize);
+	CubWrap::SelectFlagged(eeContacts, eeFlags, eeContactsSize, eeContacts, eesz, tempStorage, tempStorageSize);
+
+	vfContactsSize = (uint64_t)vfsz;
+	eeContactsSize = (uint64_t)eesz;
+
+	CudaPrimitiveTests::CCDTriangleTests(triangles, prevPositions, velocities, vfContacts, vfFlags, vfContactsSize, eeContacts, eeFlags, eeContactsSize, thickness, timeStep);
+
 
 
 	///TODO Replace Select with Flagged, check performance
@@ -137,6 +274,11 @@ void DeformableUtils::CCDTriangleTests(const thrust::device_vector<Physics::Cuda
 
 	vfContactsSize = (uint64_t)vfsz;
 	eeContactsSize = (uint64_t)eesz;
+}
+
+__device__ bool DeformableUtils::AdjacentTriangles(const Physics::CudaTriangle & a, Physics::CudaTriangle & b)
+{
+	return a.m_v1 == b.m_v1 || a.m_v1 == b.m_v2 || a.m_v1 == b.m_v3 || a.m_v2 == b.m_v1 || a.m_v2 == b.m_v2 || a.m_v3 == b.m_v3 || a.m_v3 == b.m_v1 || a.m_v3 == b.m_v2 || a.m_v3 == b.m_v3;
 }
 
 
@@ -264,4 +406,116 @@ __device__ void DeformableUtils::baryEE(const float3 & p0, const float3 & p1, co
 
 	CudaUtils::clamp(s, 0.f, 1.f);
 	CudaUtils::clamp(t, 0.f, 1.f);
+}
+
+__global__ void DeformableUtils::DeformingNonPenetrationFilters(const float3 *__restrict__ positions, const float3 * __restrict__ prevPositions,
+	const Physics::PrimitiveContact *__restrict__ vfContacts, bool *__restrict__ vfFlags, const uint64_t vfSize,
+	const Physics::PrimitiveContact *__restrict__ eeContacts, bool *__restrict__ eeFlags, const uint64_t eeSize,
+	const float thickness, const float timestep)
+{
+	const int id = CudaUtils::MyID();
+
+	if (id >= vfSize + eeSize)
+		return;
+
+	if (id < vfSize)
+	{
+		DeformingNonPenetrationFilterVF(id, positions, prevPositions, vfContacts, vfFlags, thickness, timestep);
+	}
+	else 
+	{
+		DeformingNonPenetrationFilterEE(id - vfSize, positions, prevPositions, eeContacts, eeFlags, thickness, timestep);
+	}
+}
+
+__device__ void DeformableUtils::DeformingNonPenetrationFilterVF(const int id, const float3 *__restrict__ positions, const float3 * __restrict__ prevPositions,
+	const Physics::PrimitiveContact *__restrict__ vfContacts, bool *__restrict__ vfFlags,
+	const float thickness, const float timestep)
+{
+	if (!vfFlags[id])
+		return;
+
+	const Physics::PrimitiveContact myContact = vfContacts[id];
+
+	float3 p0 = prevPositions[myContact.v1];
+	float3 a0 = prevPositions[myContact.v2];
+	float3 b0 = prevPositions[myContact.v3];
+	float3 c0 = prevPositions[myContact.v4];
+
+	float3 p1 = positions[myContact.v1];
+	float3 a1 = positions[myContact.v2];
+	float3 b1 = positions[myContact.v3];
+	float3 c1 = positions[myContact.v4];
+
+	float3 n0 = CudaUtils::cross(b0 - a0, c0 - a0);
+	float3 n1 = CudaUtils::cross(b1 - a1, c1 - a1);
+
+	float3 va = a1 - a0;
+	float3 vb = b1 - b0;
+	float3 vc = c1 - c0;
+
+	float3 n = (n0 + n1 - CudaUtils::cross(vb - va, vc - va)) / 2.f;
+
+	float3 p0a0 = p0 - a0;
+	float3 p1a1 = p1 - a1;
+
+	//p0a0 *= 1.f + (thickness / CudaUtils::len(p0a0));
+	//p1a1 *= 1.f + (thickness / CudaUtils::len(p1a1));
+
+	float A = CudaUtils::dot(p0a0, n0), B = CudaUtils::dot(p1a1, n1);
+	float C = CudaUtils::dot(p0a0, n), D = CudaUtils::dot(p1a1, n);
+	float E = CudaUtils::dot(p0a0, n1), F = CudaUtils::dot(p1a1, n0);
+
+	float term3 = (2 * C + F);
+	float term4 = (2 * D + E);
+
+	//vfFlags[id] = !((A < thickness && B < thickness && term3 < thickness && term4 < thickness) || (A >= thickness && B >= thickness && term3 >= thickness && term4 >= thickness));
+	vfFlags[id] = !((A < 0 && B < 0 && term3 < 0 && term4 < 0) || (A >= 0 && B >= 0 && term3 >= 0 && term4 >= 0));
+
+}
+
+__device__ void DeformableUtils::DeformingNonPenetrationFilterEE(const int id, const float3 *__restrict__ positions, const float3 * __restrict__ prevPositions,
+	const Physics::PrimitiveContact *__restrict__ eeContacts, bool *__restrict__ eeFlags,
+	const float thickness, const float timestep)
+{
+	if (!eeFlags[id])
+		return;
+
+	const Physics::PrimitiveContact myContact = eeContacts[id];
+
+	float3 u0 = prevPositions[myContact.v1];
+	float3 v0 = prevPositions[myContact.v2];
+	float3 k0 = prevPositions[myContact.v3];
+	float3 l0 = prevPositions[myContact.v4];
+
+	float3 u1 = positions[myContact.v1];
+	float3 v1 = positions[myContact.v2];
+	float3 k1 = positions[myContact.v3];
+	float3 l1 = positions[myContact.v4];
+
+	float3 n0 = CudaUtils::cross(u0 - k0, v0 - k0);
+	float3 n1 = CudaUtils::cross(u1 - k1, v1 - k1);
+
+	float3 vk = k1 - k0;
+	float3 vu = u1 - u0;
+	float3 vv = v1 - v0;
+
+	float3 n = (n0 + n1 - CudaUtils::cross(vu - vk, vv - vk)) / 2.f;
+
+	float3 l0k0 = l0 - k0;
+	float3 l1k1 = l1 - k1;
+
+	//l0k0 *= 1.f + (thickness / CudaUtils::len(l0k0));
+	//l1k1 *= 1.f + (thickness / CudaUtils::len(l1k1));
+	
+
+	float A = CudaUtils::dot(l0k0, n0), B = CudaUtils::dot(l1k1, n1);
+	float C = CudaUtils::dot(l0k0, n), D = CudaUtils::dot(l1k1, n);
+	float E = CudaUtils::dot(l0k0, n1), F = CudaUtils::dot(l1k1, n0);
+
+	float term3 = (2 * C + F);
+	float term4 = (2 * D + E);
+
+	//eeFlags[id] = !((A < thickness && B < thickness && term3 < thickness && term4 < thickness) || (A >= thickness && B >= thickness && term3 >= thickness && term4 >= thickness));
+	eeFlags[id] = !((A < 0 && B < 0 && term3 < 0 && term4 < 0) || (A >= 0 && B >= 0 && term3 >= 0 && term4 >= 0));
 }

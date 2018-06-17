@@ -86,6 +86,7 @@ namespace CudaPBD
 		TriangleBendConstraintList m_triangleBendConstraints;
 
 		GroundConstraintList m_groundConstraints;
+		GroundConstraintList m_sphereConstraints;
 		LRAConstraintList m_LRAConstraints;
 
 
@@ -100,6 +101,7 @@ namespace CudaPBD
 
 		Physics::DoubleBuffer<uint32_t> m_dbDynamicCorrectionID;
 		Physics::DoubleBuffer<float3> m_dbDynamicCorrectionValues;
+		
 
 		uint64_t m_dynamicCorrectionsSize;
 		int m_dynamicCorrectionsRunCount;
@@ -107,6 +109,15 @@ namespace CudaPBD
 		thrust::device_vector<uint32_t> m_dDynamicCorrectionRLEUniques;
 		thrust::device_vector<int> m_dDynamicCorrectionRLECounts;
 
+
+		Physics::DoubleBuffer<uint32_t> m_dbtocID;
+		Physics::DoubleBuffer<float> m_dbtoc;
+
+		uint64_t m_tocSize;
+		int m_tocRunCount;
+
+		thrust::device_vector<uint32_t> m_dtocRLEUniques;
+		thrust::device_vector<int> m_dtocRLECounts;
 
 
 		Physics::DoubleBuffer<uint32_t> m_dbFrictionCorrectionID;
@@ -123,6 +134,13 @@ namespace CudaPBD
 
 		int m_particleCount;
 
+		float3 m_spherePos;
+		float m_sphereRadius;
+		bool m_spherePresent;
+
+		float3 m_crtWindDir;
+
+		void SetSpherePos(const float3 &position, const float radius);
 
 		void CreateTriangleBendingConstraints(const std::vector<Rendering::VertexFormat> &verts,
 			thrust::host_vector<int> & id1, thrust::host_vector<int> & id2, thrust::host_vector<int> & id3,
@@ -142,7 +160,8 @@ namespace CudaPBD
 
 		void PBDStepExternal(thrust::device_vector<float3> &positions, thrust::device_vector<float3> &prevPositions,
 			const thrust::device_vector<float> &masses,
-			thrust::device_vector<float3> &velocities, void *&tempStorage, uint64_t &tempStorageSize);
+			thrust::device_vector<float3> &velocities, const thrust::device_vector<float3> &vertexNormals,
+			void *&tempStorage, uint64_t &tempStorageSize);
 
 
 		void PBDStepSolver(thrust::device_vector<float3> &positions, const thrust::device_vector<float3>& prevPositions,
@@ -169,6 +188,10 @@ namespace CudaPBD
 			const thrust::device_vector<float3> &prevPositions,
 			const thrust::device_vector<float> &invMasses);
 
+		void CreateSphereConstraints(const thrust::device_vector<float3> &positions,
+			const thrust::device_vector<float3> &prevPositions,
+			const thrust::device_vector<float> &invMasses);
+
 		void CreateLRAConstraints(const thrust::device_vector<float3> &positions);
 
 		void DampVelocities(const thrust::device_vector<float3> &positions, const thrust::device_vector<float> &masses,
@@ -185,6 +208,11 @@ namespace CudaPBD
 			const uint64_t eeContactsSize,
 			void *& tempStorage, uint64_t & tempStorageSize);
 
+		void RevertToTOC(thrust::device_vector<float3> &positions, const thrust::device_vector<float3>& prevPositions,
+			const thrust::device_vector<Physics::PrimitiveContact>& vfContacts, const uint64_t & vfContactsSize,
+			const thrust::device_vector<Physics::PrimitiveContact>& eeContacts, const uint64_t & eeContactsSize,
+			void *&tempStorage, uint64_t &tempStorageSize);
+
 
 		void ApplyFriction(thrust::device_vector<float3> &velocities,
 			const thrust::device_vector<Physics::PrimitiveContact>& vfContacts,
@@ -200,6 +228,9 @@ namespace CudaPBD
 		void ProjectGroundConstraints(const thrust::device_vector<float3> &positions,
 			const thrust::device_vector<float> &invMasses);
 
+		void ProjectSphereConstraints(const thrust::device_vector<float3> &positions,
+			const thrust::device_vector<float> &invMasses);
+
 		void ProjectLRAConstraints(const thrust::device_vector<float3> &positions,
 			const thrust::device_vector<float> &invMasses);
 
@@ -209,12 +240,18 @@ namespace CudaPBD
 			thrust::device_vector<float3> &velocities, const thrust::device_vector<bool> &fixedVerts);
 
 
+
 	};
 
 
 	__global__ void _CreateGroundConstraints(const int particleCount,
 		const float3 * __restrict__ positions, const float3 * __restrict__ prevPositions,
 		const float * __restrict__ invMasses, const float groundHeight, const float thickness,
+		float3 * __restrict__ qcs, float3 * __restrict__ ncs, bool * __restrict__ flags);
+
+	__global__ void _CreateSphereConstraints(const int particleCount,
+		const float3 * __restrict__ positions, const float3 * __restrict__ prevPositions,
+		const float * __restrict__ invMasses, const float3 spherePos, const float sphereRadius, const float thickness,
 		float3 * __restrict__ qcs, float3 * __restrict__ ncs, bool * __restrict__ flags);
 		
 	__global__ void _CreateLRAConstraints(const int particleCount, const int fixedCount, 
@@ -364,11 +401,23 @@ namespace CudaPBD
 	__global__ void UpdateVels(const int particleCount, const float3 * __restrict__ pos,
 		const float3 omega, const float3 xcm, const float3 vcm, const float dampingCoef, float3 * __restrict__ vel);
 
-	__global__ void ApplyExternalForces(const int particleCount, float3 * __restrict__ vels, const float3 gravity, const float timestep);
+	__global__ void ApplyExternalForces(const int particleCount, float3 * __restrict__ vels, const float3 * __restrict__ particleNormals,
+		const float3 gravity, const float3 wind, const float timestep);
 
 	__global__ void ExplicitEuler(const int particleCount, const float3 * __restrict__ prevPositions, const float3 * __restrict__ velocities,
 		float3 * __restrict__ positions, const float timestep);
 
+	__global__ void FillTOCs(const Physics::PrimitiveContact * __restrict__ vfs, const uint64_t vfSize,
+		const Physics::PrimitiveContact * __restrict__ ees, const uint64_t eeSize,
+		uint32_t * __restrict__ rawtocIDs, float * __restrict__ rawtocVals);
+
+	__device__ void FillTOC(const int id, const int myStart, const Physics::PrimitiveContact * __restrict__ contacts,
+		uint32_t * __restrict__ rawtocIDs, float * __restrict__ rawtocVals);
+
+	__global__ void _RevertToTOC(const int runCount, const float3 * __restrict__ prevPositions, 
+		const uint32_t * __restrict__ RLEUniques,
+		const int * __restrict__ RLEPrefixSums,
+		const float * __restrict__ rawtocVals, const uint64_t rawtocValsSize, float3 * __restrict__ positions);
 
 }
 

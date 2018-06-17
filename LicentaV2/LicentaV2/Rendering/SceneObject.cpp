@@ -141,7 +141,7 @@ void Rendering::SceneObject::Destroy()
 void Rendering::SceneObject::TranslateAbsolute(const glm::vec3 &pos)
 {
 	m_translationMatrix = glm::translate(glm::mat4(1), pos);
-	SetPosition(pos);
+	SetPosition(GetPosition() + pos);
 }
 
 void Rendering::SceneObject::RotateAbsolute(const glm::vec3 &axis, const float angles)

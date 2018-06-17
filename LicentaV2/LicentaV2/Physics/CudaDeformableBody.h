@@ -8,7 +8,7 @@
 #include "CudaPBD.cuh"
 
 #include "../Simulation/GPUBenchmark.cuh"
-
+#include "../Collision/FeatureList.cuh"
 
 namespace Physics
 {
@@ -24,6 +24,8 @@ namespace Physics
 			std::vector<bool> &fixedVerts);
 		virtual void FixedUpdate() override;
 		virtual void Update() override;
+
+		void SetSpherePos(glm::vec3 &pos, float radius);
 
 
 
@@ -70,6 +72,7 @@ namespace Physics
 
 
 		CudaPBD::CudaPBD m_pbd;
+		FeatureList::FeatureList m_features;
 
 		thrust::device_vector<Rendering::VertexFormat> m_dVerts;
 

@@ -129,7 +129,12 @@ __device__ void CudaPrimitiveTests::CCDTestVFs(const int id, const Physics::Cuda
 	const float3 *__restrict__ positions, const float3 *__restrict__ velocities,
 	Physics::PrimitiveContact *__restrict__ vfContacts, bool * __restrict__ vfFlags, const float thickness, const float timeStep)
 {
+	/*if (!vfFlags[id])
+		return;*/
+
+
 	Physics::PrimitiveContact myContact = vfContacts[id];
+
 
 	if (!VFSanity(myContact.v1, myContact.v2, myContact.v3, myContact.v4))
 	{
@@ -167,7 +172,9 @@ __device__ void CudaPrimitiveTests::CCDTestVFs(const int id, const Physics::Cuda
 
 		if (TestVF(x4, x1, x2, x3, myContact, thickness))
 		{
-			vfContacts[id] = myContact;
+			//printf("[%d] VF t: %f\n", id, t);
+			myContact.t = t;
+			vfContacts[id] = myContact;		
 			vfFlags[id] = true;
 			return;
 		}
@@ -181,6 +188,9 @@ __device__ void CudaPrimitiveTests::CCDTestEEsBridson(const int id, const Physic
 	const float3 *__restrict__ positions, const float3 *__restrict__ velocities,
 	Physics::PrimitiveContact *__restrict__ eeContacts, bool * __restrict__ eeFlags, const float thickness, const float eps, const float timeStep)
 {
+	/*if (!eeFlags[id])
+		return;*/
+
 	Physics::PrimitiveContact myContact = eeContacts[id];
 
 	if (!EESanity(myContact.v1, myContact.v2, myContact.v3, myContact.v4))
@@ -200,9 +210,6 @@ __device__ void CudaPrimitiveTests::CCDTestEEsBridson(const int id, const Physic
 	const float3 v3 = velocities[myContact.v3];
 	const float3 v4 = velocities[myContact.v4];
 
-	///TODO Find coplanarity times
-	///TODO for each t, advance positions then call TestVF
-
 	float coplanTimes[10];
 	int coplanCount = 0;
 
@@ -219,6 +226,8 @@ __device__ void CudaPrimitiveTests::CCDTestEEsBridson(const int id, const Physic
 
 		if (TestEE(x1, x2, x3, x4, myContact, thickness, eps))
 		{
+			//printf("[%d] EE t: %f\n", id, t);
+			myContact.t = t;
 			eeContacts[id] = myContact;
 			eeFlags[id] = true;
 			return;
@@ -281,7 +290,7 @@ __device__ bool CudaPrimitiveTests::TestEE(const float3 & x1, const float3 & x2,
 		float3 cp1 = x1 + a * x21;
 		float3 cp2 = x3 + a * x43;
 
-		if (CudaUtils::distance(cp1, cp2) < thickness)
+		if (CudaUtils::distance(cp1, cp2) <= thickness)
 		{
 			contact.w1 = 1 - a;
 			contact.w2 = a;
@@ -321,7 +330,7 @@ __device__ bool CudaPrimitiveTests::TestEE(const float3 & x1, const float3 & x2,
 			cp1 = CudaUtils::ClampOnLine(p1Raw, x1, x2);
 		}
 
-		if (CudaUtils::distance(cp1, cp2) < thickness)
+		if (CudaUtils::distance(cp1, cp2) <= thickness)
 		{
 			contact.w1 = 1 - a;
 			contact.w2 = a;
@@ -347,7 +356,7 @@ __device__ bool CudaPrimitiveTests::TestVF(const float3 & x4, const float3 & x1,
 	float3 n = CudaUtils::normalize(crs);
 
 
-	if (fabsf(CudaUtils::dot(x43, n)) < thickness)
+	if (fabsf(CudaUtils::dot(x43, n)) <= thickness)
 	{
 		//x43 = CudaUtils::ProjectOnPlane(x4, x3, n) - x3;
 
@@ -401,7 +410,7 @@ __device__ bool CudaPrimitiveTests::TestEdgeDegenerate(const float3 & x1, const 
 	float3 mid1 = x1 + x21 / 2.f;
 	float3 mid2 = x3 + x43 / 2.f;
 
-	if (CudaUtils::distance(mid1, mid2) < thickness)
+	if (CudaUtils::distance(mid1, mid2) <= thickness)
 	{
 		contact.w1 = 0.5f;
 		contact.w2 = 0.5f;
@@ -414,6 +423,72 @@ __device__ bool CudaPrimitiveTests::TestEdgeDegenerate(const float3 & x1, const 
 
 	return false;
 }
+
+__global__ void CudaPrimitiveTests::FeatureAABBTests(const int particleCount, const float3 *__restrict__ particleMins, const float3 *__restrict__ particleMaxs,
+	const int *__restrict__ edgeMap, const int *__restrict__ edgev1s, const int *__restrict__ edgev2s, const float3 *__restrict__ edgeMins, const float3 *__restrict__ edgeMaxs,
+	const Physics::CudaTriangle *__restrict__ triangles, const float3 *__restrict__ triangleMins, const float3 *__restrict__ triangleMaxs,
+	const Physics::PrimitiveContact *__restrict__ vfContacts, bool *__restrict__ vfFlags, const uint64_t vfSize,
+	const Physics::PrimitiveContact *__restrict__ eeContacts, bool *__restrict__ eeFlags, const uint64_t eeSize)
+{
+	const int id = CudaUtils::MyID();
+	if (id >= vfSize + eeSize)
+		return;
+
+	if (id < vfSize)
+	{
+		VFAABBTest(id, particleMins, particleMaxs, triangles, triangleMins, triangleMaxs, vfContacts, vfFlags, vfSize);
+	}
+	else
+	{
+		EEAABBTest(id - vfSize, particleCount, edgeMap, edgev1s, edgev2s, edgeMins, edgeMaxs, eeContacts, eeFlags, eeSize);
+	}
+}
+
+__device__ void CudaPrimitiveTests::VFAABBTest(const int id, const float3 *__restrict__ particleMins, const float3 *__restrict__ particleMaxs,
+	const Physics::CudaTriangle *__restrict__ triangles, const float3 *__restrict__ triangleMins, const float3 *__restrict__ triangleMaxs,
+	const Physics::PrimitiveContact *__restrict__ vfContacts, bool *__restrict__ vfFlags, const uint64_t vfSize)
+{
+	if (!vfFlags[id])
+		return;
+
+	const Physics::PrimitiveContact myContact = vfContacts[id];
+
+	float3 triMin = CudaUtils::min3(particleMins[myContact.v2], particleMins[myContact.v3], particleMins[myContact.v4]);
+	float3 triMax = CudaUtils::max3(particleMaxs[myContact.v2], particleMaxs[myContact.v3], particleMaxs[myContact.v4]);
+
+
+	vfFlags[id] = CudaUtils::AABBOverlap(particleMins[myContact.v1], particleMaxs[myContact.v1], triMin, triMax);
+	
+}
+
+__device__ void CudaPrimitiveTests::EEAABBTest(const int id, const int particleCount,
+	const int *__restrict__ edgeMap, const int *__restrict__ edgev1s, const int *__restrict__ edgev2s,
+	const float3 *__restrict__ edgeMins, const float3 *__restrict__ edgeMaxs,
+	const Physics::PrimitiveContact *__restrict__ eeContacts, bool *__restrict__ eeFlags, const uint64_t eeSize)
+{
+	if (!eeFlags[id])
+		return;
+
+	const Physics::PrimitiveContact myContact = eeContacts[id];
+
+	int minE1 = myContact.v1 < myContact.v2 ? myContact.v1 : myContact.v2;
+	int maxE1 = myContact.v1 + myContact.v2 - minE1;
+
+	int minE2 = myContact.v3 < myContact.v4 ? myContact.v3 : myContact.v4;
+	int maxE2 = myContact.v3 + myContact.v4 - minE2;
+
+	//int e1id = ((minE1 * (minE1 - 1)) / 2) + maxE1;
+	//int e2id = ((minE2 * (minE2 - 1)) / 2) + maxE2;
+
+
+	int e1id = edgeMap[minE1 * particleCount + maxE1];
+	int e2id = edgeMap[minE2 * particleCount + maxE2];
+
+	//printf("[%d] e1id: %d, e2id: %d\n", id, e1id, e2id);
+
+	eeFlags[id] = CudaUtils::AABBOverlap(edgeMins[e1id], edgeMaxs[e1id], edgeMins[e2id], edgeMaxs[e2id]);
+}
+
 
 
 //__device__ void CudaPrimitiveTests::DCDTestVFs2(const int id, const Physics::CudaTriangle *__restrict__ triangles, const float3 *__restrict__ positions, Physics::PrimitiveContact *__restrict__ vfContacts, const float thickness)

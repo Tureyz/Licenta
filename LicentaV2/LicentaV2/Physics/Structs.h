@@ -35,6 +35,14 @@ namespace Physics
 		float strainLimit;
 
 		float3 gravity;
+
+		float3 minWindDir;
+		float3 startWindDir;
+		float3 maxWindDir;
+		float windMinVariation;
+		float windMaxVariation;
+		bool windOn;
+
 		float3 worldMin;
 		float3 worldMax;
 
@@ -48,6 +56,7 @@ namespace Physics
 		uint64_t benchmarkSample;
 
 		bool useTriangleBending;
+		bool colorContacts;
 	};
 
 	template <typename T>
@@ -169,8 +178,9 @@ namespace Physics
 		int m_v1;
 		int m_v2;
 		int m_v3;
-		int m_aabbMin;
-		int m_aabbMax;
+
+		/// 6 bits. 3 vertices, 3 edges. Edge order is (1 -> 2), (2 -> 3), (3 -> 1)
+		char m_assignedFeatures;
 
 		/// Actual normal
 		float3 m_faceNormal;

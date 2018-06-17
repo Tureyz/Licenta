@@ -56,5 +56,8 @@ namespace Managers
 		bool m_narrowPhaseDebugDraw;
 
 		Rendering::ParticleSystem *m_ps;
+
+		Rendering::SceneObject *m_meshObj;
+		Rendering::SceneObject *m_sphereObj;
 	};
 }
