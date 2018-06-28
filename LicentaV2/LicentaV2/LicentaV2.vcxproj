@@ -151,7 +151,7 @@
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <CudaCompile>
-      <CodeGeneration>compute_61,sm_61;%(CodeGeneration)</CodeGeneration>
+      <CodeGeneration>compute_50,sm_50;compute_61,sm_61;%(CodeGeneration)</CodeGeneration>
       <Runtime>InheritFromHost</Runtime>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <TargetMachinePlatform>64</TargetMachinePlatform>
