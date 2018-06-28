@@ -247,7 +247,13 @@ void DeformableUtils::CCDTriangleTests(const FeatureList::FeatureList &features,
 		NULL, NULL, cu::raw(vfContacts), cu::raw(vfFlags), vfContactsSize, cu::raw(eeContacts), cu::raw(eeFlags), eeContactsSize);
 
 
-	numBlocks = cu::nb(vfContactsSize + eeContactsSize);
+	//CubWrap::SelectFlagged(vfContacts, vfFlags, vfContactsSize, vfContacts, vfsz, tempStorage, tempStorageSize);
+	//CubWrap::SelectFlagged(eeContacts, eeFlags, eeContactsSize, eeContacts, eesz, tempStorage, tempStorageSize);
+
+	//vfContactsSize = (uint64_t)vfsz;
+	//eeContactsSize = (uint64_t)eesz;
+
+	//numBlocks = cu::nb(vfContactsSize + eeContactsSize);
 
 	//DeformingNonPenetrationFilters << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (cu::raw(positions), cu::raw(prevPositions), cu::raw(vfContacts), cu::raw(vfFlags), vfContactsSize,
 	//	cu::raw(eeContacts), cu::raw(eeFlags), eeContactsSize, thickness, timeStep);
@@ -459,18 +465,18 @@ __device__ void DeformableUtils::DeformingNonPenetrationFilterVF(const int id, c
 	float3 p0a0 = p0 - a0;
 	float3 p1a1 = p1 - a1;
 
-	//p0a0 *= 1.f + (thickness / CudaUtils::len(p0a0));
-	//p1a1 *= 1.f + (thickness / CudaUtils::len(p1a1));
+	p0a0 *= 1.f + (thickness / CudaUtils::len(p0a0));
+	p1a1 *= 1.f + (thickness / CudaUtils::len(p1a1));
 
 	float A = CudaUtils::dot(p0a0, n0), B = CudaUtils::dot(p1a1, n1);
 	float C = CudaUtils::dot(p0a0, n), D = CudaUtils::dot(p1a1, n);
 	float E = CudaUtils::dot(p0a0, n1), F = CudaUtils::dot(p1a1, n0);
 
-	float term3 = (2 * C + F);
-	float term4 = (2 * D + E);
+	float term3 = (2 * C + F) * 0.3333333f;
+	float term4 = (2 * D + E) * 0.3333333f;
 
-	//vfFlags[id] = !((A < thickness && B < thickness && term3 < thickness && term4 < thickness) || (A >= thickness && B >= thickness && term3 >= thickness && term4 >= thickness));
-	vfFlags[id] = !((A < 0 && B < 0 && term3 < 0 && term4 < 0) || (A >= 0 && B >= 0 && term3 >= 0 && term4 >= 0));
+	//vfFlags[id] = ~((A < 2 * thickness && B < 2 * thickness && term3 < 2 * thickness && term4 < 2 * thickness) || (A >= 2 * thickness && B >= 2 * thickness && term3 >= 2 * thickness && term4 >= 2 * thickness));
+	vfFlags[id] = ~((A < 0 && B < 0 && term3 < 0 && term4 < 0) || (A >= 0 && B >= 0 && term3 >= 0 && term4 >= 0));
 
 }
 
@@ -505,17 +511,77 @@ __device__ void DeformableUtils::DeformingNonPenetrationFilterEE(const int id, c
 	float3 l0k0 = l0 - k0;
 	float3 l1k1 = l1 - k1;
 
-	//l0k0 *= 1.f + (thickness / CudaUtils::len(l0k0));
-	//l1k1 *= 1.f + (thickness / CudaUtils::len(l1k1));
+	l0k0 *= 1.f + (thickness / CudaUtils::len(l0k0));
+	l1k1 *= 1.f + (thickness / CudaUtils::len(l1k1));
 	
 
 	float A = CudaUtils::dot(l0k0, n0), B = CudaUtils::dot(l1k1, n1);
 	float C = CudaUtils::dot(l0k0, n), D = CudaUtils::dot(l1k1, n);
 	float E = CudaUtils::dot(l0k0, n1), F = CudaUtils::dot(l1k1, n0);
 
-	float term3 = (2 * C + F);
-	float term4 = (2 * D + E);
+	float term3 = (2 * C + F) * 0.3333333f;
+	float term4 = (2 * D + E) * 0.3333333f;
 
-	//eeFlags[id] = !((A < thickness && B < thickness && term3 < thickness && term4 < thickness) || (A >= thickness && B >= thickness && term3 >= thickness && term4 >= thickness));
-	eeFlags[id] = !((A < 0 && B < 0 && term3 < 0 && term4 < 0) || (A >= 0 && B >= 0 && term3 >= 0 && term4 >= 0));
+	//eeFlags[id] = ~((A < 2 * thickness && B < 2 * thickness && term3 < 2 * thickness && term4 < 2 * thickness) || (A >= 2 * thickness && B >= 2 * thickness && term3 >= 2 * thickness && term4 >= 2 * thickness));
+	eeFlags[id] = ~((A < 0 && B < 0 && term3 < 0 && term4 < 0) || (A >= 0 && B >= 0 && term3 >= 0 && term4 >= 0));
+}
+
+__device__ int DeformableUtils::RaySphere(const float3 &rp1, const float3 &rp2, const float3 &sphereCenter, const float sphereRadius,
+	float3 &qc)
+{
+	
+	float3 dir = rp2 - rp1;
+
+	if (CudaUtils::isZero(dir)) return 0;
+
+	float len = CudaUtils::len(dir);
+
+	dir /= len;
+
+	float3 m = rp1 - sphereCenter;
+	float b = CudaUtils::dot(m, dir);
+	float c = CudaUtils::dot(m, m) - sphereRadius * sphereRadius;
+
+	if (c > 0.f && b > 0.f)
+		return false;
+
+	float delta = b * b - c;
+
+	if (delta < 0)
+		return 0;
+
+	float t = -b - sqrtf(delta);
+
+	if (t < 0.f)
+	{
+		qc = rp1 + dir * t;
+		return -1;
+	}
+		
+
+	if (t > len)
+		return 0;
+
+	qc = rp1 + dir * t;
+	return 1;
+}
+
+__device__ float DeformableUtils::RaySphere(const float3 & rp1, const float3 & rp2, const float3 & sphereCenter, const float sphereRadius)
+{
+	float3 dir = rp2 - rp1;
+
+	if (CudaUtils::isZero(dir)) return -1.f;
+
+	dir = CudaUtils::normalize(dir);
+
+	float a = CudaUtils::dot(dir, dir);
+	float3 rc = rp1 - sphereCenter;
+	float b = 2.f * CudaUtils::dot(dir, rc);
+	float c = CudaUtils::dot(rc, rc) - (sphereRadius * sphereRadius);
+
+	float delta = b * b - 4 * a * c;
+	if (delta < 0.f)
+		return -1.f;
+
+	return (-b - sqrtf(delta)) / (2.f * a);
 }

@@ -17,6 +17,7 @@ Managers::MastersSimulationManager::MastersSimulationManager(Managers::ModelMana
 	m_objectBBsVisible = true;
 	m_broadPhaseDebugDraw = false;
 	m_narrowPhaseDebugDraw = false;
+	m_sphereObj = nullptr;
 
 }
 
@@ -26,6 +27,7 @@ void Managers::MastersSimulationManager::Init()
 	m_broadPhaseMethod = new Collision::BVH(m_allObjects);
 	m_broadPhaseMethod->SetShowDebug(m_broadPhaseDebugDraw);
 	
+	bool sphere = false;
 	int dim = 60;
 
 	Physics::ClothParams params;
@@ -33,29 +35,31 @@ void Managers::MastersSimulationManager::Init()
 	params.dims.y = dim;
 	params.BVHChunkSize = 64;
 	params.ccdIterations = 5;
-	params.kFriction = 0.001f;
+	params.kFriction = 0.1f;
 	params.kBend = 0.1f;
 	params.kDamp = 0.05f;
 	params.kShear = 0.7f;
 	params.kSpringDamp = 0.2f;
-	params.kStretch = 0.9f;
+	params.kStretch = 0.99f;
 	params.globalVelDamp = 0.01f;
 	params.strainLimit = 0.15f;
 	params.solverIterations = 6;
 	params.timestep = Core::PHYSICS_TIME_STEP;
 	params.objectMass = 0.525f;
-	params.gravity = make_float3(0.f, -0.981f, 0.f);
+	params.gravity = make_float3(0.f, -0.0981f, 0.f);
 	params.worldMin = make_float3(0.f, 0.f, 0.f);
 	params.worldMax = make_float3(1.f, 1.f, 1.f);
-	params.minWindDir = make_float3(0.f, -0.135f, -0.3f);
-	params.startWindDir = make_float3(0.f, 0.05f, 0.2f);
-	params.maxWindDir = make_float3(0.f, 0.135f, 0.3f);
-	params.windOn = false;
-	params.windMinVariation = 0.05f;
-	params.windMaxVariation = 0.15f;
-	params.benchmarkSample = 750;
+	//params.minWindDir = make_float3(0.f, -0.135f, -0.3f);
+	params.minWindDir = make_float3(-0.04f, -0.1f, -0.1f);
+	params.startWindDir = make_float3(0.02f, 0.095f, 0.45f);
+	params.maxWindDir = make_float3(0.04f, 0.135f, 0.4f);
+	params.windOn = true;
+	params.windMinVariation = 0.00f;
+	params.windMaxVariation = 0.2f;
+	params.benchmarkSample = 1000;
 	params.useTriangleBending = false;
-	params.colorContacts = true;
+	params.colorContacts = false;
+	params.useFriction = false;
 
 	std::pair<int, int> dims(dim, dim);
 
@@ -67,7 +71,7 @@ void Managers::MastersSimulationManager::Init()
 		fixedVerts[i * dims.first] = true;
 		//fixedVerts[(i + 1) * dims.first - 1] = true;
 		//fixedVerts[((dims.first * dims.first) / 2) + ((dims.second) / 2)] = true;
-		//fixedVerts[(dims.first - 1) * dims.first] = true;
+		fixedVerts[(dims.first - 1) * dims.first] = true;
 		break;
 	}
 
@@ -82,7 +86,7 @@ void Managers::MastersSimulationManager::Init()
 	//meshObj->TranslateAbsolute(ScriptLoader::GetVec3("Scripts/randomPos.py", "RandomPosition"));
 	m_meshObj->Update();
 	m_meshObj->SetPhysicsBody(new Physics::CudaDeformableBody(&m_meshObj->GetVisualBody()->m_verts, &m_meshObj->GetVisualBody()->m_indices, params, fixedVerts));
-	//meshObj->SetPhysicsBody(new Physics::DeformableBody(&meshObj->GetVisualBody()->m_verts, &meshObj->GetVisualBody()->m_indices));
+	//m_meshObj->SetPhysicsBody(new Physics::DeformableBody(&m_meshObj->GetVisualBody()->m_verts, &m_meshObj->GetVisualBody()->m_indices));
 	//meshObj->RotateAbsolute(glm::vec3(1, 0, 0), 90);
 
 	ObjectAdded(m_meshObj);
@@ -95,24 +99,25 @@ void Managers::MastersSimulationManager::Init()
 //   	m_ps->m_simManager = this;
 
 
-
- 	/*m_sphereObj = new Rendering::SceneObject();
- 	m_sphereObj->SetID(m_objectIDCounter);
- 	m_sphereObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
- 	m_sphereObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
- 	m_sphereObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_SPHERE));
- 	m_sphereObj->UpdateVertices(glm::mat4(1.0f));
- 	m_sphereObj->SetPhysicsBody(new Physics::RigidBody(&m_sphereObj->GetVisualBody()->m_verts, &m_sphereObj->GetVisualBody()->m_indices));
- 
-	m_sphereObj->ScaleAbsolute(glm::vec3(0.05f, 0.05f, 0.05f));
- 	m_sphereObj->TranslateAbsolute(glm::vec3(0.5f, 0.35f, 0.75f));
-  	m_sphereObj->SetTranslationStep(glm::vec3(0.0000f, 0.0000f, -0.000035f));
- 
- 	ObjectAdded(m_sphereObj);
- 	ObjectMoved(m_sphereObj);
- 	m_sphereObj->ObjectMoved();
- 	m_modelManager->RegisterObject(m_objectIDCounter++, m_sphereObj);*/
-
+	if (sphere)
+	{
+			m_sphereObj = new Rendering::SceneObject();
+			m_sphereObj->SetID(m_objectIDCounter);
+			m_sphereObj->SetBoundingBox(new Collision::DataStructures::BoundingBox());
+			m_sphereObj->GetBoundingBox()->CreateVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_LINE_CUBE));
+			m_sphereObj->SetVisualBody(Rendering::VisualBodyFactory::GetInstance().CreateBasicVisualBody(Rendering::VisualBodyType::OBJ_SPHERE));
+			m_sphereObj->UpdateVertices(glm::mat4(1.0f));
+			m_sphereObj->SetPhysicsBody(new Physics::RigidBody(&m_sphereObj->GetVisualBody()->m_verts, &m_sphereObj->GetVisualBody()->m_indices));
+		
+		   m_sphereObj->ScaleAbsolute(glm::vec3(0.06f, 0.06f, 0.06f));
+			m_sphereObj->TranslateAbsolute(glm::vec3(0.40f, 0.35f, 0.6f));
+		   //m_sphereObj->SetTranslationStep(glm::vec3(0.0000f, 0.0000f, -0.000035f));
+		
+			ObjectAdded(m_sphereObj);
+			ObjectMoved(m_sphereObj);
+			m_sphereObj->ObjectMoved();
+			m_modelManager->RegisterObject(m_objectIDCounter++, m_sphereObj);
+	}
 
 
 	m_modelManager->SetBoundingBoxesVisibile(m_objectBBsVisible);
@@ -162,15 +167,18 @@ void Managers::MastersSimulationManager::FixedUpdate()
 	//}
 
 
-	Physics::CudaDeformableBody *pb = (Physics::CudaDeformableBody *) m_meshObj->GetPhysicsBody();
+	if (m_sphereObj != nullptr)
+	{
+		Physics::CudaDeformableBody *pb = (Physics::CudaDeformableBody *) m_meshObj->GetPhysicsBody();
 
-	//pb->SetSpherePos(m_sphereObj->GetPosition(), m_sphereObj->GetScale().x);
+		pb->SetSpherePos(m_sphereObj->GetPosition(), m_sphereObj->GetScale().x);
 
 
-	//if (m_sphereObj->GetPosition().z > 1.f || m_sphereObj->GetPosition().z < 0.f)
-	//{
-	//	m_sphereObj->SetTranslationStep(m_sphereObj->GetTranslationStep() * glm::vec3(0, 0, -1));
-	//}
+		if (m_sphereObj->GetPosition().z > 0.75f || m_sphereObj->GetPosition().z < 0.25f)
+		{
+			m_sphereObj->SetTranslationStep(m_sphereObj->GetTranslationStep() * glm::vec3(0, 0, -1));
+		}
+	}
 }
 
 void Managers::MastersSimulationManager::Update()

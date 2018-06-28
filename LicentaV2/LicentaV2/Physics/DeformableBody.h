@@ -41,6 +41,10 @@ namespace Physics
 		float m_vertexMass;
 
 		Collision::NarrowSpatialHashing *m_selfCD;
+
+
+		uint64_t m_crtStep;
+		float m_totalSeconds;
 	private:
 
 		std::unordered_map<size_t, std::vector<size_t>> m_vertTriangleMap;

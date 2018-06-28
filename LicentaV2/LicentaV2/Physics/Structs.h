@@ -57,6 +57,7 @@ namespace Physics
 
 		bool useTriangleBending;
 		bool colorContacts;
+		bool useFriction;
 	};
 
 	template <typename T>

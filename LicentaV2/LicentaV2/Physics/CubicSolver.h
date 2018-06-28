@@ -9,7 +9,7 @@ namespace Physics
 	
 
 	static const float intervalMin = 0;
-	static const float intervalMax = Core::TIME_STEP;
+	static const float intervalMax = Core::PHYSICS_TIME_STEP;
 
 	class CubicSolver
 	{

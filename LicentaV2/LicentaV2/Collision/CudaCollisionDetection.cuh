@@ -62,4 +62,8 @@ namespace DeformableUtils
 		const Physics::PrimitiveContact * __restrict__ eeContacts, bool * __restrict__ eeFlags, const float thickness, const float timestep);
 
 
+	__device__ int RaySphere(const float3 &rp1, const float3 &rp2, const float3 &sphereCenter, const float sphereRadius,
+		float3 &qc);
+
+	__device__ float RaySphere(const float3 &rp1, const float3 &rp2, const float3 &sphereCenter, const float sphereRadius);
 }

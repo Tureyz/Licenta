@@ -18,7 +18,7 @@ namespace Core
 	const float PHYSICS_TIME_STEP_MS = 1000.f / 60.f;
 	const float PHYSICS_TIME_STEP = PHYSICS_TIME_STEP_MS / 1000.f;
 
-	const glm::vec3 GRAVITY_ACCEL(0, -9.81f, 0);
+	const glm::vec3 GRAVITY_ACCEL(0, -0.981f, 0);
 	
 
 	const glm::vec4 DEFAULT_OBJECT_COLOR(0.3f, 0.3f, 0.3f, 1.f);

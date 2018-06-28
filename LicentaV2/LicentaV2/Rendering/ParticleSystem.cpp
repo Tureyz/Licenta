@@ -39,7 +39,7 @@ void Rendering::ParticleSystem::FixedUpdate()
 
 Rendering::ParticleSystem::Particle * Rendering::ParticleSystem::SpawnParticle(const glm::vec3 pos, const glm::vec3 target, const float ttl)
 {
-		glm::vec3 vel = Core::TIME_STEP * (target - pos) / ttl;
+		glm::vec3 vel = Core::PHYSICS_TIME_STEP * (target - pos) / ttl;
 
 		Particle *result = new Particle(pos, vel, TimeUtils::Now() + std::chrono::nanoseconds(static_cast<long long>(ttl * 1000000000)));
 		result->SetID(m_simManager->nextID());

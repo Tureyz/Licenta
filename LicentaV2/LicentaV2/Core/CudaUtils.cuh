@@ -180,6 +180,10 @@ namespace CudaUtils
 
 	__device__ bool GetBit(const char byte, const int bitIndex);
 
+	__device__ void SetLength(float3 &v, const float length);
+
+	__device__ void ClampLength(float3 &v, const float min, const float max);
+
 	void TempStorageGrow(void *&storage, uint64_t &size, const uint64_t requiredSize);
 	//template<typename T>
 	//T *ToRaw(thrust::device_vector<T> &vec);

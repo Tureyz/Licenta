@@ -408,6 +408,24 @@ __device__ bool CudaUtils::GetBit(const char byte, const int bitIndex)
 	return (byte & (1 << bitIndex)) != 0;
 }
 
+__device__ void CudaUtils::SetLength(float3 & v, const float length)
+{
+	float l = len(v);
+
+	assert(l != 0.f);
+
+	v *= length / l;
+}
+
+__device__ void CudaUtils::ClampLength(float3 & v, const float min, const float max)
+{
+	float l = len(v);
+
+	assert(l != 0.f);
+
+	v *= (l < min ? min : l > max ? max : l) / l;
+}
+
 __device__ void CudaUtils::SetBit(char &byte, const int bitIndex)
 {
 	byte |= (1 << bitIndex);

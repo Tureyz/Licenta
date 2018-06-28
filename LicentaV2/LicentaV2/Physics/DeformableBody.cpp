@@ -11,7 +11,7 @@
 
 #include "../Core/DeltaTime.h"
 #include "RigidImpactZone.h"
-
+#include "../Core/TimeUtils.h"
 
 
 
@@ -45,21 +45,21 @@ Physics::DeformableBody::DeformableBody(std::vector<Rendering::VertexFormat> *ve
 	m_density = 100;
 	m_verts = verts;
 	m_indices = indices;
-	m_solverIterations = 5;
-	m_collisionIterations = 3;
-	m_groundHeight = 4.f;
+	m_solverIterations = 4;
+	m_collisionIterations = 2;
+	m_groundHeight = 0.f;
 	m_kStretching = 1.0f;
-	m_kBending = 0.03f;
-	m_kDamping = 0.3f;
+	m_kBending = 0.04f;
+	m_kDamping = 0.05f;
 	m_averageEdgeLength = 0;
-	m_vertexMass = 1.f;
+	m_vertexMass = 0.525f / verts->size();
 
 	CreateClothNodes(verts);
 	CreateTriangles();
 
 	m_averageEdgeLength /= m_edges.size();
 	//m_clothThickness = 1.f / 300;
-	m_clothThickness = m_averageEdgeLength / 20;
+	m_clothThickness = m_averageEdgeLength / 15;
 
 	m_selfCD = new Collision::NarrowSpatialHashing(m_averageEdgeLength * 1.5, 1999, m_clothThickness);
 	ComputeVertexMasses();
@@ -80,11 +80,14 @@ Physics::DeformableBody::DeformableBody(std::vector<Rendering::VertexFormat> *ve
 // 		
 // 	}
 
-	
+	m_crtStep = 0;
+	m_totalSeconds = 0.f;
 }
 
 void Physics::DeformableBody::FixedUpdate()
 {
+	auto start = TimeUtils::Now();
+
 	for (int i = 0; i < 1; ++i)
 	{
 		UpdateTriangles();
@@ -99,7 +102,7 @@ void Physics::DeformableBody::FixedUpdate()
 
 	for (int i = 0; i < m_nodes.size(); ++i)
 	{
-		m_nodes[i]->m_averageVel = (m_nodes[i]->m_projection - m_nodes[i]->m_pos) / Core::TIME_STEP;
+		m_nodes[i]->m_averageVel = (m_nodes[i]->m_projection - m_nodes[i]->m_pos) / Core::PHYSICS_TIME_STEP;
 	}
 
 	SolveCollisions();
@@ -116,12 +119,27 @@ void Physics::DeformableBody::FixedUpdate()
 	{
 		if (!m_nodes[i]->m_isFixed)
 		{
-			m_nodes[i]->m_pos += m_nodes[i]->m_averageVel * Core::TIME_STEP;
+			m_nodes[i]->m_pos += m_nodes[i]->m_averageVel * Core::PHYSICS_TIME_STEP;
 			m_nodes[i]->m_vel = m_nodes[i]->m_averageVel;
 			m_nodes[i]->m_vertexLink->m_position = m_nodes[i]->m_pos;
 		}
 	}
 	//DampVelocities();
+
+	auto end = TimeUtils::Now();
+	
+
+
+	m_totalSeconds += TimeUtils::DurationMS(start, end);
+	m_crtStep++;
+
+	int benchSteps = 1000;
+	if (m_crtStep >= benchSteps)
+	{
+		std::cout << "Avg after " << benchSteps << " steps: " << m_totalSeconds / benchSteps << " ms" << std::endl;
+		m_totalSeconds = 0.f;
+		m_crtStep = 0;
+	}
 }
 
 void Physics::DeformableBody::SolveConstraints()
@@ -243,7 +261,7 @@ void Physics::DeformableBody::AdvanceVertices()
 
 	for (int i = 0; i < m_nodes.size(); ++i)
 	{
-		m_nodes[i]->m_projection = m_nodes[i]->m_pos + m_nodes[i]->m_vel * Core::TIME_STEP;
+		m_nodes[i]->m_projection = m_nodes[i]->m_pos + m_nodes[i]->m_vel * Core::PHYSICS_TIME_STEP * 0.98f;
 		m_nodes[i]->m_colliding = false;
 	}
 }
@@ -319,7 +337,7 @@ void Physics::DeformableBody::ApplyExternalForces()
 	{
 		if (!m_nodes[i]->m_isFixed)
 		{
-			m_nodes[i]->m_vel += Core::TIME_STEP * Core::GRAVITY_ACCEL / 1.f;
+			m_nodes[i]->m_vel += Core::PHYSICS_TIME_STEP * Core::GRAVITY_ACCEL / 10.f;
 		}
 	}
 }
@@ -601,10 +619,10 @@ void Physics::DeformableBody::ApplyRepulsionForce(Physics::ClothNode *p1, Physic
 		float d = m_clothThickness - glm::dot(x1 * w1 + x2 * w2 + x3 * w3 + x4 * w4, direction);
 
 		float frac = 1.f;
-		if (velMag < frac * d / Core::TIME_STEP)
+		if (velMag < frac * d / Core::PHYSICS_TIME_STEP)
 		{
-			float term1 = Core::TIME_STEP * m_kStretching * d;
-			float term2 = massAvg * ((frac * d / Core::TIME_STEP) - velMag);
+			float term1 = Core::PHYSICS_TIME_STEP * m_kStretching * d;
+			float term2 = massAvg * ((frac * d / Core::PHYSICS_TIME_STEP) - velMag);
 
 			float ir = -(term1 < term2 ? term1 : term2);
 
@@ -789,10 +807,10 @@ void Physics::DeformableBody::ApplyRepulsionForceProj(const Collision::DataStruc
 	{
 		float d = m_clothThickness - glm::dot(x4 - w1 * x1 - w2 * x2 - w3 * x3, pt.m_normal);
 
-		if (velMag < 1.f * d / Core::TIME_STEP)
+		if (velMag < 1.f * d / Core::PHYSICS_TIME_STEP)
 		{
 			float term1 = m_kStretching * d;
-			float term2 = massAvg * ((0.1f * d / Core::TIME_STEP) - velMag);
+			float term2 = massAvg * ((0.1f * d / Core::PHYSICS_TIME_STEP) - velMag);
 
 			float ir = -(term1 < term2 ? term1 : term2);
 

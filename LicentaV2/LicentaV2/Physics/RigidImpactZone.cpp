@@ -15,7 +15,7 @@ void Physics::RigidImpactZone::SolveRigidImpactZones(Collision::NarrowSpatialHas
 
 	int cnt = 0;
 
-	static size_t maxIterations = 10;
+	static size_t maxIterations = 3;
 
 	for (size_t i = 0; i < maxIterations; ++i)
 	{
@@ -165,7 +165,7 @@ void Physics::RigidImpactZone::ApplyRigidVel(std::unordered_set<Physics::ClothNo
 	}
 	glm::vec3 omegaNorm = omega / omegaLen;
 
-	float omegadt = omegaLen * Core::TIME_STEP;
+	float omegadt = omegaLen * Core::PHYSICS_TIME_STEP;
 
 	for (Physics::ClothNode *node : impactZone)
 	{
@@ -173,9 +173,9 @@ void Physics::RigidImpactZone::ApplyRigidVel(std::unordered_set<Physics::ClothNo
 		glm::vec3 xr = node->m_pos - xcm - xf;
 
 
-		glm::vec3 newPos = xcm + Core::TIME_STEP * vcm + xf + std::cos(omegadt) * xr + std::sin(omegadt) * glm::cross(omegaNorm, xr);
+		glm::vec3 newPos = xcm + Core::PHYSICS_TIME_STEP * vcm + xf + std::cos(omegadt) * xr + std::sin(omegadt) * glm::cross(omegaNorm, xr);
 
-		node->m_averageVel = (newPos - node->m_pos) / Core::TIME_STEP;
+		node->m_averageVel = (newPos - node->m_pos) / Core::PHYSICS_TIME_STEP;
 	}
 
 }

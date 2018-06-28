@@ -393,7 +393,7 @@ __device__ bool CudaPrimitiveTests::TestVF(const float3 & x4, const float3 & x1,
 			contact.n = n;
 			contact.t = 0.f;
 
-			if (CudaUtils::isNan(n))
+			if (CudaUtils::isNan(n) || CudaUtils::isZero(n))
 			{
 				printf("VF n nan\n");
 			}

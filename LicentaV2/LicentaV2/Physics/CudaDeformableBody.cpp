@@ -84,6 +84,7 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 
 
 	m_params.thickness = glm::distance(CudaUtils::MakeVec(initPos[0]), CudaUtils::MakeVec(initPos[1])) / 3.f;
+	std::cout << m_params.thickness << std::endl;
 
 	//thrust::host_vector<Rendering::VertexFormat> hVerts = *verts;
 	//m_dVerts.resize(m_verts->size());
@@ -99,57 +100,57 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 
 	//std::vector<std::vector<int>> auxSpringInfo(m_vertexPositions.size(), std::vector<int>());
 
-	thrust::host_vector<thrust::host_vector<int>> springInfo(initPos.size());
-
-
-	thrust::host_vector<int> aIDs;
-	thrust::host_vector<int> bIDs;
-	thrust::host_vector<float> ks;
-	thrust::host_vector<float> l0s;
-
-	for (int i = 0; i < m_params.dims.x; ++i)
-	{
-		for (int j = 0; j < m_params.dims.x; ++j)
-		{			
-
-			if (i + 1 < m_params.dims.x)
-				AddSpring(i, j, i + 1, j, m_params.kStretch, aIDs, bIDs, ks, l0s, springInfo, initPos);
-
-			if (j + 1 < m_params.dims.x)
-				AddSpring(i, j, i, j + 1, m_params.kStretch, aIDs, bIDs, ks, l0s, springInfo, initPos);
-
-			if (i + 1 < m_params.dims.x && j + 1 < m_params.dims.x)
-			{
-				AddSpring(i, j, i + 1, j + 1, m_params.kShear, aIDs, bIDs, ks, l0s, springInfo, initPos);
-				AddSpring(i + 1, j, i, j + 1, m_params.kShear, aIDs, bIDs, ks, l0s, springInfo, initPos);
-			}
-
-			if (i + 2 < m_params.dims.x)
-				AddSpring(i, j, i + 2, j, m_params.kBend, aIDs, bIDs, ks, l0s, springInfo, initPos);
-
-			if (j + 2 < m_params.dims.x)
-				AddSpring(i, j, i, j + 2, m_params.kBend, aIDs, bIDs, ks, l0s, springInfo, initPos);
-
-// 			if (i + 2 < m_dims.first && j + 2 < m_dims.first)
-// 				AddSpring(i, j, i + 2, j + 2, m_bendStiffness, aIDs, bIDs, ks, l0s, springInfo, initPos);
-		}
-	}
-
-	thrust::host_vector<int> springIDs(springInfo.size() + 1);
-	springIDs[0] = 0;
-
-	for (int i = 1; i < springInfo.size() + 1; ++i)
-	{
-		springIDs[i] = springIDs[i - 1] + springInfo[i - 1].size();
-	}
-
-
-	thrust::host_vector<int> linSpringInfo;
-
-	for (auto vec : springInfo)
-	{
-		linSpringInfo.insert(linSpringInfo.end(), vec.begin(), vec.end());
-	}
+//	thrust::host_vector<thrust::host_vector<int>> springInfo(initPos.size());
+//
+//
+//	thrust::host_vector<int> aIDs;
+//	thrust::host_vector<int> bIDs;
+//	thrust::host_vector<float> ks;
+//	thrust::host_vector<float> l0s;
+//
+//	for (int i = 0; i < m_params.dims.x; ++i)
+//	{
+//		for (int j = 0; j < m_params.dims.x; ++j)
+//		{			
+//
+//			if (i + 1 < m_params.dims.x)
+//				AddSpring(i, j, i + 1, j, m_params.kStretch, aIDs, bIDs, ks, l0s, springInfo, initPos);
+//
+//			if (j + 1 < m_params.dims.x)
+//				AddSpring(i, j, i, j + 1, m_params.kStretch, aIDs, bIDs, ks, l0s, springInfo, initPos);
+//
+//			if (i + 1 < m_params.dims.x && j + 1 < m_params.dims.x)
+//			{
+//				AddSpring(i, j, i + 1, j + 1, m_params.kShear, aIDs, bIDs, ks, l0s, springInfo, initPos);
+//				AddSpring(i + 1, j, i, j + 1, m_params.kShear, aIDs, bIDs, ks, l0s, springInfo, initPos);
+//			}
+//
+//			if (i + 2 < m_params.dims.x)
+//				AddSpring(i, j, i + 2, j, m_params.kBend, aIDs, bIDs, ks, l0s, springInfo, initPos);
+//
+//			if (j + 2 < m_params.dims.x)
+//				AddSpring(i, j, i, j + 2, m_params.kBend, aIDs, bIDs, ks, l0s, springInfo, initPos);
+//
+//// 			if (i + 2 < m_dims.first && j + 2 < m_dims.first)
+//// 				AddSpring(i, j, i + 2, j + 2, m_bendStiffness, aIDs, bIDs, ks, l0s, springInfo, initPos);
+//		}
+//	}
+//
+//	thrust::host_vector<int> springIDs(springInfo.size() + 1);
+//	springIDs[0] = 0;
+//
+//	for (int i = 1; i < springInfo.size() + 1; ++i)
+//	{
+//		springIDs[i] = springIDs[i - 1] + springInfo[i - 1].size();
+//	}
+//
+//
+//	thrust::host_vector<int> linSpringInfo;
+//
+//	for (auto vec : springInfo)
+//	{
+//		linSpringInfo.insert(linSpringInfo.end(), vec.begin(), vec.end());
+//	}
 
 
 
@@ -163,22 +164,22 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 	m_dPrevPositions = initPos;
 	m_dPositions = initPos;
 		
-	m_dForces.resize(initPos.size(), make_float3(0, 0, 0));
+	//m_dForces.resize(initPos.size(), make_float3(0, 0, 0));
 
 	initPos.clear();
 
 	m_dVelocities = initVel;
 	m_dMasses = masses;
 	m_dInvMasses = invMasses;
-	m_dSpringIDs = springIDs;
-	m_dLinSpringInfo = linSpringInfo;
+	//m_dSpringIDs = springIDs;
+//	m_dLinSpringInfo = linSpringInfo;
 
-	m_daIDs = aIDs;
-	m_dbIDs = bIDs;
-	m_dks = ks;
-	m_dl0s = l0s;
+//	m_daIDs = aIDs;
+	//m_dbIDs = bIDs;
+//	m_dks = ks;
+//	m_dl0s = l0s;
 
-	m_springCount = aIDs.size();
+//	m_springCount = aIDs.size();
 
 
 
@@ -239,25 +240,25 @@ Physics::CudaDeformableBody::CudaDeformableBody(std::vector<Rendering::VertexFor
 	//m_dAABBCollisionSizes.resize(m_triangleCount); // + 1 for prefix sums
 
 
-	m_dAccumulatedImpulses.resize(m_particleCount);
-	m_impulsesSize = m_particleCount * 4;
+//	m_dAccumulatedImpulses.resize(m_particleCount);
+//	m_impulsesSize = m_particleCount * 4;
 
 	//m_dImpulseIDs.resize(m_impulsesSize);
 	//m_dAltImpulseIDs.resize(m_impulsesSize);
 
-	m_impulseFlags.resize(m_impulsesSize);
+//	m_impulseFlags.resize(m_impulsesSize);
 
-	m_dbImpulseID.buffers[0].resize(m_impulsesSize);
-	m_dbImpulseID.buffers[1].resize(m_impulsesSize);
+//	m_dbImpulseID.buffers[0].resize(m_impulsesSize);
+//	m_dbImpulseID.buffers[1].resize(m_impulsesSize);
 
-	m_dbImpulseValues.buffers[0].resize(m_impulsesSize);
-	m_dbImpulseValues.buffers[1].resize(m_impulsesSize);
+//	m_dbImpulseValues.buffers[0].resize(m_impulsesSize);
+//	m_dbImpulseValues.buffers[1].resize(m_impulsesSize);
 
 	//m_dImpulseValues.resize(m_impulsesSize);
 	//m_dAltImpulseValues.resize(m_impulsesSize);
 
-	m_dImpulseRLEUniques.resize(m_impulsesSize);
-	m_dImpulseRLECounts.resize(m_impulsesSize);
+//	m_dImpulseRLEUniques.resize(m_impulsesSize);
+//	m_dImpulseRLECounts.resize(m_impulsesSize);
 
 
 
@@ -586,16 +587,20 @@ void Physics::CudaDeformableBody::FixedUpdate()
 		m_dTempStorage,	m_dTempStorageSize);
 	m_benchmark->Record("6. PBD Solver(" + std::to_string(m_params.solverIterations) + "x)");
 
+
+
 	m_benchmark->Start();
 	m_pbd.PBDStepIntegration(m_dPositions, m_dPrevPositions, m_dVelocities, m_params.fixedVerts);
 	m_benchmark->Record("7. PBD Integration");
 
+	if (m_params.useFriction)
+	{
+		m_pbd.ApplyFriction(m_dVelocities,
+			m_vfContacts, m_vfContactsSize,
+			m_eeContacts, m_eeContactsSize,
+			m_dTempStorage, m_dTempStorageSize);
+	}
 
-
-	//m_pbd.ApplyFriction(m_dVelocities,
-	//	m_vfContacts, m_vfContactsSize,
-	//	m_eeContacts, m_eeContactsSize,
-	//	m_dTempStorage, m_dTempStorageSize);
 
 	/*ClothInternalDynamics();
 

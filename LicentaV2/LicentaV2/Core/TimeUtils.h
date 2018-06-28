@@ -12,4 +12,6 @@ namespace TimeUtils
 	float NToS(long long nanos);
 	float NToMs(long long nanos);
 	float Duration(TimePointNano lhs, TimePointNano rhs);
+
+	float DurationMS(TimePointNano lhs, TimePointNano rhs);
 }

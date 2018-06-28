@@ -24,3 +24,9 @@ float TimeUtils::Duration(TimePointNano lhs, TimePointNano rhs)
 {
 	return NToS(DurationNano(lhs, rhs));
 }
+
+float TimeUtils::DurationMS(TimePointNano lhs, TimePointNano rhs)
+{
+	return NToMs(DurationNano(lhs, rhs));
+}
+

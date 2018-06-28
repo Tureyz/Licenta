@@ -1,5 +1,5 @@
 ﻿cl : Command line warning D9007: '/Gm' requires '/Zi or /ZI'; option ignored
-  MastersSimulationManager.cpp
-Managers\MastersSimulationManager.cpp(72): warning C4305: 'argument': truncation from 'double' to 'const float'
+  DeformableBody.cpp
+Physics\DeformableBody.cpp(64): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.exe
   LicentaV2.vcxproj -> D:\Git Repos\Licenta\LicentaV2\x64\Debug\LicentaV2.pdb (Full PDB)

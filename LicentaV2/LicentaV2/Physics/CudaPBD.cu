@@ -380,8 +380,8 @@ void CudaPBD::CudaPBD::CreateGroundConstraints(const thrust::device_vector<float
 		m_parentParams.thickness, cu::raw(m_groundConstraints.qc), cu::raw(m_groundConstraints.nc), cu::raw(m_groundConstraints.flag));
 }
 
-void CudaPBD::CudaPBD::CreateSphereConstraints(const thrust::device_vector<float3>& positions,
-	const thrust::device_vector<float3>& prevPositions, const thrust::device_vector<float>& invMasses)
+void CudaPBD::CudaPBD::CreateSphereConstraints(thrust::device_vector<float3>& positions,
+	thrust::device_vector<float3>& prevPositions, const thrust::device_vector<float>& invMasses)
 {
 	if (!m_spherePresent)
 		return;
@@ -391,7 +391,7 @@ void CudaPBD::CudaPBD::CreateSphereConstraints(const thrust::device_vector<float
 	const int numBlocks = cu::nb(particleCount);
 
 	_CreateSphereConstraints << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(prevPositions), cu::raw(invMasses), m_spherePos, m_sphereRadius,
-		m_parentParams.thickness, cu::raw(m_groundConstraints.qc), cu::raw(m_groundConstraints.nc), cu::raw(m_groundConstraints.flag));
+		m_parentParams.thickness, cu::raw(m_sphereConstraints.qc), cu::raw(m_sphereConstraints.nc), cu::raw(m_sphereConstraints.flag));
 }
 
 void CudaPBD::CudaPBD::CreateLRAConstraints(const thrust::device_vector<float3>& positions)
@@ -629,7 +629,7 @@ void CudaPBD::CudaPBD::PBDStepExternal(thrust::device_vector<float3> &positions,
 
 }
 
-void CudaPBD::CudaPBD::PBDStepSolver(thrust::device_vector<float3>& positions, const thrust::device_vector<float3>& prevPositions,
+void CudaPBD::CudaPBD::PBDStepSolver(thrust::device_vector<float3>& positions, thrust::device_vector<float3>& prevPositions,
 	const thrust::device_vector<float>& invMasses,
 	const thrust::device_vector<Physics::PrimitiveContact>& vfContacts, const uint64_t & vfContactsSize,
 	const thrust::device_vector<Physics::PrimitiveContact>& eeContacts, const uint64_t & eeContactsSize,
@@ -641,19 +641,20 @@ void CudaPBD::CudaPBD::PBDStepSolver(thrust::device_vector<float3>& positions, c
 	cudaMemset(cu::raw(m_LRAConstraints.flag), 0, m_LRAConstraints.flag.size() * sizeof(bool));
 
 	CreateGroundConstraints(positions, prevPositions, invMasses);
-	CreateSphereConstraints(positions, prevPositions, invMasses);
 	CreateLRAConstraints(positions);
 
+
+	CreateSphereConstraints(positions, prevPositions, invMasses);
 	for (int i = 0; i < m_parentParams.solverIterations; ++i)
 	{
 		cudaMemset(cu::raw(m_accumulatedCorrectionCounts), 0, m_accumulatedCorrectionCounts.size() * sizeof(int));
 		cudaMemset(cu::raw(m_accumulatedCorrectionValues), 0, m_accumulatedCorrectionValues.size() * sizeof(float3));
 
 		ProjectGroundConstraints(positions, invMasses);
-		ProjectSphereConstraints(positions, invMasses);
 		ProjectLRAConstraints(positions, invMasses);
 		ProjectStaticConstraints(positions, invMasses, m_parentParams.solverIterations);
 		ProjectDynamicConstraints(positions, prevPositions, invMasses, m_parentParams.thickness, vfContacts, vfContactsSize, eeContacts, eeContactsSize, tempStorage, tempStorageSize);
+		ProjectSphereConstraints(positions, invMasses);
 		ApplyCorrections(positions);
 	}
 }
@@ -772,6 +773,12 @@ void CudaPBD::CudaPBD::ApplyFriction(thrust::device_vector<float3>& velocities,
 	void *& tempStorage, uint64_t & tempStorageSize)
 {
 
+	int numBlocks = (m_particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+
+	_DampVelRigid << <numBlocks, CudaUtils::THREADS_PER_BLOCK - 1 >> > (m_particleCount, cu::raw(velocities),
+		m_parentParams.kFriction, cu::raw(m_groundConstraints.flag), cu::raw(m_groundConstraints.nc),
+		cu::raw(m_sphereConstraints.flag), cu::raw(m_sphereConstraints.nc));
+
 	cudaMemset(cu::raw(m_accumulatedVelCorrectionCounts), 0, m_accumulatedVelCorrectionCounts.size() * sizeof(int));
 	cudaMemset(cu::raw(m_accumulatedVelCorrectionValues), 0, m_accumulatedVelCorrectionValues.size() * sizeof(float3));
 
@@ -794,7 +801,7 @@ void CudaPBD::CudaPBD::ApplyFriction(thrust::device_vector<float3>& velocities,
 		m_frictionCorrectionsSize = totalCorrections;
 	}
 
-	int numBlocks = (totalCorrections + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
+	numBlocks = (totalCorrections + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
 	_ApplyFriction << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (cu::raw(velocities), m_parentParams.kFriction,
 		cu::raw(vfContacts), vfContactsSize,
@@ -882,7 +889,7 @@ void CudaPBD::CudaPBD::ProjectGroundConstraints(const thrust::device_vector<floa
 		cu::raw(m_groundConstraints.flag), cu::raw(m_groundConstraints.qc), cu::raw(m_groundConstraints.nc), cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts));
 }
 
-void CudaPBD::CudaPBD::ProjectSphereConstraints(const thrust::device_vector<float3>& positions, const thrust::device_vector<float>& invMasses)
+void CudaPBD::CudaPBD::ProjectSphereConstraints(thrust::device_vector<float3>& positions, const thrust::device_vector<float>& invMasses)
 {
 	if (!m_spherePresent)
 		return;
@@ -891,7 +898,7 @@ void CudaPBD::CudaPBD::ProjectSphereConstraints(const thrust::device_vector<floa
 
 	int numBlocks = (particleCount + CudaUtils::THREADS_PER_BLOCK - 1) / CudaUtils::THREADS_PER_BLOCK;
 
-	_ApplyGroundCorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), cu::raw(invMasses),
+	_ApplySphereCorrections << <numBlocks, CudaUtils::THREADS_PER_BLOCK >> > (particleCount, cu::raw(positions), m_parentParams.thickness,
 		cu::raw(m_sphereConstraints.flag), cu::raw(m_sphereConstraints.qc), cu::raw(m_sphereConstraints.nc), cu::raw(m_accumulatedCorrectionValues), cu::raw(m_accumulatedCorrectionCounts));
 }
 
@@ -1325,9 +1332,9 @@ __device__ void CudaPBD::ProjectEEConstraint(const int id, const int myStart,
 	const float3 pp3 = prevPositions[myContact.v4];
 
 	const float3 cp0 = CudaUtils::AdvancePositionInTimePos(pp0, p0, ct);
-	const float3 cp1 = CudaUtils::AdvancePositionInTimePos(pp1, p0, ct);
-	const float3 cp2 = CudaUtils::AdvancePositionInTimePos(pp2, p1, ct);
-	const float3 cp3 = CudaUtils::AdvancePositionInTimePos(pp3, p2, ct);
+	const float3 cp1 = CudaUtils::AdvancePositionInTimePos(pp1, p1, ct);
+	const float3 cp2 = CudaUtils::AdvancePositionInTimePos(pp2, p2, ct);
+	const float3 cp3 = CudaUtils::AdvancePositionInTimePos(pp3, p3, ct);
 
 	//float s, t;
 
@@ -1500,7 +1507,7 @@ __global__ void CudaPBD::_CreateGroundConstraints(const int particleCount,
 }
 
 __global__ void CudaPBD::_CreateSphereConstraints(const int particleCount,
-	const float3 *__restrict__ positions, const float3 *__restrict__ prevPositions, const float *__restrict__ invMasses,
+	float3 *__restrict__ positions, float3 *__restrict__ prevPositions, const float *__restrict__ invMasses,
 	const float3 spherePos, const float sphereRadius, const float thickness, float3 *__restrict__ qcs, float3 *__restrict__ ncs, bool *__restrict__ flags)
 {
 	int id = CudaUtils::MyID();
@@ -1510,19 +1517,55 @@ __global__ void CudaPBD::_CreateSphereConstraints(const int particleCount,
 	float3 pos = positions[id];
 	float3 prevPos = prevPositions[id];
 
-	if (CudaUtils::distance(pos, spherePos) <= sphereRadius + thickness)
+
+	float3 qc;
+
+	int ret = DeformableUtils::RaySphere(prevPos, pos, spherePos, sphereRadius + thickness, qc);
+	if (ret == -1)
 	{
-
-		float3 l = CudaUtils::normalize(pos - prevPos);
-		float3 qc = prevPos + (-(CudaUtils::dot(l, prevPos - spherePos))) * l;
-
-		float3 nc = CudaUtils::normalize(qc - spherePos);
-		
-
-		qcs[id] = qc;
-		ncs[id] = nc;
-		flags[id] = true;
+		qcs[id] = spherePos + CudaUtils::normalize(qc - spherePos) * (sphereRadius + thickness);
+		ncs[id] = CudaUtils::normalize(qcs[id] - spherePos);
+		prevPositions[id] = qcs[id] + ncs[id] * 0.0001f;
+		positions[id] = qcs[id];
+		//printf("[%d] a intrat de tot lel\n", id);
+		//flags[id] = true;
 	}
+	else if (ret == 1)
+	{
+		qcs[id] = qc;
+		ncs[id] = CudaUtils::normalize(qc - spherePos);
+		positions[id] = qcs[id] + ncs[id] * 0.0001f;
+		//flags[id] = true;
+		//printf("[%d] aici e ok\n", id);
+		assert(!CudaUtils::isNan(ncs[id]));
+	}
+
+	//if (CudaUtils::distance(pos, spherePos) <= sphereRadius + thickness)
+	//{
+	//	float3 qc;
+
+
+
+	//	float3 l = CudaUtils::normalize(pos - prevPos);
+
+	//	// prevPos + l * t;
+
+	//	// t = -0.5 * b/a;
+	//	// a = dot(l, l)
+	//	// b = 2 * dot(l, prevPos - spherePos)
+
+	//	if (CudaUtils::distance(prevPos, spherePos) <= sphereRadius + thickness)		
+	//		qc = spherePos + CudaUtils::normalize(prevPos - spherePos) * (sphereRadius + thickness);
+	//	else
+	//		qc = prevPos + l * (-0.5f * (2 * CudaUtils::dot(l, prevPos - spherePos)) / (CudaUtils::dot(l, l)));
+
+	//	float3 nc = CudaUtils::normalize(qc - spherePos);
+	//	
+
+	//	qcs[id] = qc;
+	//	ncs[id] = nc;
+	//	flags[id] = true;
+	//}
 }
 
 __global__ void CudaPBD::_CreateLRAConstraints(const int particleCount, const int fixedCount,
@@ -1562,18 +1605,51 @@ __global__ void CudaPBD::_ApplyGroundCorrections(const int particleCount, const 
 		float3 qc = qcs[id];
 		float3 nc = ncs[id];
 
-		float w = invMasses[id];
+		//float w = invMasses[id];
 
 		float cVal = CudaUtils::dot(pos - qc, nc);
 
 		if (cVal < 0)
 		{
-			float deriv = nc.x + nc.y + nc.z;
+			//float deriv = nc.x + nc.y + nc.z;
 
+			//assert(deriv != 0);
 
-			accumulatedCors[id] += -(cVal / (w * deriv * deriv)) * w * nc;
+			float3 cor = -cVal * nc;
+
+			accumulatedCors[id] += cor;
 			accumulatedCounts[id] += 1;
+
+
+			//printf("[%d] cor: %f, %f, %f, deriv: %f, nc: %f, %f, %f\n", id, cor.x, cor.y, cor.z, deriv, nc.x, nc.y, nc.z);
+
+			assert(!CudaUtils::isNan(accumulatedCors[id]));
 		}
+	}
+}
+
+__global__ void CudaPBD::_ApplySphereCorrections(const int particleCount, float3 *__restrict__ positions,
+	const float thickness, const bool *__restrict__ flags, const float3 *__restrict__ qcs,
+	float3 *__restrict__ ncs, float3 *__restrict__ accumulatedCors, int *__restrict__ accumulatedCounts)
+{
+	int id = CudaUtils::MyID();
+	if (id >= particleCount)
+		return;
+
+	if (flags[id])
+	{
+		float3 pos = positions[id];
+		float3 qc = qcs[id];
+		float3 nc = ncs[id];
+
+		//float w = invMasses[id];
+		float3 newPos = qc + nc * thickness / 5.f;
+		float3 delta = newPos - pos;
+		//CudaUtils::ClampLength(delta, 0.f, 0.001f);
+
+		positions[id] += delta;
+		//accumulatedCors[id] += qc - pos;
+		//accumulatedCounts[id] += 1;
 	}
 }
 
@@ -1628,10 +1704,22 @@ __global__ void CudaPBD::FinalFrictionStep(const int particleCount, const float 
 	if (id >= particleCount)
 		return;
 
-	if (accumulatedCounts[id] == 0)
+	if (accumulatedCounts[id] == 0 || CudaUtils::isZero(accumulatedCors[id]))
 		return;
 
-	velocities[id] = (1.f - kFriction) * accumulatedCors[id] / accumulatedCounts[id];
+
+	float3 finalNormal = CudaUtils::normalize(accumulatedCors[id]);
+
+	float3 vt, vn;
+
+	CudaUtils::tangentNormal(velocities[id], finalNormal, vt, vn);
+
+	vn *= powf(1.f - kFriction, accumulatedCounts[id]);
+
+
+	velocities[id] = CudaUtils::reflect(vn + vt, finalNormal);
+
+	//velocities[id] = (1.f - kFriction) * accumulatedCors[id] / accumulatedCounts[id];
 }
 
 __global__ void CudaPBD::_ApplyFriction(const float3 *__restrict__ vels, const float kFriction,
@@ -1661,10 +1749,10 @@ __device__ void CudaPBD::_ApplyFrictionVF(const int id, const int myStart,
 
 	Physics::PrimitiveContact myContact = vfs[id];
 
-	float3 v1 = velocities[myContact.v1];
-	float3 v2 = velocities[myContact.v2];
-	float3 v3 = velocities[myContact.v3];
-	float3 v4 = velocities[myContact.v4];
+	//float3 v1 = velocities[myContact.v1];
+	//float3 v2 = velocities[myContact.v2];
+	//float3 v3 = velocities[myContact.v3];
+	//float3 v4 = velocities[myContact.v4];
 
 
 	float3 n = myContact.n;
@@ -1675,34 +1763,34 @@ __device__ void CudaPBD::_ApplyFrictionVF(const int id, const int myStart,
 	rawCorIDs[myStart + 3] = myContact.v4;
 
 
-	/*float w1 = myContact.w1;
-	float w2 = -myContact.w2;
-	float w3 = -myContact.w3;
-	float w4 = -myContact.w4;*/
+	///*float w1 = myContact.w1;
+	//float w2 = -myContact.w2;
+	//float w3 = -myContact.w3;
+	//float w4 = -myContact.w4;*/
 
-	float3 n1, t1, n2, t2, n3, t3, n4, t4;
+	//float3 n1, t1, n2, t2, n3, t3, n4, t4;
 
-	CudaUtils::tangentNormal(v1, n, t1, n1);
-	CudaUtils::tangentNormal(v2, n, t2, n2);
-	CudaUtils::tangentNormal(v3, n, t3, n3);
-	CudaUtils::tangentNormal(v4, n, t4, n4);
+	//CudaUtils::tangentNormal(v1, n, t1, n1);
+	//CudaUtils::tangentNormal(v2, n, t2, n2);
+	//CudaUtils::tangentNormal(v3, n, t3, n3);
+	//CudaUtils::tangentNormal(v4, n, t4, n4);
 
-	//n1 *= (1.f - kFriction);
-	//n2 *= (1.f - kFriction);
-	//n3 *= (1.f - kFriction);
-	//n4 *= (1.f - kFriction);
+	////n1 *= (1.f - kFriction);
+	////n2 *= (1.f - kFriction);
+	////n3 *= (1.f - kFriction);
+	////n4 *= (1.f - kFriction);
 
-	v1 = CudaUtils::reflect(t1 + n1, n);
-	v2 = CudaUtils::reflect(t2 + n2, n);
-	v3 = CudaUtils::reflect(t3 + n3, n);
-	v4 = CudaUtils::reflect(t4 + n4, n);
+	//v1 = CudaUtils::reflect(t1 + n1, n);
+	//v2 = CudaUtils::reflect(t2 + n2, n);
+	//v3 = CudaUtils::reflect(t3 + n3, n);
+	//v4 = CudaUtils::reflect(t4 + n4, n);
 
 	//printf("[%d] VF v1: (%g, %g, %g), v2: (%g, %g, %g), v3: (%g, %g, %g), v4: (%g, %g, %g)\n", id, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z, v4.x, v4.y, v4.z);
 
-	rawCorVals[myStart] = v1;
-	rawCorVals[myStart + 1] = v2;
-	rawCorVals[myStart + 2] = v3;
-	rawCorVals[myStart + 3] = v4;
+	rawCorVals[myStart] = n;
+	rawCorVals[myStart + 1] = n;
+	rawCorVals[myStart + 2] = n;
+	rawCorVals[myStart + 3] = n;
 }
 
 __device__ void CudaPBD::_ApplyFrictionEE(const int id, const int myStart,
@@ -1711,48 +1799,48 @@ __device__ void CudaPBD::_ApplyFrictionEE(const int id, const int myStart,
 {
 	Physics::PrimitiveContact myContact = ees[id];
 
-	float3 v1 = velocities[myContact.v1];
-	float3 v2 = velocities[myContact.v2];
-	float3 v3 = velocities[myContact.v3];
-	float3 v4 = velocities[myContact.v4];
+	//float3 v1 = velocities[myContact.v1];
+	//float3 v2 = velocities[myContact.v2];
+	//float3 v3 = velocities[myContact.v3];
+	//float3 v4 = velocities[myContact.v4];
 
 
 	float3 n = myContact.n;
 
-	rawCorIDs[myStart] = myContact.v1;
-	rawCorIDs[myStart + 1] = myContact.v2;
-	rawCorIDs[myStart + 2] = myContact.v3;
-	rawCorIDs[myStart + 3] = myContact.v4;
+	//rawCorIDs[myStart] = myContact.v1;
+	//rawCorIDs[myStart + 1] = myContact.v2;
+	//rawCorIDs[myStart + 2] = myContact.v3;
+	//rawCorIDs[myStart + 3] = myContact.v4;
 
 
-	//float w1 = myContact.w1;
-	//float w2 = myContact.w2;
-	//float w3 = -myContact.w3;
-	//float w4 = -myContact.w4;
+	////float w1 = myContact.w1;
+	////float w2 = myContact.w2;
+	////float w3 = -myContact.w3;
+	////float w4 = -myContact.w4;
 
-	float3 n1, t1, n2, t2, n3, t3, n4, t4;
+	//float3 n1, t1, n2, t2, n3, t3, n4, t4;
 
-	CudaUtils::tangentNormal(v1, n, t1, n1);
-	CudaUtils::tangentNormal(v2, n, t2, n2);
-	CudaUtils::tangentNormal(v3, n, t3, n3);
-	CudaUtils::tangentNormal(v4, n, t4, n4);
+	//CudaUtils::tangentNormal(v1, n, t1, n1);
+	//CudaUtils::tangentNormal(v2, n, t2, n2);
+	//CudaUtils::tangentNormal(v3, n, t3, n3);
+	//CudaUtils::tangentNormal(v4, n, t4, n4);
 
-	//n1 *= (1.f - kFriction);
-	//n2 *= (1.f - kFriction);
-	//n3 *= (1.f - kFriction);
-	//n4 *= (1.f - kFriction);
+	////n1 *= (1.f - kFriction);
+	////n2 *= (1.f - kFriction);
+	////n3 *= (1.f - kFriction);
+	////n4 *= (1.f - kFriction);
 
-	v1 = CudaUtils::reflect(t1 + n1, n);
-	v2 = CudaUtils::reflect(t2 + n2, n);
-	v3 = CudaUtils::reflect(t3 + n3, n);
-	v4 = CudaUtils::reflect(t4 + n4, n);
+	//v1 = CudaUtils::reflect(t1 + n1, n);
+	//v2 = CudaUtils::reflect(t2 + n2, n);
+	//v3 = CudaUtils::reflect(t3 + n3, n);
+	//v4 = CudaUtils::reflect(t4 + n4, n);
 
 	//printf("[%d] EE v1: (%g, %g, %g), v2: (%g, %g, %g), v3: (%g, %g, %g), v4: (%g, %g, %g)\n", id, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z, v4.x, v4.y, v4.z);
 
-	rawCorVals[myStart] = v1;
-	rawCorVals[myStart + 1] = v2;
-	rawCorVals[myStart + 2] = v3;
-	rawCorVals[myStart + 3] = v4;
+	rawCorVals[myStart] = n;
+	rawCorVals[myStart + 1] = n;
+	rawCorVals[myStart + 2] = n;
+	rawCorVals[myStart + 3] = n;
 }
 
 __global__ void CudaPBD::_AccumulateFriction(const int runCount, const float kFriction,
@@ -1779,8 +1867,48 @@ __global__ void CudaPBD::_AccumulateFriction(const int runCount, const float kFr
 
 	//printf("[%d] accumulatedCors[%d] += (%g, %g, %g)\n", id, myAccID, acc.x, acc.y, acc.z);
 
+	//if (CudaUtils::isZero(acc))
+	//{
+	//	printf("[%d] [%d, %d]\n", id, myStart, myEnd);
+	//}
+
 	accumulatedCors[myAccID] += acc;
 	accumulatedCounts[myAccID] += (myEnd - myStart);
+}
+
+__global__ void CudaPBD::_DampVelRigid(const int particleCount, float3 * __restrict__ vels, const float coef,
+	const bool * __restrict__ groundFlags, const float3 * __restrict__ groundNormals,
+	const bool * __restrict__ sphereFlags, const float3 * __restrict__ sphereNormals)
+{
+	int id = CudaUtils::MyID();
+	if (id >= particleCount)
+		return;
+
+	if (groundFlags[id])
+	{
+		float3 vel = vels[id];
+
+		float3 vt, vn, n = groundNormals[id];
+
+		CudaUtils::tangentNormal(vel, n, vt, vn);
+
+		vn *= (1.f - coef);
+
+		vels[id] = CudaUtils::reflect(vt + vn, n);
+	}
+
+	if (sphereFlags != NULL && sphereFlags[id])
+	{
+		float3 vel = vels[id];
+
+		float3 vt, vn, n = sphereNormals[id];
+
+		CudaUtils::tangentNormal(vel, n, vt, vn);
+
+		vn *= (1.f - coef);
+
+		vels[id] = CudaUtils::reflect(vt + vn, n);
+	}
 }
 
 

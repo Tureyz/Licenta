@@ -32,7 +32,7 @@ Collision::ContactCollection Collision::NarrowSpatialHashing::GetCollisions(std:
 		dp.m_bb.m_thickness = m_h;
 		if (continuous)
 		{
-			dp.m_bb.UpdateValuesUnsorted(point->m_pos, point->GetPositionInTime(Core::TIME_STEP));
+			dp.m_bb.UpdateValuesUnsorted(point->m_pos, point->GetPositionInTime(Core::PHYSICS_TIME_STEP));
 		}
 		else
 		{
@@ -51,7 +51,7 @@ Collision::ContactCollection Collision::NarrowSpatialHashing::GetCollisions(std:
 		de.m_edge = edge;
 		de.m_bb.m_thickness = m_h;
 		if (continuous)
-			de.m_bb.UpdateValuesUnsorted(edge->m_v1->m_pos, edge->m_v1->GetPositionInTime(Core::TIME_STEP), edge->m_v2->m_pos, edge->m_v2->GetPositionInTime(Core::TIME_STEP));
+			de.m_bb.UpdateValuesUnsorted(edge->m_v1->m_pos, edge->m_v1->GetPositionInTime(Core::PHYSICS_TIME_STEP), edge->m_v2->m_pos, edge->m_v2->GetPositionInTime(Core::PHYSICS_TIME_STEP));
 		else
 			de.m_bb.UpdateValuesUnsorted(edge->m_v1->m_pos, edge->m_v2->m_pos);
 
@@ -77,9 +77,9 @@ Collision::ContactCollection Collision::NarrowSpatialHashing::GetCollisions(std:
 		dt.m_bb.m_thickness = m_h;
 		if (continuous)
 		{
-			glm::vec3 x1p = triangle->m_nodes[0]->GetPositionInTime(Core::TIME_STEP);
-			glm::vec3 x2p = triangle->m_nodes[1]->GetPositionInTime(Core::TIME_STEP);
-			glm::vec3 x3p = triangle->m_nodes[2]->GetPositionInTime(Core::TIME_STEP);
+			glm::vec3 x1p = triangle->m_nodes[0]->GetPositionInTime(Core::PHYSICS_TIME_STEP);
+			glm::vec3 x2p = triangle->m_nodes[1]->GetPositionInTime(Core::PHYSICS_TIME_STEP);
+			glm::vec3 x3p = triangle->m_nodes[2]->GetPositionInTime(Core::PHYSICS_TIME_STEP);
 
 			dt.m_bb.UpdateValues(std::vector<glm::vec3>({ x1, x2, x3, x1p, x2p, x3p }));
 		}

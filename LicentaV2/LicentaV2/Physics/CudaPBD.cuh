@@ -164,7 +164,7 @@ namespace CudaPBD
 			void *&tempStorage, uint64_t &tempStorageSize);
 
 
-		void PBDStepSolver(thrust::device_vector<float3> &positions, const thrust::device_vector<float3>& prevPositions,
+		void PBDStepSolver(thrust::device_vector<float3> &positions, thrust::device_vector<float3>& prevPositions,
 			const thrust::device_vector<float> &invMasses,
 			const thrust::device_vector<Physics::PrimitiveContact>& vfContacts, const uint64_t & vfContactsSize,
 			const thrust::device_vector<Physics::PrimitiveContact>& eeContacts, const uint64_t & eeContactsSize,
@@ -188,8 +188,8 @@ namespace CudaPBD
 			const thrust::device_vector<float3> &prevPositions,
 			const thrust::device_vector<float> &invMasses);
 
-		void CreateSphereConstraints(const thrust::device_vector<float3> &positions,
-			const thrust::device_vector<float3> &prevPositions,
+		void CreateSphereConstraints(thrust::device_vector<float3> &positions,
+			thrust::device_vector<float3> &prevPositions,
 			const thrust::device_vector<float> &invMasses);
 
 		void CreateLRAConstraints(const thrust::device_vector<float3> &positions);
@@ -228,7 +228,7 @@ namespace CudaPBD
 		void ProjectGroundConstraints(const thrust::device_vector<float3> &positions,
 			const thrust::device_vector<float> &invMasses);
 
-		void ProjectSphereConstraints(const thrust::device_vector<float3> &positions,
+		void ProjectSphereConstraints(thrust::device_vector<float3> &positions,
 			const thrust::device_vector<float> &invMasses);
 
 		void ProjectLRAConstraints(const thrust::device_vector<float3> &positions,
@@ -250,7 +250,7 @@ namespace CudaPBD
 		float3 * __restrict__ qcs, float3 * __restrict__ ncs, bool * __restrict__ flags);
 
 	__global__ void _CreateSphereConstraints(const int particleCount,
-		const float3 * __restrict__ positions, const float3 * __restrict__ prevPositions,
+		float3 * __restrict__ positions, float3 * __restrict__ prevPositions,
 		const float * __restrict__ invMasses, const float3 spherePos, const float sphereRadius, const float thickness,
 		float3 * __restrict__ qcs, float3 * __restrict__ ncs, bool * __restrict__ flags);
 		
@@ -336,6 +336,11 @@ namespace CudaPBD
 		float3 * __restrict__ ncs,
 		float3 * __restrict__ accumulatedCors, int * __restrict__ accumulatedCounts);
 
+	__global__ void _ApplySphereCorrections(const int particleCount, float3 * __restrict__ positions,
+		const float thickness, const bool * __restrict__ flags, const float3 * __restrict__ qcs,
+		float3 * __restrict__ ncs,
+		float3 * __restrict__ accumulatedCors, int * __restrict__ accumulatedCounts);
+
 	__global__ void _ApplyLRACorrections(const int particleCount, const int fixedCount,
 		const float3 * __restrict__ positions, const float * __restrict__ invMasses,
 		const int * __restrict__ fixedIDs, const float * __restrict__ l0s,
@@ -372,7 +377,9 @@ namespace CudaPBD
 		int * __restrict__ accumulatedCounts);
 
 
-
+	__global__ void _DampVelRigid(const int particleCount, float3 * __restrict__ vels, const float coef,
+		const bool * __restrict__ groundFlags, const float3 * __restrict__ groundNormals,
+		const bool * __restrict__ sphereFlags, const float3 * __restrict__ sphereNormals);
 
 
 
